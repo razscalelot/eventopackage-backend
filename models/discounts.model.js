@@ -9,7 +9,7 @@ let schema = new mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		default: null
 	},
-	items : [
+	services : [
 		
 	]
 }, { timestamps: true, strict: false, autoIndex: true });

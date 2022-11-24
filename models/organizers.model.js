@@ -13,6 +13,10 @@ let schema = new mongoose.Schema({
 		type: String,
 		require: true
 	},
+	address: {
+		type: String,
+		require: true
+	},
 	country_code: {
 		type: String,
 		require: true
