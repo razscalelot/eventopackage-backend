@@ -49,6 +49,7 @@ let discountSchema = new mongoose.Schema({
         type: String,
 		default: ''
     },
+    services:[]
 }, { _id: false });
 let schema = new mongoose.Schema({
     event_category : {
