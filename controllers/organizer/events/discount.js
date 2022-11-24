@@ -67,7 +67,11 @@ exports.getdiscount = async (req, res) => {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid);
+                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
+                    path: "discounts.services",
+                    model: primary.model(constants.MODELS.services, serviceModel),
+                    select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                }).lean();
                 if (eventData && eventData != null) {
                     return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, discounts: eventData.discounts }, res);
                 } else {
