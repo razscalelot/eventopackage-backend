@@ -5,6 +5,6 @@ const responseManager = require('../../utilities/response.manager');
 const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const superadminModel = require('../../models/superadmins.model');
-const subadminModel = require('../../models/subadmins.model');
+const executiveModel = require('../../models/executives.model');
 const mongoose = require('mongoose');
 module.exports = router;

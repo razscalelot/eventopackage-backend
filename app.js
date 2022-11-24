@@ -11,6 +11,7 @@ var fs = require('fs');
 let mongoose = require("mongoose");
 var expressLayouts = require('express-ejs-layouts');
 var indexRouter = require('./routes/index');
+const helper = require('./utilities/helper');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -44,13 +45,20 @@ const organizerpaths = [
   { pathUrl: '/login', routeFile: 'login' },
   { pathUrl: '/register', routeFile: 'register' },
   { pathUrl: '/profile', routeFile: 'profile'},
-  { pathUrl: '/events', routeFile: 'events'}
+  { pathUrl: '/events', routeFile: 'events'},
+  { pathUrl: '/discount', routeFile: 'discount' },
 ];
 const subadminpaths = [
   { pathUrl: '/', routeFile: 'index'}
 ];
 const superadminpaths = [
   { pathUrl: '/login', routeFile: 'login' },
+  { pathUrl: '/discount', routeFile: 'discount' },
+  { pathUrl: '/organizer', routeFile: 'organizer' },
+  { pathUrl: '/event', routeFile: 'event' },
+  { pathUrl: '/admin', routeFile: 'admin' },
+  { pathUrl: '/subadmin', routeFile: 'subadmin' },
+  { pathUrl: '/executive', routeFile: 'executive' }
 ];
 const userpaths = [
   { pathUrl: '/', routeFile: 'index'}
@@ -72,6 +80,12 @@ superadminpaths.forEach((path) => {
 });
 userpaths.forEach((path) => {
 	app.use('/user'+path.pathUrl, require('./routes/users/' + path.routeFile));
+});
+app.get("/encrypet", async (req,res) => {
+  let str = '123456789';
+  let encPass = await helper.passwordEncryptor(str);
+  console.log('encPass', encPass);
+  res.json({encPass : encPass});
 });
 app.use(function(req, res, next) {
   next(createError(404));

@@ -15,7 +15,7 @@ exports.aboutplace = async (req, res) => {
                     price_type: price_type,
                     details: details
                 };
-                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), about: obj });
+                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 return responseManager.onSuccess('Organizer event about data updated successfully!', eventData, res);
             } else {
@@ -28,3 +28,18 @@ exports.aboutplace = async (req, res) => {
         return responseManager.badrequest({ message: 'Invalid token to update event about place data, please try again' }, res);
     }
 };
+exports.getaboutplace = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+        const { eventid } = req.query;
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+            let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid);
+            return responseManager.onSuccess('Organizer event data!',{_id : eventData._id, aboutplace : eventData.aboutplace}, res);
+        } else {
+            return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to get event data, please try again' }, res);
+    }
+}

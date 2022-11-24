@@ -45,3 +45,47 @@ exports.addservice = async (req, res) => {
         return responseManager.badrequest({ message: 'Invalid token to create event service data, please try again' }, res);
     }
 };
+exports.listservice = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        primary.model(constants.MODELS.services, serviceModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
+            return responseManager.onSuccess('Services list!', services, res);
+        }).catch((error) => {
+            return responseManager.onError(error, res);
+        })
+
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to remove category data, please try again' }, res);
+    }
+};
+exports.getoneservice = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+        const { serviceid } = req.body;
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
+            let serviceData = await primary.model(constants.MODELS.services, serviceModel).findById(serviceid);
+            return responseManager.onSuccess('Services data !', serviceData, res);
+        } else {
+            return responseManager.badrequest({ message: 'Invalid service id to get item data, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to get service list, please try again' }, res);
+    }
+};
+exports.removeservice = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+        const { serviceid } = req.body;
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
+            await primary.model(constants.MODELS.services, serviceModel).findOneAndRemove(serviceid);
+            return responseManager.onSuccess('Service removed sucecssfully!', 1, res);
+        } else {
+            return responseManager.badrequest({ message: 'Invalid service id to get item data, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to get service data, please try again' }, res);
+    }
+};

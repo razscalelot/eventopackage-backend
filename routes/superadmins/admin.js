@@ -1,0 +1,10 @@
+let express = require("express");
+let router = express.Router();
+const mongoConnection = require('../../utilities/connections');
+const responseManager = require('../../utilities/response.manager');
+const constants = require('../../utilities/constants');
+const helper = require('../../utilities/helper');
+const superadminModel = require('../../models/superadmins.model');
+const adminModel = require('../../models/admins.model');
+const mongoose = require('mongoose');
+module.exports = router;

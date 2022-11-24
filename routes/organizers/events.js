@@ -14,26 +14,42 @@ const createCtrl = require('../../controllers/organizer/events/create');
 const aboutPlaceCtrl = require('../../controllers/organizer/events/aboutplace');
 const personaldetailCtrl = require('../../controllers/organizer/events/personaldetail');
 const mediaCtrl = require('../../controllers/organizer/events/media');
-const addserviceCtrl = require('../../controllers/organizer/events/addservice');
+const serviceCtrl = require('../../controllers/organizer/events/service');
+const categoryCtrl = require('../../controllers/organizer/events/categories');
 const capacityCtrl = require('../../controllers/organizer/events/capacity');
 const companydetailCtrl = require('../../controllers/organizer/events/companydetail');
 const tandcCtrl = require('../../controllers/organizer/events/tandc');
 const discountCtrl = require('../../controllers/organizer/events/discount');
-
-const arrangementCtrl = require('../../controllers/organizer/events/arrangement');
-const permissionCtrl = require('../../controllers/organizer/events/permission');
-router.post('/create', helper.authenticateToken, createCtrl.createevent);
+// post apis
+router.post('/save', helper.authenticateToken, createCtrl.createevent);
 router.post('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.aboutplace);
 router.post('/personaldetail', helper.authenticateToken, personaldetailCtrl.personaldetail);
 router.post('/media', helper.authenticateToken, mediaCtrl.media);
-router.post('/addservice', helper.authenticateToken, addserviceCtrl.addservice);
 router.post('/capacity', helper.authenticateToken, capacityCtrl.capacity);
 router.post('/companydetail', helper.authenticateToken, companydetailCtrl.companydetail);
 router.post('/tandc', helper.authenticateToken, tandcCtrl.tandc);
 router.post('/discount', helper.authenticateToken, discountCtrl.discount);
-
-router.post('/arrangement', helper.authenticateToken, arrangementCtrl.arrangement);
-router.post('/permission', helper.authenticateToken, permissionCtrl.permission);
+// get apis
+router.get('/', helper.authenticateToken, createCtrl.getevent);
+router.get('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.getaboutplace);
+router.get('/personaldetail', helper.authenticateToken, personaldetailCtrl.getpersonaldetail);
+router.get('/media', helper.authenticateToken, mediaCtrl.getmedia);
+router.get('/capacity', helper.authenticateToken, capacityCtrl.getcapacity);
+router.get('/companydetail', helper.authenticateToken, companydetailCtrl.getcompanydetail);
+router.get('/tandc', helper.authenticateToken, tandcCtrl.gettandc);
+router.get('/discount', helper.authenticateToken, discountCtrl.getdiscount);
+// organizer wise category
+router.post('/addcategory', helper.authenticateToken, categoryCtrl.addcategory);
+router.post('/getonecategory', helper.authenticateToken, categoryCtrl.getonecategory);
+router.post('/removecategory', helper.authenticateToken, categoryCtrl.removecategory);
+router.get('/listcategory', helper.authenticateToken, categoryCtrl.listcategory);
+// end organizer wise category
+// organizer wise services
+router.post('/addservice', helper.authenticateToken, serviceCtrl.addservice);
+router.post('/getoneservice', helper.authenticateToken, serviceCtrl.getoneservice);
+router.post('/removeservice', helper.authenticateToken, serviceCtrl.removeservice);
+router.get('/listservice', helper.authenticateToken, serviceCtrl.listservice);
+// end organizer wise services
 router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('file'), async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         if (req.file) {
