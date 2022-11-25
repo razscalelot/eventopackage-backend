@@ -23,7 +23,9 @@ exports.companydetail = async (req, res) => {
                     area: (req.body.area) ? req.body.area : '',
                     city: (req.body.city) ? req.body.city : '',
                     state: (req.body.state) ? req.body.state : '',
-                    pincode: (req.body.pincode) ? req.body.pincode : ''
+                    pincode: (req.body.pincode) ? req.body.pincode : '',
+                    photos : req.body.photos,
+                    videos : req.body.videos
                 };
                 let primary = mongoConnection.useDb(constants.DEFAULT_DB);
                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), companydetail: obj });

@@ -1,6 +1,7 @@
 const eventModel = require('../../../models/events.model');
 const organizerModel = require('../../../models/organizers.model');
 const serviceModel = require('../../../models/service.model');
+const equipmentModel = require('../../../models/equipments.model');
 const responseManager = require('../../../utilities/response.manager');
 const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
@@ -37,6 +38,7 @@ exports.discount = async (req, res) => {
                                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
                                     path: "discounts.services",
                                     model: primary.model(constants.MODELS.services, serviceModel),
+                                    model: primary.model(constants.MODELS.equipments, equipmentModel),
                                     select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                                 }).lean();
                                 return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
@@ -70,6 +72,7 @@ exports.getdiscount = async (req, res) => {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
                     path: "discounts.services",
                     model: primary.model(constants.MODELS.services, serviceModel),
+                    model: primary.model(constants.MODELS.equipments, equipmentModel),
                     select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                 }).lean();
                 if (eventData && eventData != null) {
