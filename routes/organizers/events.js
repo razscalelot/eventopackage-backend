@@ -22,6 +22,7 @@ const capacityCtrl = require('../../controllers/organizer/events/capacity');
 const companydetailCtrl = require('../../controllers/organizer/events/companydetail');
 const tandcCtrl = require('../../controllers/organizer/events/tandc');
 const discountCtrl = require('../../controllers/organizer/events/discount');
+const calendarCtrl = require('../../controllers/organizer/events/calendar');
 const eventListCtrl = require('../../controllers/organizer/events/list');
 const getoneCtrl = require('../../controllers/organizer/events/getone');
 // post apis
@@ -36,6 +37,7 @@ router.post('/capacity', helper.authenticateToken, capacityCtrl.capacity);
 router.post('/companydetail', helper.authenticateToken, companydetailCtrl.companydetail);
 router.post('/tandc', helper.authenticateToken, tandcCtrl.tandc);
 router.post('/discount', helper.authenticateToken, discountCtrl.discount);
+router.post('/calendar', helper.authenticateToken, calendarCtrl.calendar);
 router.post('/list', helper.authenticateToken, eventListCtrl.list);
 // get apis
 router.get('/', helper.authenticateToken, createCtrl.getevent);
@@ -44,11 +46,12 @@ router.get('/personaldetail', helper.authenticateToken, personaldetailCtrl.getpe
 router.get('/media', helper.authenticateToken, mediaCtrl.getmedia);
 router.get('/getselectservice', helper.authenticateToken, serviceCtrl.getselectservice);
 router.get('/getselectequipment', helper.authenticateToken, equipmentCtrl.getselectequipment);
-router.get('/getothercost', helper.authenticateToken, othercostCtrl.getothercost);
+router.get('/othercost', helper.authenticateToken, othercostCtrl.getothercost);
 router.get('/capacity', helper.authenticateToken, capacityCtrl.getcapacity);
 router.get('/companydetail', helper.authenticateToken, companydetailCtrl.getcompanydetail);
 router.get('/tandc', helper.authenticateToken, tandcCtrl.gettandc);
 router.get('/discount', helper.authenticateToken, discountCtrl.getdiscount);
+router.get('/calendar', helper.authenticateToken, calendarCtrl.getcalendar);
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 // organizer wise category
 router.post('/addcategory', helper.authenticateToken, categoryCtrl.addcategory);
