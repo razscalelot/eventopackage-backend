@@ -69,6 +69,7 @@ let schema = new mongoose.Schema({
     },
     discounts : [discountSchema],
     services:[],
+    equipments:[],
 	createdBy: {
 		type: mongoose.Types.ObjectId,
 		default: null

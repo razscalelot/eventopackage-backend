@@ -9,6 +9,7 @@ let constants = {
         users: 'users',
         events: 'events',
         services: 'services',
+        equipments: 'equipments',
         categories: 'categories',
         discounts : 'discounts'
     }

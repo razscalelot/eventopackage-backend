@@ -15,31 +15,41 @@ const aboutPlaceCtrl = require('../../controllers/organizer/events/aboutplace');
 const personaldetailCtrl = require('../../controllers/organizer/events/personaldetail');
 const mediaCtrl = require('../../controllers/organizer/events/media');
 const serviceCtrl = require('../../controllers/organizer/events/service');
+const equipmentCtrl = require('../../controllers/organizer/events/equipment');
+const othercostCtrl = require('../../controllers/organizer/events/othercost');
 const categoryCtrl = require('../../controllers/organizer/events/categories');
 const capacityCtrl = require('../../controllers/organizer/events/capacity');
 const companydetailCtrl = require('../../controllers/organizer/events/companydetail');
 const tandcCtrl = require('../../controllers/organizer/events/tandc');
 const discountCtrl = require('../../controllers/organizer/events/discount');
+const eventListCtrl = require('../../controllers/organizer/events/list');
+const getoneCtrl = require('../../controllers/organizer/events/getone');
 // post apis
 router.post('/save', helper.authenticateToken, createCtrl.createevent);
 router.post('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.aboutplace);
 router.post('/personaldetail', helper.authenticateToken, personaldetailCtrl.personaldetail);
 router.post('/media', helper.authenticateToken, mediaCtrl.media);
 router.post('/selectservice', helper.authenticateToken, serviceCtrl.selectservice);
+router.post('/selectequipment', helper.authenticateToken, equipmentCtrl.selectequipment);
+router.post('/othercost', helper.authenticateToken, othercostCtrl.othercost);
 router.post('/capacity', helper.authenticateToken, capacityCtrl.capacity);
 router.post('/companydetail', helper.authenticateToken, companydetailCtrl.companydetail);
 router.post('/tandc', helper.authenticateToken, tandcCtrl.tandc);
 router.post('/discount', helper.authenticateToken, discountCtrl.discount);
+router.post('/list', helper.authenticateToken, eventListCtrl.list);
 // get apis
 router.get('/', helper.authenticateToken, createCtrl.getevent);
 router.get('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.getaboutplace);
 router.get('/personaldetail', helper.authenticateToken, personaldetailCtrl.getpersonaldetail);
 router.get('/media', helper.authenticateToken, mediaCtrl.getmedia);
 router.get('/getselectservice', helper.authenticateToken, serviceCtrl.getselectservice);
+router.get('/getselectequipment', helper.authenticateToken, equipmentCtrl.getselectequipment);
+router.get('/getothercost', helper.authenticateToken, othercostCtrl.getothercost);
 router.get('/capacity', helper.authenticateToken, capacityCtrl.getcapacity);
 router.get('/companydetail', helper.authenticateToken, companydetailCtrl.getcompanydetail);
 router.get('/tandc', helper.authenticateToken, tandcCtrl.gettandc);
 router.get('/discount', helper.authenticateToken, discountCtrl.getdiscount);
+router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 // organizer wise category
 router.post('/addcategory', helper.authenticateToken, categoryCtrl.addcategory);
 router.post('/getonecategory', helper.authenticateToken, categoryCtrl.getonecategory);
@@ -52,6 +62,12 @@ router.post('/getoneservice', helper.authenticateToken, serviceCtrl.getoneservic
 router.post('/removeservice', helper.authenticateToken, serviceCtrl.removeservice);
 router.get('/listservice', helper.authenticateToken, serviceCtrl.listservice);
 // end organizer wise services
+// organizer wise equipment
+router.post('/addequipment', helper.authenticateToken, equipmentCtrl.addequipment);
+router.post('/getoneequipment', helper.authenticateToken, equipmentCtrl.getoneequipment);
+router.post('/removeequipment', helper.authenticateToken, equipmentCtrl.removeequipment);
+router.get('/listequipment', helper.authenticateToken, equipmentCtrl.listequipment);
+// end organizer wise equipment
 router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('file'), async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         if (req.file) {
