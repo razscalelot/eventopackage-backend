@@ -110,7 +110,7 @@ exports.removeservice = async (req, res) => {
             const { serviceid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
-                await primary.model(constants.MODELS.services, serviceModel).findOneAndRemove(serviceid);
+                await primary.model(constants.MODELS.services, serviceModel).findByIdAndRemove(serviceid.toString().trim());
                 return responseManager.onSuccess('Service removed sucecssfully!', 1, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid service id to get item data, please try again' }, res);
