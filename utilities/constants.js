@@ -11,7 +11,8 @@ let constants = {
         services: 'services',
         equipments: 'equipments',
         categories: 'categories',
-        discounts : 'discounts'
+        discounts : 'discounts',
+        ourproduct : 'ourproduct'
     }
 };
 module.exports = constants;

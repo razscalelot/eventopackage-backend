@@ -11,7 +11,7 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         primary.model(constants.MODELS.discounts, dicountModel).find({status : true}).populate({
-            path: "items",
+            path: "services",
             model: primary.model(constants.MODELS.services, serviceModel),
             select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
         }).lean().then((dicsounts) => {
@@ -29,7 +29,7 @@ router.post('/getone', helper.authenticateToken, async (req, res) => {
         if(discountid && discountid != '' && mongoose.Types.ObjectId.isValid(discountid)){
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             primary.model(constants.MODELS.discounts, dicountModel).findById(discountid).populate({
-                path: "items",
+                path: "services",
                 model: primary.model(constants.MODELS.services, serviceModel),
                 select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
             }).lean().then((dicsount) => {
