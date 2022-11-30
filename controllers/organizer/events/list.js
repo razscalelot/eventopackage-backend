@@ -16,9 +16,8 @@ exports.list = async (req, res) => {
             const { page, limit, search } = req.body;
             await primary.model(constants.MODELS.events, eventModel).paginate({
                 $or: [
-                    { name : { '$regex' : new RegExp(search, "i") } },
+                    { display_name : { '$regex' : new RegExp(search, "i") } },
                     { event_type : { '$regex' : new RegExp(search, "i") } },
-                    { other : { '$regex' : new RegExp(search, "i") } }
                 ],
                 createdBy : mongoose.Types.ObjectId(req.token.organizerid)
             },{
