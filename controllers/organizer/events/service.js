@@ -130,13 +130,13 @@ exports.selectservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid, services } = req.body;
+            const { eventid, services } = req.body;            
             let finalServices = [];
             async.forEachSeries(services, (service, next_service) => {
                 if (service && service.length > 0) {
                     finalServices.push(service);
                 } else {
-                    finalDiscount.push(services);
+                    finalServices.push(services);
                 }
                 next_service();
             }, () => {
