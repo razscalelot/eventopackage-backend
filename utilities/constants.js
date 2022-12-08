@@ -12,7 +12,12 @@ let constants = {
         equipments: 'equipments',
         categories: 'categories',
         discounts : 'discounts',
-        ourproduct : 'ourproduct'
+        ourproduct : 'ourproduct',
+        notifications : 'notifications',
+        promotionplans : 'promotionplans',
+        customerimports : 'customerimports',
+        settings : 'settings',
+        notificationcoupons : 'notificationcoupons'
     }
 };
 module.exports = constants;

@@ -109,7 +109,7 @@ router.post('/remove', helper.authenticateToken, async (req, res) => {
             if(organizerid && organizerid != '' && mongoose.Types.ObjectId.isValid(organizerid)){
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndRemove(organizerid);
                 await primary.model(constants.MODELS.events, eventModel).deleteMany({createdBy : mongoose.Types.ObjectId(organizerid)});
-                return responseManager.onSuccess('Organizer removed sucecssfully!', 1, res);
+                return responseManager.onSuccess('Organizer removed successsfully!', 1, res);
             }else{
                 return responseManager.badrequest({ message: 'Invalid organizer id to remove organizer, please try again' }, res);
             }
