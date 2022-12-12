@@ -13,7 +13,7 @@ const config = {
 };
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, phone_no, country_code, password, refer_code, fcm_token } = req.body;
+    const { name, email, phone_no, country_code, password, refer_code } = req.body;
     if(name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && phone_no && phone_no.length == 10 && country_code && country_code.trim() != '' && password && password.length >= 6){
         let ecnPassword = await helper.passwordEncryptor(password);
         let my_referCode = await helper.makeid(6);
@@ -28,8 +28,7 @@ router.post('/', async (req, res, next) => {
                 password : ecnPassword,
                 refer_code : refer_code,
                 my_refer_code : my_referCode,
-                fcm_token : fcm_token,
-                status : false,
+                status : true,
                 mobileverified : false,
             };
             const url = process.env.FACTOR_URL + phone_no + "/AUTOGEN";

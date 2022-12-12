@@ -16,6 +16,8 @@ exports.list = async (req, res) => {
                 $or: [
                     { display_name : { '$regex' : new RegExp(search, "i") } },
                     { event_type : { '$regex' : new RegExp(search, "i") } },
+                    { category_name : { '$regex' : new RegExp(search, "i") } },
+                    { name : { '$regex' : new RegExp(search, "i") } },
                 ],
                 // createdBy : mongoose.Types.ObjectId(req.token.organizerid)
             },{
