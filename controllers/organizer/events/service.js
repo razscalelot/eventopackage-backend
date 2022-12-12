@@ -137,7 +137,7 @@ exports.selectservice = async (req, res) => {
                     finalServices.push(service);
                 } else {
                     finalServices.push(services);
-                }sss
+                }
                 next_service();
             }, () => {
                 (async () => {

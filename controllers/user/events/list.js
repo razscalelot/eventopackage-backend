@@ -11,15 +11,16 @@ exports.list = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
         if (userData && userData.status == true && userData.mobileverified == true) {
-            const { page, limit, search } = req.body;
+            const { page, limit, search, event_type, person_capacity, price } = req.body;
             await primary.model(constants.MODELS.events, eventModel).paginate({
                 $or: [
                     { display_name : { '$regex' : new RegExp(search, "i") } },
-                    { event_type : { '$regex' : new RegExp(search, "i") } },
                     { category_name : { '$regex' : new RegExp(search, "i") } },
                     { name : { '$regex' : new RegExp(search, "i") } },
                 ],
-                // createdBy : mongoose.Types.ObjectId(req.token.organizerid)
+                $or: [
+                    { event_type : { '$regex' : new RegExp(event_type, "i") } },
+                ],
             },{
                 page,       
                 limit: parseInt(limit),

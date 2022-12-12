@@ -4,7 +4,7 @@ const mongoConnection = require('../../utilities/connections');
 const responseManager = require('../../utilities/response.manager');
 const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
-const organizerModel = require('../../models/organizers.model');
+const userModel = require('../../models/users.model');
 let fileHelper = require('../../utilities/multer.functions');
 const AwsCloud = require('../../utilities/aws');
 const allowedContentTypes = require("../../utilities/content-types");
@@ -12,20 +12,20 @@ const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        organizerData.s3Url = process.env.AWS_BUCKET_URI;
-        return responseManager.onSuccess('Organizer profile!', organizerData, res);
+        let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
+        userData.s3Url = process.env.AWS_BUCKET_URI;
+        return responseManager.onSuccess('User profile!', userData, res);
     }else{
-        return responseManager.badrequest({ message: 'Invalid token to get organizer profile, please try again' }, res);
+        return responseManager.badrequest({ message: 'Invalid token to get user profile, please try again' }, res);
     }
 });
 router.post('/', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { name, dob, city, pincode, state, country, about } = req.body;
-    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let obj = {
             name : name,
@@ -35,14 +35,14 @@ router.post('/', helper.authenticateToken, async (req, res, next) => {
             state : state,
             country : country,
             about : about,
-            updatedBy : mongoose.Types.ObjectId(req.token.organizerid)
+            updatedBy : mongoose.Types.ObjectId(req.token.userid)
         };
-        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(req.token.organizerid, obj);
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        organizerData.s3Url = process.env.AWS_BUCKET_URI;
-        return responseManager.onSuccess('Organizer profile updated successfully!', organizerData, res);
+        await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(req.token.userid, obj);
+        let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
+        userData.s3Url = process.env.AWS_BUCKET_URI;
+        return responseManager.onSuccess('User profile updated successfully!', userData, res);
     }else{
-        return responseManager.badrequest({ message: 'Invalid token to update organizer profile, please try again' }, res);
+        return responseManager.badrequest({ message: 'Invalid token to update user profile, please try again' }, res);
     }
 });
 router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.single('file'), async (req, res, next) => {
