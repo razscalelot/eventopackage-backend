@@ -12,11 +12,12 @@ exports.addservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { serviceid, name, price, price_type, quantity } = req.body;
+            const { eventid, serviceid, name, price, price_type, quantity } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
+            if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid) && eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
                     let obj = {
+                        eventid: eventid,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -34,6 +35,7 @@ exports.addservice = async (req, res) => {
             } else {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
                     let obj = {
+                        eventid: eventid,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -62,12 +64,18 @@ exports.listservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+            const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            primary.model(constants.MODELS.services, serviceModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
-                return responseManager.onSuccess('Services list!', services, res);
-            }).catch((error) => {
-                return responseManager.onError(error, res);
-            })
+            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                primary.model(constants.MODELS.services, serviceModel).find({ $and: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }, { eventid: eventid }] }).lean().then((services) => {
+                    return responseManager.onSuccess('Services list!', services, res);
+                }).catch((error) => {
+                    return responseManager.onError(error, res);
+                })
+            }
+            else {
+                return responseManager.badrequest({ message: 'Invalid event id to get item data, please try again' }, res);
+            }
         } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to update event data, please try again' }, res);
         }
@@ -130,7 +138,7 @@ exports.selectservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid, services } = req.body;            
+            const { eventid, services } = req.body;
             let finalServices = [];
             async.forEachSeries(services, (service, next_service) => {
                 if (service && service.length > 0) {
