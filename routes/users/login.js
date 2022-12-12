@@ -7,7 +7,7 @@ const helper = require('../../utilities/helper');
 const userModel = require('../../models/users.model');
 const axios = require('axios');
 const config = {
-    headers : {
+    headers: {
         'content-type': 'application/x-www-form-urlencoded'
     }
 };
@@ -18,9 +18,7 @@ router.post('/', async (req, res, next) => {
     if (phone_no && password && phone_no.length == 10 && password.length >= 6) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userData = await primary.model(constants.MODELS.users, userModel).findOne({ phone_no: phone_no, status: true }).lean();
-        console.log("userData", userData);
         if (userData && userData != null && userData.mobileverified == true) {
-            console.log("if userData", userData);
             let decPassword = await helper.passwordDecryptor(userData.password);
             if (decPassword == password) {
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: fcm_token });
@@ -29,20 +27,19 @@ router.post('/', async (req, res, next) => {
             } else {
                 return responseManager.badrequest({ message: 'Invalid password, please try again' }, res);
             }
+        }else if (userData && userData != null && userData.mobileverified == false) {
+            console.log("user key", userData.otpVerifyKey);
+            const url = process.env.FACTOR_URL + userData.phone_no + "/AUTOGEN";
+            let otpSend = await axios.get(url, config);
+            if (otpSend.data.Details) {
+                let u = await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { otpVerifyKey: otpSend.data.Details });
+                console.log("u", u);
+                return responseManager.onSuccess('OTP send!', { key: otpSend.data.Details }, res);
+            } else {
+                return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+            }
         }
-        // else if (userData && userData != null && userData.mobileverified == false) {
-        //     console.log("else if", userData);
-        //     const url = process.env.FACTOR_URL + userData.phone_no + "/AUTOGEN";
-        //     let otpSend = await axios.get(url, config);
-        //     if (otpSend.data.Details) {
-        //         userData.otpVerifyKey = otpSend.data.Details;
-        //         // await primary.model(constants.MODELS.users, userModel).create(obj);
-        //         return responseManager.onSuccess('OTP send!', { key: otpSend.data.Details }, res);
-        //     } else {
-        //         return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-        //     }
-        // }
-        else {            
+        else {
             return responseManager.badrequest({ message: 'Invalid mobile or password please try again' }, res);
         }
     } else {
