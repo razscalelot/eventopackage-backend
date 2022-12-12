@@ -68,7 +68,12 @@ const superadminpaths = [
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'}
 ];
 const userpaths = [
-  { pathUrl: '/', routeFile: 'index'}
+  // { pathUrl: '/', routeFile: 'index'},
+  { pathUrl: '/login', routeFile: 'login' },
+  { pathUrl: '/register', routeFile: 'register' },
+  { pathUrl: '/profile', routeFile: 'profile'},
+  { pathUrl: '/events', routeFile: 'events' },
+  { pathUrl: '/gallery', routeFile: 'gallery' },
 ];
 adminpaths.forEach((path) => {
 	app.use('/admin'+path.pathUrl, require('./routes/admins/' + path.routeFile));
