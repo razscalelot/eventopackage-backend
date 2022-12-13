@@ -55,9 +55,8 @@ router.post('/verifyotp', async (req, res, next) => {
         let userData = await primary.model(constants.MODELS.users, userModel).findOne({phone_no : phone_no, otpVerifyKey : key}).lean();
         if(userData){
             const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
-            let verifiedOTP = await axios.get(url ,config);
-            console.log("verifiedOTP", verifiedOTP)
-            if(verifiedOTP.data.Status == 'Success'){
+            let verifiedOTP = await axios.get(url, config);
+            if(verifiedOTP.data.Status != 'Error'){
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true}).then(() => {
                     return responseManager.onSuccess('User mobile number verified successfully!', 1, res);
                 }).catch((error) => {
@@ -82,12 +81,9 @@ router.post('/forgotpassword', async (req, res) => {
         if(checkExisting){
             const url = process.env.FACTOR_URL + phone_no + "/AUTOGEN";
             let otpSend = await axios.get(url,config);
-            if(otpSend.data.Status == 'Success'){
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details}).then(() => {
-                    return responseManager.onSuccess('User mobile identified and otp sent successfully!', {key : otpSend.data.Details}, res);
-                }).catch((error) => {
-                    return responseManager.onError(error, res);
-                });
+            if(otpSend.data.Details){
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});
+                return responseManager.onSuccess('User mobile identified and otp sent successfully!', {key : otpSend.data.Details}, res);
             }else{
                 return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
             }
