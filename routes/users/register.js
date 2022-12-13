@@ -52,11 +52,11 @@ router.post('/verifyotp', async (req, res, next) => {
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     const { key, otp, phone_no } = req.body;
     if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && phone_no && phone_no.length == 10){
-        let userData = await primary.model(constants.MODELS.users, userModel).findOne({phone_no : phone_no, otpVerifyKey : key}).lean();
+        let userData = await primary.model(constants.MODELS.users, userModel).findOne({$and: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
         if(userData){
             const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url, config);
-            if(verifiedOTP.data.Status != 'Error'){
+            if(verifiedOTP.data.Status == 'Success'){
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true}).then(() => {
                     return responseManager.onSuccess('User mobile number verified successfully!', 1, res);
                 }).catch((error) => {
