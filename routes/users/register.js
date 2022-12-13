@@ -56,9 +56,13 @@ router.post('/verifyotp', async (req, res, next) => {
         if(userData){
             const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url ,config);
+            console.log("verifiedOTP", verifiedOTP)
             if(verifiedOTP.data.Status == 'Success'){
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true});
-                return responseManager.onSuccess('User mobile number verified successfully!', 1, res);
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true}).then(() => {
+                    return responseManager.onSuccess('User mobile number verified successfully!', 1, res);
+                }).catch((error) => {
+                    return responseManager.onError(error, res);
+                });
             }else{
                 return responseManager.badrequest({message : 'Invalid OTP, please try again'}, res);
             }
