@@ -24,12 +24,10 @@ exports.list = async (req, res) => {
                 $or: [
                     { event_type: { '$regex': new RegExp(event_type, "i") } },
                 ],
-            }).populate({
-                path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name description event_type" ,
-                path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic" ,
-                select: 'display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail',
-                lean: true
-            }).lean().then((result) => {
+            }).select("-services -photos -videos -othercost -companydetail -tandc -equipments -discounts -updatedBy -__v").populate([
+                {path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name"},
+                {path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic"}
+            ]).lean().then((result) => {
                 return responseManager.onSuccess("event List", result, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);
