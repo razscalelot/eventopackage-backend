@@ -24,7 +24,7 @@ router.get('/', helper.authenticateToken, async (req, res, next) => {
 router.post('/', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, dob, city, pincode, state, country, about } = req.body;
+    const { name, dob, city, pincode, state, country, address, about } = req.body;
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let obj = {
@@ -34,6 +34,7 @@ router.post('/', helper.authenticateToken, async (req, res, next) => {
             pincode : pincode,
             state : state,
             country : country,
+            address : address,
             about : about,
             updatedBy : mongoose.Types.ObjectId(req.token.organizerid)
         };

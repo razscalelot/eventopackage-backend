@@ -28,7 +28,6 @@ router.post('/', async (req, res, next) => {
                 return responseManager.badrequest({ message: 'Invalid password, please try again' }, res);
             }
         }else if (userData && userData != null && userData.mobileverified == false) {
-            console.log("user key", userData.otpVerifyKey);
             const url = process.env.FACTOR_URL + userData.phone_no + "/AUTOGEN";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
