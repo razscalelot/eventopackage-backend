@@ -52,19 +52,20 @@ router.post('/verifyotp', async (req, res, next) => {
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     const { key, otp, phone_no } = req.body;
     if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && phone_no && phone_no.length == 10){
-        let userData = await primary.model(constants.MODELS.users, userModel).findOne({$and: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
+        let userData = await primary.model(constants.MODELS.users, userModel).find({$or: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
+        console.log("userData", userData);
         if(userData){
-            const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
-            let verifiedOTP = await axios.get(url, config);
-            if(verifiedOTP.data.Status == 'Success'){
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true}).then(() => {
+            ( async () => {
+                let verifiedOTP = await axios.get(url ,config);
+                if(verifiedOTP.data.Status == 'Success'){
+                    await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true});
                     return responseManager.onSuccess('User mobile number verified successfully!', 1, res);
-                }).catch((error) => {
-                    return responseManager.onError(error, res);
-                });
-            }else{
+                }else{
+                    return responseManager.badrequest({message : 'Invalid OTP, please try again'}, res);
+                }
+            })().catch((error) => {
                 return responseManager.badrequest({message : 'Invalid OTP, please try again'}, res);
-            }
+            });
         }else{
             return responseManager.badrequest({message : 'Invalid data to verify user mobile number, please try again'}, res);
         } 
@@ -81,6 +82,7 @@ router.post('/forgotpassword', async (req, res) => {
         if(checkExisting){
             const url = process.env.FACTOR_URL + phone_no + "/AUTOGEN";
             let otpSend = await axios.get(url,config);
+            console.log("otpSend", otpSend);
             if(otpSend.data.Details){
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});
                 return responseManager.onSuccess('User mobile identified and otp sent successfully!', {key : otpSend.data.Details}, res);
