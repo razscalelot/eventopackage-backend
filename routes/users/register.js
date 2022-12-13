@@ -53,7 +53,6 @@ router.post('/verifyotp', async (req, res, next) => {
     const { key, otp, phone_no } = req.body;
     if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && phone_no && phone_no.length == 10){
         let userData = await primary.model(constants.MODELS.users, userModel).find({$or: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
-        console.log("userData", userData);
         if(userData){
             ( async () => {
                 let verifiedOTP = await axios.get(url ,config);
