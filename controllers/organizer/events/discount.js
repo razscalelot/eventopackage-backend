@@ -74,7 +74,7 @@ exports.getdiscount = async (req, res) => {
                     path: "services",
                     model: primary.model(constants.MODELS.services, serviceModel),
                     model: primary.model(constants.MODELS.equipments, equipmentModel),
-                    // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                    select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
             }).lean();
                 if (eventData && eventData != null) {
                     return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, discounts: eventData.discounts }, res);

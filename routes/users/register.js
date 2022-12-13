@@ -28,6 +28,9 @@ router.post('/', async (req, res, next) => {
                 password : ecnPassword,
                 refer_code : refer_code,
                 my_refer_code : my_referCode,
+                f_coin: '',
+                about: '',
+                profile_pic: '',
                 status : true,
                 mobileverified : false,
             };
