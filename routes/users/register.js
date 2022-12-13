@@ -55,6 +55,7 @@ router.post('/verifyotp', async (req, res, next) => {
         let userData = await primary.model(constants.MODELS.users, userModel).find({$or: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
         if(userData){
             ( async () => {
+                const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
                 let verifiedOTP = await axios.get(url ,config);
                 if(verifiedOTP.data.Status == 'Success'){
                     await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {mobileverified : true});
