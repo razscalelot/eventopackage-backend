@@ -37,7 +37,7 @@ exports.discount = async (req, res) => {
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
                                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
                                     path: "discounts.services",
-                                    model: primary.model(constants.MODELS.services, serviceModel),
+                                    model: primary.model(constants.MODELS.service, serviceModel),
                                     model: primary.model(constants.MODELS.equipments, equipmentModel),
                                     select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                                 }).lean();
