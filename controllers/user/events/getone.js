@@ -26,7 +26,7 @@ exports.getone = async (req, res) => {
                 if(eventData && eventData != null){
                     let whishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
-                    eventData.whishlist_status = whishlist != null ? true : false;
+                    eventData.whishlist_status = whishlist.length > 0 ? true : false;
                     eventData.reviews = allreview;
                     return responseManager.onSuccess('User event data!', eventData, res);
                 }else{

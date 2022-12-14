@@ -120,7 +120,7 @@ exports.removeequipment = async (req, res) => {
             const { equipmentid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (equipmentid && equipmentid != '' && mongoose.Types.ObjectId.isValid(equipmentid)) {
-                await primary.model(constants.MODELS.equipments, equipmentModel).findOneAndRemove(equipmentid);
+                await primary.model(constants.MODELS.equipments, equipmentModel).findByIdAndRemove(equipmentid);
                 return responseManager.onSuccess('Equipments removed sucecssfully!', 1, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid equipment id to get item data, please try again' }, res);

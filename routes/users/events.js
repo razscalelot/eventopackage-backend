@@ -9,6 +9,7 @@ const wishlistCtrl = require('../../controllers/user/events/wishlist');
 router.post('/list', helper.authenticateToken, eventListCtrl.list);
 router.post('/review', helper.authenticateToken, ratingCtrl.review);
 router.post('/wishlist', helper.authenticateToken, wishlistCtrl.wishlist);
+router.post('/wishlist/list', helper.authenticateToken, wishlistCtrl.list);
 // get apis
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 
