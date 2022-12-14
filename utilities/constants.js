@@ -9,6 +9,7 @@ let constants = {
         users: 'users',
         events: 'events',
         eventreviews: "eventreviews",
+        eventwishlists: "eventwishlists",
         services: 'services',
         equipments: 'equipments',
         categories: 'categories',

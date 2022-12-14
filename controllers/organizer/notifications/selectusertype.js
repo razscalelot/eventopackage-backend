@@ -16,7 +16,7 @@ exports.selectusertype = async (req, res) => {
                     if (notificationData.usertype && notificationData.usertype == usertype) {
                         return responseManager.onSuccess('Promotion user type set successfully', notificationData, res);
                     } else {
-                        if (usertype == 'eventusers' || usertype == 'shopusers' || usertype == 'onlineofferusers' || usertype == 'livestreamusers' || usertype == 'allusers' || usertype == 'existingusers') {
+                        if (usertype == 'haveyouplace' || usertype == 'personalskillsbusiness' || usertype == 'groupskillsbusiness' || usertype == 'allusers' || usertype == 'existingusers') {
                             await primary.model(constants.MODELS.notifications, notificationModel).findByIdAndUpdate(notificationid, { $unset: { numberofusers: 1, published_location: 1, selected_plan: 1, is_selected_all: 1, selected_users: 1 }, usertype: usertype });
                             let updatednotificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                             return responseManager.onSuccess('Promotion user type set successfully', updatednotificationData, res);

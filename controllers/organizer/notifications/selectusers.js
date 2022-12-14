@@ -14,7 +14,7 @@ exports.selectusers = async (req, res) => {
             if (notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)) {
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                 if (notificationData && notificationData.payment == false && notificationData.createdBy.toString() == req.token.organizerid.toString()) {
-                    if (notificationData.usertype && (notificationData.usertype == 'eventusers' || notificationData.usertype == 'shopusers' || notificationData.usertype == 'onlineofferusers' || notificationData.usertype == 'livestreamusers')) {
+                    if (notificationData.usertype && (notificationData.usertype == 'haveyouplace' || notificationData.usertype == 'personalskillsbusiness' || notificationData.usertype == 'groupskillsbusiness')) {
                         let numberofusersInt = (!isNaN(numberofusers)) ? parseInt(numberofusers) : 0;
                         if (numberofusersInt != 0) {
                             await primary.model(constants.MODELS.notifications, notificationModel).findByIdAndUpdate(notificationid, { numberofusers: numberofusersInt });

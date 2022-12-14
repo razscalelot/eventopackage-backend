@@ -5,6 +5,7 @@ const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
 const categoryModel = require('../../../models/categories.model');
 const organizerModel = require('../../../models/organizers.model');
+const wishlistModel = require('../../../models/eventwishlists.model');
 const mongoose = require('mongoose');
 exports.list = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
@@ -28,6 +29,9 @@ exports.list = async (req, res) => {
                 {path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name"},
                 {path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic"}
             ]).lean().then((result) => {
+                console.log("result", result._id);
+                let whishlist = primary.model(constants.MODELS.eventwishlists, wishlistModel).find({eventid : mongoose.Types.ObjectId(result._id)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
+                result.whishlist_status = whishlist != null ? true : false;
                 return responseManager.onSuccess("event List", result, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

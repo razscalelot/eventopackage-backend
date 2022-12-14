@@ -7,6 +7,7 @@ const categoryModel = require('../../../models/categories.model');
 const serviceModel = require('../../../models/service.model');
 const equipmentModel = require('../../../models/equipments.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
+const wishlistModel = require('../../../models/eventwishlists.model');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,7 +24,9 @@ exports.getone = async (req, res) => {
                     {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
                 ]).lean();
                 if(eventData && eventData != null){
-                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name mobile profilepic"}).lean();
+                    let whishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
+                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
+                    eventData.whishlist_status = whishlist != null ? true : false;
                     eventData.reviews = allreview;
                     return responseManager.onSuccess('User event data!', eventData, res);
                 }else{
