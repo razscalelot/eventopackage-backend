@@ -67,7 +67,7 @@ exports.listservice = async (req, res) => {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.services, serviceModel).find({ $and: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }, { eventid: eventid }] }).lean().then((services) => {
+                primary.model(constants.MODELS.services, serviceModel).find({ eventid: eventid } ).lean().then((services) => {
                     return responseManager.onSuccess('Services list!', services, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);

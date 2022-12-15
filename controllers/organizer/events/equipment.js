@@ -69,7 +69,7 @@ exports.listequipment = async (req, res) => {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.equipments, equipmentModel).find({ $or: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }, { eventid: eventid }] }).lean().then((equipments) => {
+                primary.model(constants.MODELS.equipments, equipmentModel).find({ eventid: eventid }).lean().then((equipments) => {
                     return responseManager.onSuccess('Equipments list!', equipments, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);
