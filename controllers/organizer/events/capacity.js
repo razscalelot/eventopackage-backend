@@ -17,21 +17,21 @@ exports.capacity = async (req, res) => {
             const { eventid, facilities, person_capacity, parking_capacity, address, location } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 if (facilities && facilities.trim() != '' && person_capacity && person_capacity.trim() != '' && parking_capacity && parking_capacity != '') {
-                    // if (latitude && latitude != '' && longitude && longitude != '' && validateLatLng(parseFloat(latitude), parseFloat(longitude))) {
+                    if (latitude && latitude != '' && longitude && longitude != '' && validateLatLng(parseFloat(latitude), parseFloat(longitude))) {
                         let obj = {
                             facilities: facilities,
                             person_capacity: person_capacity,
                             parking_capacity: parking_capacity,
                             address: address,
-                            location: location
+                            location: { type: "Point", coordinates: [longitude, latitude] }
                         };
                         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
                         await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), capacity: obj });
                         let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                         return responseManager.onSuccess('Organizer event capacity data updated successfully!', eventData, res);
-                    // } else {
-                    //     return responseManager.badrequest({ message: 'Invalid Lat-Long data to add event capacity data, please try again' }, res);
-                    // }
+                    } else {
+                        return responseManager.badrequest({ message: 'Invalid Lat-Long data to add event capacity data, please try again' }, res);
+                    }
                 } else {
                     return responseManager.badrequest({ message: 'City, State or Pincode can not be empty to add event capacity data, please try again' }, res);
                 }
