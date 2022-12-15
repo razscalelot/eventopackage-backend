@@ -69,7 +69,7 @@ exports.listequipment = async (req, res) => {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.equipments, equipmentModel).find({ $and: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }, { eventid: eventid }] }).lean().then((equipments) => {
+                primary.model(constants.MODELS.equipments, equipmentModel).find({ $or: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }, { eventid: eventid }] }).lean().then((equipments) => {
                     return responseManager.onSuccess('Equipments list!', equipments, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);
@@ -141,36 +141,40 @@ exports.selectequipment = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             const { eventid, equipments } = req.body;
-            if (equipments && equipments.length > 0) {
-                let finalEquipments = [];
-                async.forEachSeries(equipments, (equipment, next_equipment) => {
+            // if (equipments && equipments.length > 0) {
+            let finalEquipments = [];
+            async.forEachSeries(equipments, (equipment, next_equipment) => {
+                if (equipment && equipment.length > 0) {
                     finalEquipments.push(equipment);
-                    next_equipment();
-                }, () => {
-                    (async () => {
-                        if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                            await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), equipments: finalEquipments });
-                            let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
-                                path: "equipments",
-                                model: primary.model(constants.MODELS.equipments, equipmentModel),
-                                select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
-                            }).lean();
-                            if (eventData && eventData != null) {
-                                return responseManager.onSuccess('Organizer event equipments data updated successfully!', { _id: eventData._id, equipments: eventData.equipments }, res);
-                            } else {
-                                return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
-                            }
+                } else {
+                    finalEquipments.push(equipments);
+                }
+                next_equipment()
+            }, () => {
+                (async () => {
+                    if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), equipments: finalEquipments });
+                        let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
+                            path: "equipments",
+                            model: primary.model(constants.MODELS.equipments, equipmentModel),
+                            select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                        }).lean();
+                        if (eventData && eventData != null) {
+                            return responseManager.onSuccess('Organizer event equipments data updated successfully!', { _id: eventData._id, equipments: eventData.equipments }, res);
                         } else {
-                            return responseManager.badrequest({ message: 'Invalid event id to add event equipments data, please try again' }, res);
+                            return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
                         }
-                    })().catch((error) => {
-                        return responseManager.onError(error, res);
-                    });
+                    } else {
+                        return responseManager.badrequest({ message: 'Invalid event id to add event equipments data, please try again' }, res);
+                    }
+                })().catch((error) => {
+                    return responseManager.onError(error, res);
                 });
-            }
-        } else {
-            return responseManager.badrequest({ message: 'Invalid organizerid to update event, please try again' }, res);
+            });
         }
+        // } else {
+        //     return responseManager.badrequest({ message: 'Invalid organizerid to update event, please try again' }, res);
+        // }
     } else {
         return responseManager.badrequest({ message: 'Invalid token to update event equipments data, please try again' }, res);
     }
