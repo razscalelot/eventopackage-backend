@@ -14,7 +14,7 @@ exports.capacity = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid, facilities, person_capacity, parking_capacity, address, location } = req.body;
+            const { eventid, facilities, person_capacity, parking_capacity, address, longitude, latitude } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 if (facilities && facilities.trim() != '' && person_capacity && person_capacity.trim() != '' && parking_capacity && parking_capacity != '') {
                     if (latitude && latitude != '' && longitude && longitude != '' && validateLatLng(parseFloat(latitude), parseFloat(longitude))) {
