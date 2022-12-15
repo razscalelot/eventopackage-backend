@@ -24,9 +24,9 @@ exports.getone = async (req, res) => {
                     {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
                 ]).lean();
                 if(eventData && eventData != null){
-                    let whishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
+                    let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
-                    eventData.whishlist_status = whishlist.length > 0 ? true : false;
+                    eventData.whishlist_status = (wishlist == null) ? false : true
                     eventData.reviews = allreview;
                     return responseManager.onSuccess('User event data!', eventData, res);
                 }else{
