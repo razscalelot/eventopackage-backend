@@ -9,16 +9,15 @@ exports.review = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
-            const { eventid, ratings, title, review } = req.body;
+            const { eventid, ratings, review } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let existingreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({eventid : mongoose.Types.ObjectId(eventid), userid : mongoose.Types.ObjectId(req.token.userid)}).lean();
                 if(existingreview == null){
-                    if(!isNaN(ratings) && title && title.trim() != '' && review && review.trim() != ''){
+                    if(!isNaN(ratings) && review && review.trim() != ''){
                         let obj = {
                             eventid : mongoose.Types.ObjectId(eventid),
                             userid : mongoose.Types.ObjectId(req.token.userid),
                             ratings : parseFloat(ratings),
-                            title : title,
                             review : review,
                             timestamp : Date.now()
                         };
