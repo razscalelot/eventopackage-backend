@@ -6,25 +6,34 @@ const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const organizerModel = require('../../models/organizers.model');
 const eventModel = require('../../models/events.model');
+const async = require('async');
 const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        const { gallery } = req.query;
-        if (gallery == 'all'){
-            primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select('-_id photos videos').lean().then((gallery) => {
-                return responseManager.onSuccess('Gallery list!', gallery, res);
-            }).catch((error) => {
-                return responseManager.onError(error, res);
-            })
-        }else{            
-            primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select(`-_id ${gallery}`).lean().then((gallery) => {
-                return responseManager.onSuccess('Gallery list!', gallery, res);
-            }).catch((error) => {
-                return responseManager.onError(error, res);
-            })
-        }   
-    } else {
+        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
+        let allEventsImageVideo = [];
+        async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
+            if (imagevideo.photos && imagevideo.photos != '' && imagevideo.videos && imagevideo.videos != '') {
+                async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
+                    photo.eventid = imagevideo._id;
+                    photo.type = 'photo';
+                    allEventsImageVideo.push(photo);
+                    next_photo();
+                });
+                async.forEachSeries(imagevideo.videos, (video, next_video) => {
+                    video.eventid = imagevideo._id;
+                    video.type = 'video';
+                    allEventsImageVideo.push(video);
+                    next_video();
+                });
+            }
+            next_imagevideo();
+        }, () => {
+            return responseManager.onSuccess("Gallery List", allEventsImageVideo, res);
+        });
+    }
+    else {
         return responseManager.badrequest({ message: 'Invalid token to get gallery data please try again' }, res);
     }
 });
