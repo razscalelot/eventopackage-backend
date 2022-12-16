@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
+        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
         let allEventsImageVideo = [];
         async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
             if (imagevideo.photos && imagevideo.photos != '' && imagevideo.videos && imagevideo.videos != '') {

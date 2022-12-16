@@ -5,17 +5,21 @@ const responseManager = require('../../utilities/response.manager');
 const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const eventModel = require('../../models/events.model');
+const categorieModel = require('../../models/categories.model');
 const async = require('async');
 const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true }).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
+        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true }).populate({path : "event_category", model: primary.model(constants.MODELS.categories, categorieModel)}).select("-__v -othercost -services -equipments -discounts -createdAt -companydetail -tandc").lean();
         let allEventsImageVideo = [];
         async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
             if (imagevideo.photos && imagevideo.photos != '' && imagevideo.videos && imagevideo.videos != '') {
                 async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
                     photo.eventid = imagevideo._id;
+                    // photo.event_category = imagevideo.event_category;
+                    // photo.display_name = imagevideo.display_name;
+                    // photo.event_type = imagevideo.event_type;
                     photo.type = 'photo';
                     allEventsImageVideo.push(photo);
                     next_photo();
