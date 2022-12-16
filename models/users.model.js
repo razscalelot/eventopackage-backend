@@ -25,6 +25,10 @@ let schema = new mongoose.Schema({
 		type: String,
 		default: ''
 	},
+	profile_pic: {
+        type: String,
+		default: ''
+    },
     refer_code:{
         type: String,
 		default: ''

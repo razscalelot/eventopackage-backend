@@ -26,6 +26,7 @@ router.post('/', async (req, res, next) => {
                 phone_no : phone_no,
                 country_code : country_code,
                 password : ecnPassword,
+                profile_pic: "",
                 refer_code : (refer_code) ? refer_code : '',
                 my_refer_code : my_referCode,
                 fcm_token : (fcm_token) ? fcm_token : '',
