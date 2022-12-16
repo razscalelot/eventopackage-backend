@@ -52,7 +52,7 @@ exports.list = async (req, res) => {
                 }
                 next_wishlist();
             }, () => {
-                primary.model(constants.MODELS.events, eventModel).find({ _id : { $in : allEventsId }}).populate([
+                primary.model(constants.MODELS.events, eventModel).find({ _id : { $in : allEventsId }}).select("-services -photos -videos -othercost -companydetail -tandc -equipments -discounts -updatedBy -__v").populate([
                     { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name"},
                     { path: 'services', model: primary.model(constants.MODELS.services, serviceModel), select: "-createdBy -updatedBy -eventid -__v"},
                     { path: 'equipments', model: primary.model(constants.MODELS.equipments, equipmentModel)},
