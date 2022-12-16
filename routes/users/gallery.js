@@ -8,7 +8,7 @@ const eventModel = require('../../models/events.model');
 const async = require('async');
 const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
-    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true }).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
         let allEventsImageVideo = [];
