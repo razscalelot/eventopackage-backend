@@ -20,7 +20,7 @@ router.get('/', helper.authenticateToken, async (req, res) => {
         async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
             if (imagevideo.photos && imagevideo.photos != '' && imagevideo.videos && imagevideo.videos != '') {
                 async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
-                    photo.eventid = imagevideo._id;
+                    photo._id = imagevideo._id;
                     photo.event_category = imagevideo.event_category;
                     photo.createdBy = imagevideo.createdBy;
                     photo.display_name = imagevideo.display_name;
@@ -37,7 +37,7 @@ router.get('/', helper.authenticateToken, async (req, res) => {
                     next_photo();
                 });
                 async.forEachSeries(imagevideo.videos, (video, next_video) => {
-                    video.eventid = imagevideo._id;
+                    video._id = imagevideo._id;
                     video.event_category = imagevideo.event_category;
                     video.createdBy = imagevideo.createdBy;
                     video.display_name = imagevideo.display_name;
