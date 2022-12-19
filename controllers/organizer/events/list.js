@@ -13,11 +13,14 @@ exports.list = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { page, limit, search } = req.body;
+            const { page, limit, search, event_type } = req.body;
             await primary.model(constants.MODELS.events, eventModel).paginate({
                 $or: [
                     { display_name : { '$regex' : new RegExp(search, "i") } },
                     { event_type : { '$regex' : new RegExp(search, "i") } },
+                ],
+                $or: [
+                    { event_type : { '$regex' : new RegExp(event_type, "i") } },
                 ],
                 createdBy : mongoose.Types.ObjectId(req.token.organizerid)
             },{

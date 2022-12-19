@@ -22,6 +22,7 @@ exports.addservice = async (req, res) => {
                         price: price,
                         price_type: price_type,
                         quantity: quantity,
+                        isAdded: false,
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
@@ -42,6 +43,7 @@ exports.addservice = async (req, res) => {
                         quantity: quantity,
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
+                        isAdded: false,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
