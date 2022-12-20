@@ -183,8 +183,8 @@ exports.getselectitem = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { itemid } = req.query;
-            if (itemid && itemid != '' && mongoose.Types.ObjectId.isValid(itemid)) {
+            const { eventid } = req.query;
+            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
                     path: "items",
                     model: primary.model(constants.MODELS.items, itemModel),
