@@ -12,7 +12,7 @@ exports.additem = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { itemid, item_type, name, price, price_type, quantity } = req.body;
+            const { itemid, eventType, name, price, price_type, quantity } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (itemid && itemid != '' && mongoose.Types.ObjectId.isValid(itemid)) {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
@@ -33,9 +33,9 @@ exports.additem = async (req, res) => {
                     return responseManager.badrequest({ message: 'Invalid add item name, price, price type and quantity can not be empty, please try again' }, res);
                 }
             } else {
-                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '' && item_type && item_type.trim() != '') {
+                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '' && eventType && eventType.trim() != '') {
                     let obj = {
-                        item_type: item_type,
+                        eventType: eventType,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -66,9 +66,9 @@ exports.listitem = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            const { item_type } = req.query;
+            const { eventType } = req.query;
             // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.items, itemModel).find({ item_type: item_type, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((items) => {
+                primary.model(constants.MODELS.items, itemModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((items) => {
                     return responseManager.onSuccess('Items list!', items, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);

@@ -12,7 +12,7 @@ exports.addservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { serviceid, service_type, name, price, price_type, quantity } = req.body;
+            const { serviceid, eventType, name, price, price_type, quantity } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
@@ -33,9 +33,9 @@ exports.addservice = async (req, res) => {
                     return responseManager.badrequest({ message: 'Invalid add service name, price, price type and quantity can not be empty, please try again' }, res);
                 }
             } else {
-                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '' && service_type && service_type.trim() != '') {
+                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '' && eventType && eventType.trim() != '') {
                     let obj = {
-                        service_type: service_type,
+                        eventType: eventType,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -66,9 +66,9 @@ exports.listservice = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            const { service_type } = req.query;
+            const { eventType } = req.query;
             // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.services, serviceModel).find({ service_type: service_type, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
+                primary.model(constants.MODELS.services, serviceModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
                     return responseManager.onSuccess('Services list!', services, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);
