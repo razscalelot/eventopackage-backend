@@ -8,7 +8,7 @@ const serviceModel = require('../../../models/service.model');
 const equipmentModel = require('../../../models/equipments.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const wishlistModel = require('../../../models/eventwishlists.model');
-const reviewModel = require('../../../models/eventreviews.model');
+const itemModel = require('../../../models/items.model');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
