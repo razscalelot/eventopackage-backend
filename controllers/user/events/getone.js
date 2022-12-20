@@ -35,7 +35,9 @@ exports.getone = async (req, res) => {
                     async.forEachSeries(eventData.services, (service, next_service) => {
                         async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                             discount.services.forEach((element) => {
-                                if(element._id.toString() == service._id.toString()){
+                                if(element._id.toString() == service._id.toString()){ 
+                                    let totalPrice = parseInt(service.price) - (parseInt(service.price) * parseInt(discount.discount) / 100);
+                                    service.totalPrice = totalPrice
                                     service.discount = discount.discount;
                                 }
                             });
@@ -48,6 +50,8 @@ exports.getone = async (req, res) => {
                             async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                 discount.items.forEach((element) => {
                                     if(element._id.toString() == item._id.toString()){
+                                        let totalPrice = parseInt(item.price) - (parseInt(item.price) * parseInt(discount.discount) / 100);
+                                        item.totalPrice = totalPrice
                                         item.discount = discount.discount;
                                     }
                                 });
@@ -60,6 +64,8 @@ exports.getone = async (req, res) => {
                                 async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                     discount.equipments.forEach((element) => {
                                         if(element._id.toString() == equipment._id.toString()){
+                                            let totalPrice = parseInt(equipment.price) - (parseInt(equipment.price) * parseInt(discount.discount) / 100);
+                                            equipment.totalPrice = totalPrice
                                             equipment.discount = discount.discount;
                                         }
                                     });
@@ -69,9 +75,9 @@ exports.getone = async (req, res) => {
                                 next_equipment();
                             }, () => {
                                 ( async () => {
-                                    console.log("allServices", allServices);
-                                    console.log("allItems", allItems);
-                                    console.log("allEquipments", allEquipments);
+                                    // console.log("allServices", allServices);
+                                    // console.log("allItems", allItems);
+                                    // console.log("allEquipments", allEquipments);
                                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                                     eventData.whishlist_status = (wishlist == null) ? false : true

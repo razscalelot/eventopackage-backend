@@ -11,6 +11,12 @@ let schema = new mongoose.Schema({
 	},
 	services : [
 		
+	],
+	items : [
+		
+	],
+	equipments : [
+		
 	]
 }, { timestamps: true, strict: false, autoIndex: true });
 schema.plugin(mongoosePaginate);
