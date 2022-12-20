@@ -32,11 +32,49 @@ exports.getone = async (req, res) => {
                     let allServices = [];
                     let allItems = [];
                     let allEquipments = [];
-                    async.forEachSeries(eventData.services, (service, next_wishlist) => {
+
+                    async.forEachSeries(eventData.services, (service, next_service) => {
+                        async.forEachSeries(eventData.discounts, (discount, next_discount) => {
+                            discount.services.forEach((element) => {
+                                if(element._id.toString() == service._id.toString()){
+                                    service.discount = discount.discount;
+                                }
+                            });
+                            next_discount();
+                        });
                         allServices.push(service);
-                        next_wishlist();
-                    },() => {});
+                        next_service();
+                    });
+                    async.forEachSeries(eventData.items, (item, next_item) => {
+                        async.forEachSeries(eventData.discounts, (discount, next_discount) => {
+                            discount.items.forEach((element) => {
+                                if(element._id.toString() == item._id.toString()){
+                                    item.discount = discount.discount;
+                                }
+                            });
+                            next_discount();
+                        });
+                        allItems.push(item);
+                        next_item();
+                    });
+                    async.forEachSeries(eventData.equipments, (equipment, next_equipment) => {
+                        async.forEachSeries(eventData.discounts, (discount, next_discount) => {
+                            discount.equipments.forEach((element) => {
+                                if(element._id.toString() == equipment._id.toString()){
+                                    equipment.discount = discount.discount;
+                                }
+                            });
+                            next_discount();
+                        });
+                        allEquipments.push(equipment);
+                        next_equipment();
+                    });
+
+
+
                     console.log("allServices", allServices);
+                    console.log("allItems", allItems);
+                    console.log("allEquipments", allEquipments);
                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                     eventData.whishlist_status = (wishlist == null) ? false : true
