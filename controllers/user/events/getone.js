@@ -9,6 +9,7 @@ const equipmentModel = require('../../../models/equipments.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const wishlistModel = require('../../../models/eventwishlists.model');
 const itemModel = require('../../../models/items.model');
+const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,6 +29,14 @@ exports.getone = async (req, res) => {
                     {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
                 ]).lean();
                 if(eventData && eventData != null){
+                    let allServices = [];
+                    let allItems = [];
+                    let allEquipments = [];
+                    async.forEachSeries(eventData.services, (service, next_wishlist) => {
+                        allServices.push(service);
+                        next_wishlist();
+                    },() => {});
+                    console.log("allServices", allServices);
                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                     eventData.whishlist_status = (wishlist == null) ? false : true
