@@ -12,19 +12,18 @@ exports.addservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid, serviceid, name, price, price_type, quantity } = req.body;
+            const { serviceid, service_type, name, price, price_type, quantity } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid) && eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+            if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
                     let obj = {
-                        eventid: eventid,
                         name: name,
                         price: price,
                         price_type: price_type,
                         quantity: quantity,
-                        isAdded: false,
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
+                        isAdded: false,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
                     await primary.model(constants.MODELS.services, serviceModel).findByIdAndUpdate(serviceid, obj);
@@ -34,9 +33,9 @@ exports.addservice = async (req, res) => {
                     return responseManager.badrequest({ message: 'Invalid add service name, price, price type and quantity can not be empty, please try again' }, res);
                 }
             } else {
-                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '') {
+                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && quantity && quantity.trim() != '' && service_type && service_type.trim() != '') {
                     let obj = {
-                        eventid: eventid,
+                        service_type: service_type,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -66,18 +65,18 @@ exports.listservice = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.services, serviceModel).find({ eventid: eventid } ).lean().then((services) => {
+            const { service_type } = req.query;
+            // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                primary.model(constants.MODELS.services, serviceModel).find({ service_type: service_type, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
                     return responseManager.onSuccess('Services list!', services, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);
                 })
-            }
-            else {
-                return responseManager.badrequest({ message: 'Invalid event id to get item data, please try again' }, res);
-            }
+            // }
+            // else {
+            //     return responseManager.badrequest({ message: 'Invalid event id to get item data, please try again' }, res);
+            // }
         } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to update event data, please try again' }, res);
         }

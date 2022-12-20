@@ -1,6 +1,7 @@
 const eventModel = require('../../../models/events.model');
 const organizerModel = require('../../../models/organizers.model');
 const serviceModel = require('../../../models/service.model');
+const itemModel = require('../../../models/items.model');
 const equipmentModel = require('../../../models/equipments.model');
 const responseManager = require('../../../utilities/response.manager');
 const mongoConnection = require('../../../utilities/connections');
@@ -34,12 +35,12 @@ exports.discount = async (req, res) => {
                         (async () => {
                             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
-                                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
-                                    path: "discounts.services",
-                                    model: primary.model(constants.MODELS.services, serviceModel),
-                                    model: primary.model(constants.MODELS.equipments, equipmentModel),
-                                    select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
-                                }).lean();
+                                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
+                                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel)},
+                                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel)},
+                                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel)},
+                                    // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                                ]).lean();
                                 return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
                             } else {
                                 return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
@@ -68,14 +69,11 @@ exports.getdiscount = async (req, res) => {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({
-                    // {path: 'services', model: primary.model(constants.MODELS.services, serviceModel)},
-                    // {path: 'services', model: primary.model(constants.MODELS.equipments, equipmentModel)},
-                    path: "services",
-                    model: primary.model(constants.MODELS.services, serviceModel),
-                    model: primary.model(constants.MODELS.equipments, equipmentModel),
-                    select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
-            }).lean();
+                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
+                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel)},
+                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel)},
+                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel)},
+                ]).lean();
                 if (eventData && eventData != null) {
                     return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, discounts: eventData.discounts }, res);
                 } else {

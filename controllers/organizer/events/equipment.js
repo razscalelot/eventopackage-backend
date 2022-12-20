@@ -12,12 +12,11 @@ exports.addequipment = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid, equipmentid, name, price, price_type } = req.body;
+            const { equipmentid, equipment_type, name, price, price_type } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            if (equipmentid && equipmentid != '' && mongoose.Types.ObjectId.isValid(equipmentid) && eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+            if (equipmentid && equipmentid != '' && mongoose.Types.ObjectId.isValid(equipmentid)) {
                 if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '') {
                     let obj = {
-                        eventid: eventid,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -35,9 +34,9 @@ exports.addequipment = async (req, res) => {
                     return responseManager.badrequest({ message: 'Invalid add equipment name, price and price type can not be empty, please try again' }, res);
                 }
             } else {
-                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '') {
+                if (name && name.trim() != '' && price && price.trim() != '' && price_type && price_type.trim() != '' && equipment_type && equipment_type.trim() != '') {
                     let obj = {
-                        eventid: eventid,
+                        equipment_type: equipment_type,
                         name: name,
                         price: price,
                         price_type: price_type,
@@ -68,18 +67,18 @@ exports.listequipment = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.equipments, equipmentModel).find({ eventid: eventid }).lean().then((equipments) => {
+            const { equipment_type } = req.query;
+            // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                primary.model(constants.MODELS.equipments, equipmentModel).find({equipment_type: equipment_type, createdBy : mongoose.Types.ObjectId(req.token.organizerid)}).lean().then((equipments) => {
                     return responseManager.onSuccess('Equipments list!', equipments, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);
                 })
-            }
-            else {
-                return responseManager.badrequest({ message: 'Invalid event id to get item data, please try again' }, res);
-            }
+            // }
+            // else {
+            //     return responseManager.badrequest({ message: 'Invalid event id to get item data, please try again' }, res);
+            // }
         } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to update event data, please try again' }, res);
         }

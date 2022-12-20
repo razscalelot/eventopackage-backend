@@ -1,30 +1,5 @@
 let mongoose = require("mongoose");
 let mongoosePaginate = require("mongoose-paginate-v2");
-// let serviceSchema = new mongoose.Schema({
-// 	name: { 
-//         type: String,
-// 		trim: true,
-// 		required: true,
-//     },
-//     price: { 
-//         type: String,
-// 		trim: true,
-// 		required: true,
-//     },
-//     price_type: { 
-//         type: String,
-// 		trim: true,
-// 		required: true,
-//     },
-//     quantity: { 
-//         type: String,
-// 		default: ''
-//     },
-//     description: { 
-//         type: String,
-//         default: ''
-//     }
-// }, { _id: false });
 let discountSchema = new mongoose.Schema({
 	discountname: { 
         type: String,
@@ -49,7 +24,9 @@ let discountSchema = new mongoose.Schema({
         type: String,
 		default: ''
     },
-    services:[]
+    services:[],
+    items:[],
+    equipments:[],
 }, { _id: false });
 let schema = new mongoose.Schema({
     event_category : {
@@ -69,6 +46,7 @@ let schema = new mongoose.Schema({
     },
     discounts : [discountSchema],
     services:[],
+    items:[],
     equipments:[],
 	createdBy: {
 		type: mongoose.Types.ObjectId,

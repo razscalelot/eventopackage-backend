@@ -8,6 +8,7 @@ const serviceModel = require('../../../models/service.model');
 const equipmentModel = require('../../../models/equipments.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const wishlistModel = require('../../../models/eventwishlists.model');
+const reviewModel = require('../../../models/eventreviews.model');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,7 +28,7 @@ exports.getone = async (req, res) => {
                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                     eventData.whishlist_status = (wishlist == null) ? false : true
-                    eventData.reviews = allreview;
+                    eventData.reviews = (allreview.length === 0) ? false : allreview;
                     return responseManager.onSuccess('User event data!', eventData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);

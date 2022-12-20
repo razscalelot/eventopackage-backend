@@ -15,6 +15,7 @@ const aboutPlaceCtrl = require('../../controllers/organizer/events/aboutplace');
 const personaldetailCtrl = require('../../controllers/organizer/events/personaldetail');
 const mediaCtrl = require('../../controllers/organizer/events/media');
 const serviceCtrl = require('../../controllers/organizer/events/service');
+const itemCtrl = require('../../controllers/organizer/events/item');
 const equipmentCtrl = require('../../controllers/organizer/events/equipment');
 const othercostCtrl = require('../../controllers/organizer/events/othercost');
 const categoryCtrl = require('../../controllers/organizer/events/categories');
@@ -32,6 +33,7 @@ router.post('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.aboutplace);
 router.post('/personaldetail', helper.authenticateToken, personaldetailCtrl.personaldetail);
 router.post('/media', helper.authenticateToken, mediaCtrl.media);
 router.post('/selectservice', helper.authenticateToken, serviceCtrl.selectservice);
+router.post('/selectitem', helper.authenticateToken, itemCtrl.selectitem);
 router.post('/selectequipment', helper.authenticateToken, equipmentCtrl.selectequipment);
 router.post('/othercost', helper.authenticateToken, othercostCtrl.othercost);
 router.post('/capacity', helper.authenticateToken, capacityCtrl.capacity);
@@ -47,6 +49,7 @@ router.get('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.getaboutplace
 router.get('/personaldetail', helper.authenticateToken, personaldetailCtrl.getpersonaldetail);
 router.get('/media', helper.authenticateToken, mediaCtrl.getmedia);
 router.get('/getselectservice', helper.authenticateToken, serviceCtrl.getselectservice);
+router.get('/getselectitem', helper.authenticateToken, itemCtrl.getselectitem);
 router.get('/getselectequipment', helper.authenticateToken, equipmentCtrl.getselectequipment);
 router.get('/othercost', helper.authenticateToken, othercostCtrl.getothercost);
 router.get('/capacity', helper.authenticateToken, capacityCtrl.getcapacity);
@@ -67,6 +70,12 @@ router.post('/getoneservice', helper.authenticateToken, serviceCtrl.getoneservic
 router.post('/removeservice', helper.authenticateToken, serviceCtrl.removeservice);
 router.get('/listservice', helper.authenticateToken, serviceCtrl.listservice);
 // end organizer wise services
+// organizer wise items
+router.post('/additem', helper.authenticateToken, itemCtrl.additem);
+router.post('/getoneitem', helper.authenticateToken, itemCtrl.getoneitem);
+router.post('/removeitem', helper.authenticateToken, itemCtrl.removeitem);
+router.get('/listitem', helper.authenticateToken, itemCtrl.listitem);
+// end organizer wise items
 // organizer wise equipment
 router.post('/addequipment', helper.authenticateToken, equipmentCtrl.addequipment);
 router.post('/getoneequipment', helper.authenticateToken, equipmentCtrl.getoneequipment);
