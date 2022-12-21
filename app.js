@@ -50,7 +50,7 @@ const organizerpaths = [
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/promotionplan', routeFile: 'promotionplan'},
   { pathUrl: '/notification', routeFile: 'notification'},
-  { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'}
+  { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
 ];
 const subadminpaths = [
   { pathUrl: '/', routeFile: 'index'}
@@ -65,7 +65,8 @@ const superadminpaths = [
   { pathUrl: '/executive', routeFile: 'executive' },
   { pathUrl: '/ourproduct', routeFile: 'ourproduct' },
   { pathUrl: '/promotionplans', routeFile: 'promotionplans'},
-  { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'}
+  { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
+  { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
 ];
 const userpaths = [
   { pathUrl: '/', routeFile: 'index'},
@@ -74,6 +75,7 @@ const userpaths = [
   { pathUrl: '/profile', routeFile: 'profile'},
   { pathUrl: '/events', routeFile: 'events' },
   { pathUrl: '/gallery', routeFile: 'gallery' },
+  { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
 ];
 adminpaths.forEach((path) => {
 	app.use('/admin'+path.pathUrl, require('./routes/admins/' + path.routeFile));

@@ -17,16 +17,21 @@ exports.list = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
-            const { event_type, search } = req.body;
+            const { event_type, price, min_person, max_person, search } = req.body;
             primary.model(constants.MODELS.events, eventModel).find({
                 status: true,
                 $or: [
                     { display_name: { '$regex': new RegExp(search, "i") } },
-                    { event_type: { '$regex': new RegExp(search, "i") } },
-                    { "createdBy.name": { '$regex': new RegExp(search, "i") } },
+                    { event_type: { '$regex': new RegExp(search, "i") } },  
+                    { "personaldetail.city": { '$regex': new RegExp(search, "i") } },
+                    { "personaldetail.state": { '$regex': new RegExp(search, "i") } },
+                    { "capacity.address": { '$regex': new RegExp(search, "i") } },
+
                     { "event_category.category_name": { '$regex': new RegExp(search, "i") } },
                     { "services.name": { '$regex': new RegExp(search, "i") } },
-                    { "capacity.address": { '$regex': new RegExp(search, "i") } }
+                    { "items.name": { '$regex': new RegExp(search, "i") } },
+                    { "equipments.name": { '$regex': new RegExp(search, "i") } },
+                    { "createdBy.name": { '$regex': new RegExp(search, "i") } },
                 ],
                 $and: [
                     { event_type: { '$regex': new RegExp(event_type, "i") } },
