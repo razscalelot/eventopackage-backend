@@ -9,6 +9,7 @@ let discountSchema = new mongoose.Schema({
     isAdded: { 
         type: Boolean,
 		required: true,
+        default: false
     },
 	discountname: { 
         type: String,
