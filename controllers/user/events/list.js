@@ -24,7 +24,6 @@ exports.list = async (req, res) => {
                     { "personaldetail.state": { '$regex': new RegExp(search, "i") } },
                     { "capacity.address": { '$regex': new RegExp(search, "i") } },
                     { totalPrice: { '$regex': new RegExp(price, "i") } },
-
                     { "event_category.category_name": { '$regex': new RegExp(search, "i") } },
                     { "services.name": { '$regex': new RegExp(search, "i") } },
                     { "items.name": { '$regex': new RegExp(search, "i") } },
@@ -79,7 +78,43 @@ exports.list = async (req, res) => {
                         next_event();
                     })().catch((error) => { })
                 }, () => {
-                    return responseManager.onSuccess("event List", allEvents, res);
+                    let finalEvents = [];
+                    async.forEachSeries(allEvents, (xevent, next_xevent) => {
+                        if(min_person && max_person && !isNaN(min_person) && !isNaN(max_person) && parseInt(min_person) != 0 && parseInt(max_person) != 0 && parseInt(min_person) < parseInt(max_person)){
+                            if(price && !isNaN(price) && parseFloat(price) != 0){
+                                if(xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)){
+                                    if(parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)){
+                                        if(parseFloat(price) <= xevent.totalPrice){
+                                            finalEvents.push(xevent);
+                                        }
+                                    }
+                                }else{
+                                    if(parseFloat(price) <= xevent.totalPrice){
+                                        finalEvents.push(xevent);
+                                    }
+                                }
+                            }else{
+                                if(xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)){
+                                    if(parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)){
+                                        finalEvents.push(xevent);
+                                    }
+                                }else{
+                                    finalEvents.push(xevent);
+                                }
+                            }
+                        }else{
+                            if(price && !isNaN(price) && parseFloat(price) != 0){
+                                if(parseFloat(price) <= xevent.totalPrice){
+                                    finalEvents.push(xevent);
+                                }
+                            }else{
+                                finalEvents.push(xevent);
+                            }
+                        }
+                        next_xevent();
+                    }, () => {
+                        return responseManager.onSuccess("event List", finalEvents, res);
+                    });
                 });
             }).catch((error) => {
                 return responseManager.onError(error, res);
