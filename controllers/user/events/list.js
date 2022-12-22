@@ -84,12 +84,12 @@ exports.list = async (req, res) => {
                             if(price && !isNaN(price) && parseFloat(price) != 0){
                                 if(xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)){
                                     if(parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)){
-                                        if(parseFloat(price) <= xevent.totalPrice){
+                                        if(parseFloat(price) >= xevent.totalPrice){
                                             finalEvents.push(xevent);
                                         }
                                     }
                                 }else{
-                                    if(parseFloat(price) <= xevent.totalPrice){
+                                    if(parseFloat(price) >= xevent.totalPrice){
                                         finalEvents.push(xevent);
                                     }
                                 }
@@ -104,7 +104,7 @@ exports.list = async (req, res) => {
                             }
                         }else{
                             if(price && !isNaN(price) && parseFloat(price) != 0){
-                                if(parseFloat(price) <= xevent.totalPrice){
+                                if(parseFloat(price) >= xevent.totalPrice){
                                     finalEvents.push(xevent);
                                 }
                             }else{
