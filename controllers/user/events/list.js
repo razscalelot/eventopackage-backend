@@ -7,9 +7,6 @@ const categoryModel = require('../../../models/categories.model');
 const organizerModel = require('../../../models/organizers.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const wishlistModel = require('../../../models/eventwishlists.model');
-const serviceModel = require('../../../models/service.model');
-const itemModel = require('../../../models/items.model');
-const equipmentModel = require('../../../models/equipments.model');
 const async = require('async');
 const mongoose = require('mongoose');
 exports.list = async (req, res) => {
@@ -22,7 +19,7 @@ exports.list = async (req, res) => {
                 status: true,
                 $or: [
                     { display_name: { '$regex': new RegExp(search, "i") } },
-                    { event_type: { '$regex': new RegExp(search, "i") } },  
+                    { event_type: { '$regex': new RegExp(search, "i") } },
                     { "personaldetail.city": { '$regex': new RegExp(search, "i") } },
                     { "personaldetail.state": { '$regex': new RegExp(search, "i") } },
                     { "capacity.address": { '$regex': new RegExp(search, "i") } },
@@ -36,42 +33,36 @@ exports.list = async (req, res) => {
                 $and: [
                     { event_type: { '$regex': new RegExp(event_type, "i") } },
                 ],
-            }).select('event_category createdBy display_name event_type timestamp status createdAt updatedAt aboutplace personaldetail capacity services items equipments discounts').populate([
+            }).select('event_category createdBy display_name event_type timestamp status createdAt updatedAt aboutplace personaldetail capacity discounts').populate([
                 { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name" },
-                { path: 'services', model: primary.model(constants.MODELS.services, serviceModel) },
-                { path: 'items', model: primary.model(constants.MODELS.items, itemModel) },
-                { path: 'equipments', model: primary.model(constants.MODELS.equipments, equipmentModel) },
-                { path: 'discounts.services', model: primary.model(constants.MODELS.services, serviceModel) },
-                { path: 'discounts.items', model: primary.model(constants.MODELS.items, itemModel) },
-                { path: 'discounts.equipments', model: primary.model(constants.MODELS.equipments, equipmentModel) },
                 { path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic" }
-            ]).lean().then((result) => {               
+            ]).lean().then((result) => {
                 let allEvents = [];
                 async.forEachSeries(result, (event, next_event) => {
-                    (async () => {                        
-                        let price = 0;
-                        async.forEachSeries(event.services, (service, next_service) => {
-                            async.forEachSeries(event.discounts, (discount, next_discount) => {
-                                discount.services.forEach((element) => {
-                                    console.log("element._id service._id", element._id.toString(), service._id.toString());
-                                    if(element._id.toString() == service._id.toString()){ 
-                                        console.log("if");
-                                        let totalPrice = parseInt(service.price) - (parseInt(service.price) * parseInt(discount.discount) / 100);
-                                        price += totalPrice
-                                    }else{
-                                        console.log("else");
-                                        price += parseInt(service.price)
-                                        console.log("price += parseInt(service.price)", parseInt(service.price));
-                                    }
-                                });
-                                next_discount();
-                            });
-                            next_service();
-                        });
+                    (async () => {
                         let noofreview = parseInt(await primary.model(constants.MODELS.eventreviews, eventreviewModel).countDocuments({ eventid: mongoose.Types.ObjectId(event._id) }));
                         let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(event._id), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
-                        event.whishlist_status = (wishlist == null) ? false : true                        
-                        event.price = price;
+                        event.whishlist_status = (wishlist == null) ? false : true
+                        let totalPrice = 0;
+                        async.forEachSeries(event.discounts, (discount, next_discount) => {
+                            if (discount.discounttype === "discount_on_total_bill") {
+                                if (event.aboutplace){
+                                    let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
+                                    totalPrice += getPrice;
+                                }else if(event.personaldetail){
+                                    let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
+                                    totalPrice += getPrice;
+                                }
+                            }else{
+                                if(event.aboutplace){
+                                    totalPrice += event.aboutplace.place_price;
+                                }else{
+                                    totalPrice += event.personaldetail.price;
+                                }
+                            }
+                            next_discount();
+                        });
+                        event.totalPrice = totalPrice
                         if (noofreview > 0) {
                             let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
                             if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {

@@ -24,6 +24,7 @@ exports.addservice = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
                         isAdded: false,
+                        itemCount: 1,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
                     await primary.model(constants.MODELS.services, serviceModel).findByIdAndUpdate(serviceid, obj);
@@ -43,6 +44,7 @@ exports.addservice = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
                         isAdded: false,
+                        itemCount: 1,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };

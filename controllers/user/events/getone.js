@@ -75,19 +75,14 @@ exports.getone = async (req, res) => {
                                 next_equipment();
                             }, () => {
                                 ( async () => {
-                                    // console.log("allServices", allServices);
-                                    // console.log("allItems", allItems);
-                                    // console.log("allEquipments", allEquipments);
                                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
                                     let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({userid : mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(eventid)}).lean();
                                     eventData.whishlist_status = (wishlist == null) ? false : true
                                     eventData.isUserReview  = (currentuserreview == null) ? false : true
-                                    // eventData.reviews = (allreview.length === 0) ? false : allreview;
                                     eventData.reviews = allreview;
                                     return responseManager.onSuccess('User event data!', eventData, res);
-                                })().catch((error) => {});
-                               
+                                })().catch((error) => {});                               
                             });
                         });
                     });

@@ -25,6 +25,7 @@ exports.addequipment = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         videos: (req.body.videos) ? req.body.videos : [],
                         isAdded: false,
+                        itemCount: 1,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                     };
                     await primary.model(constants.MODELS.equipments, equipmentModel).findByIdAndUpdate(equipmentid, obj);
@@ -45,6 +46,7 @@ exports.addequipment = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         videos: (req.body.videos) ? req.body.videos : [],
                         isAdded: false,
+                        itemCount: 1,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };

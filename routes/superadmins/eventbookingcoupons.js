@@ -52,9 +52,9 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                 let timestamp = (expiry_date && expiry_date != '' && expiry_time && expiry_time != '') ? finalDate.getTime() : 0;
                                 let obj = {
                                     code : code.trim().replace(/\s/g, '').toUpperCase(),
-                                    description : description,
                                     amount : amount,
                                     percentage : percentage,
+                                    description : description,
                                     limit : limit,
                                     expiry_date : expiry_date,
                                     expiry_time : expiry_time,

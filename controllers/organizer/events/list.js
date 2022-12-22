@@ -4,8 +4,6 @@ const responseManager = require('../../../utilities/response.manager');
 const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
 const categoryModel = require('../../../models/categories.model');
-const serviceModel = require('../../../models/service.model');
-const equipmentModel = require('../../../models/equipments.model');
 const mongoose = require('mongoose');
 exports.list = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
