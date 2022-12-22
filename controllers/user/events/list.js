@@ -45,7 +45,7 @@ exports.list = async (req, res) => {
                         let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(event._id), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
                         event.whishlist_status = (wishlist == null) ? false : true
                         let totalPrice = 0;
-                        async.forEachSeries(event.discounts, (discount, next_discount) => {
+                        async.forEach(event.discounts, (discount, next_discount) => {
                             if (discount.discounttype === "discount_on_total_bill") {
                                 if (event.aboutplace){
                                     let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
@@ -56,6 +56,14 @@ exports.list = async (req, res) => {
                                 }
                             }
                             next_discount();
+                        }, () => {
+                           if(totalPrice == 0){
+                            if (event.aboutplace){
+                                totalPrice = parseFloat(event.aboutplace.place_price);
+                            }else if(event.personaldetail){
+                                totalPrice = parseFloat(event.personaldetail.price);
+                            }
+                           } 
                         });
                         event.totalPrice = totalPrice
                         if (noofreview > 0) {
