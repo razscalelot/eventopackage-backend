@@ -6,6 +6,10 @@ let discountSchema = new mongoose.Schema({
         trim: true,
 		required: true,
 	},
+    isAdded: { 
+        type: Boolean,
+		required: true,
+    },
 	discountname: { 
         type: String,
 		trim: true,
