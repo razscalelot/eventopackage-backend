@@ -18,24 +18,46 @@ exports.getone = async (req, res) => {
         let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
         if (userData && userData.status == true && userData.mobileverified == true) {
             const { eventid } = req.query;
-            if(eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)){
+            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                    {path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name description event_type"},
-                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
+                    { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name description event_type" },
+                    { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' }
                 ]).lean();
-                if(eventData && eventData != null){
+                if (eventData && eventData != null) {
                     let allServices = [];
                     let allItems = [];
                     let allEquipments = [];
+                    let totalPrice = 0;
+                    async.forEach(eventData.discounts, (discount, next_discount) => {
+                        if (discount.discounttype === "discount_on_total_bill") {
+                            if (eventData.aboutplace) {
+                                let getPrice = parseInt(eventData.aboutplace.place_price) - (parseInt(eventData.aboutplace.place_price) * parseInt(discount.discount) / 100);
+                                totalPrice += getPrice;
+                            } else if (eventData.personaldetail) {
+                                let getPrice = parseInt(eventData.personaldetail.price) - (parseInt(eventData.personaldetail.price) * parseInt(discount.discount) / 100);
+                                totalPrice += getPrice;
+                            }
+                        }
+                        next_discount();
+                    }, () => {
+                        if (totalPrice == 0) {
+                            if (eventData.aboutplace) {
+                                totalPrice = parseFloat(eventData.aboutplace.place_price);
+                            } else if (eventData.personaldetail) {
+                                totalPrice = parseFloat(eventData.personaldetail.price);
+                            }
+                        }
+                        eventData.totalPrice = totalPrice;
+                    });
                     async.forEachSeries(eventData.services, (service, next_service) => {
                         async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                             discount.services.forEach((element) => {
-                                if(element._id.toString() == service._id.toString()){ 
+                                if (element._id.toString() == service._id.toString()) {
                                     let totalPrice = parseInt(service.price) - (parseInt(service.price) * parseInt(discount.discount) / 100);
                                     service.totalPrice = totalPrice
                                     service.discount = discount.discount;
@@ -49,7 +71,7 @@ exports.getone = async (req, res) => {
                         async.forEachSeries(eventData.items, (item, next_item) => {
                             async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                 discount.items.forEach((element) => {
-                                    if(element._id.toString() == item._id.toString()){
+                                    if (element._id.toString() == item._id.toString()) {
                                         let totalPrice = parseInt(item.price) - (parseInt(item.price) * parseInt(discount.discount) / 100);
                                         item.totalPrice = totalPrice
                                         item.discount = discount.discount;
@@ -63,7 +85,7 @@ exports.getone = async (req, res) => {
                             async.forEachSeries(eventData.equipments, (equipment, next_equipment) => {
                                 async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                     discount.equipments.forEach((element) => {
-                                        if(element._id.toString() == equipment._id.toString()){
+                                        if (element._id.toString() == equipment._id.toString()) {
                                             let totalPrice = parseInt(equipment.price) - (parseInt(equipment.price) * parseInt(discount.discount) / 100);
                                             equipment.totalPrice = totalPrice
                                             equipment.discount = discount.discount;
@@ -74,28 +96,28 @@ exports.getone = async (req, res) => {
                                 allEquipments.push(equipment);
                                 next_equipment();
                             }, () => {
-                                ( async () => {
+                                (async () => {
                                     let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
-                                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({eventid : mongoose.Types.ObjectId(eventid)}).populate({path : 'userid', model : primary.model(constants.MODELS.users, userModel), select : "name profile_pic"}).lean();
-                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({userid : mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(eventid)}).lean();
+                                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({ eventid: mongoose.Types.ObjectId(eventid) }).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }).lean();
+                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(eventid) }).lean();
                                     eventData.whishlist_status = (wishlist == null) ? false : true
-                                    eventData.isUserReview  = (currentuserreview == null) ? false : true
+                                    eventData.isUserReview = (currentuserreview == null) ? false : true
                                     eventData.reviews = allreview;
                                     return responseManager.onSuccess('User event data!', eventData, res);
-                                })().catch((error) => {});                               
+                                })().catch((error) => { });
                             });
                         });
                     });
-                }else{
+                } else {
                     return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);
                 }
-            }else{
+            } else {
                 return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);
             }
         } else {
             return responseManager.badrequest({ message: 'Invalid userid to get event data, please try again' }, res);
         }
-    }else{
+    } else {
         return responseManager.badrequest({ message: 'Invalid token to get event data, please try again' }, res);
     }
 };
