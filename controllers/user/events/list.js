@@ -23,6 +23,7 @@ exports.list = async (req, res) => {
                     { "personaldetail.city": { '$regex': new RegExp(search, "i") } },
                     { "personaldetail.state": { '$regex': new RegExp(search, "i") } },
                     { "capacity.address": { '$regex': new RegExp(search, "i") } },
+                    { totalPrice: { '$regex': new RegExp(price, "i") } },
 
                     { "event_category.category_name": { '$regex': new RegExp(search, "i") } },
                     { "services.name": { '$regex': new RegExp(search, "i") } },
@@ -52,12 +53,6 @@ exports.list = async (req, res) => {
                                 }else if(event.personaldetail){
                                     let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
                                     totalPrice += getPrice;
-                                }
-                            }else{
-                                if(event.aboutplace){
-                                    totalPrice += event.aboutplace.place_price;
-                                }else{
-                                    totalPrice += event.personaldetail.price;
                                 }
                             }
                             next_discount();
