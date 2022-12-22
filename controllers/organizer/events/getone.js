@@ -7,6 +7,7 @@ const categoryModel = require('../../../models/categories.model');
 const serviceModel = require('../../../models/service.model');
 const itemModel = require('../../../models/items.model');
 const equipmentModel = require('../../../models/equipments.model');
+const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,6 +25,28 @@ exports.getone = async (req, res) => {
                     {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
                 ]).lean();
                 if(eventData && eventData != null && (eventData.createdBy.toString() == req.token.organizerid.toString())){
+                    let totalPrice = 0;
+                    async.forEach(eventData.discounts, (discount, next_discount) => {
+                        if (discount.discounttype === "discount_on_total_bill") {
+                            if (eventData.aboutplace) {
+                                let getPrice = parseInt(eventData.aboutplace.place_price) - (parseInt(eventData.aboutplace.place_price) * parseInt(discount.discount) / 100);
+                                totalPrice += getPrice;
+                            } else if (eventData.personaldetail) {
+                                let getPrice = parseInt(eventData.personaldetail.price) - (parseInt(eventData.personaldetail.price) * parseInt(discount.discount) / 100);
+                                totalPrice += getPrice;
+                            }
+                        }
+                        next_discount();
+                    }, () => {
+                        if (totalPrice == 0) {
+                            if (eventData.aboutplace) {
+                                totalPrice = parseFloat(eventData.aboutplace.place_price);
+                            } else if (eventData.personaldetail) {
+                                totalPrice = parseFloat(eventData.personaldetail.price);
+                            }
+                        }
+                        eventData.totalPrice = totalPrice;
+                    });
                     return responseManager.onSuccess('Organizer event data!', eventData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);
