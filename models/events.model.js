@@ -1,6 +1,11 @@
 let mongoose = require("mongoose");
 let mongoosePaginate = require("mongoose-paginate-v2");
 let discountSchema = new mongoose.Schema({
+    sid: {
+		type: mongoose.Types.ObjectId,
+        trim: true,
+		required: true,
+	},
 	discountname: { 
         type: String,
 		trim: true,
