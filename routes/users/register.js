@@ -55,7 +55,7 @@ router.post('/verifyotp', async (req, res, next) => {
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     const { key, otp, phone_no } = req.body;
     if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && phone_no && phone_no.length == 10){
-        let userData = await primary.model(constants.MODELS.users, userModel).find({$or: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
+        let userData = await primary.model(constants.MODELS.users, userModel).findOne({$or: [{phone_no : phone_no}, {otpVerifyKey : key}]}).lean();
         if(userData){
             ( async () => {
                 const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
