@@ -16,8 +16,6 @@ router.get('/', helper.authenticateToken, async (req, res) => {
         ]).select("-status -__v -event_type -display_name -event_category -othercost -services -equipments -updatedBy -createdBy -timestamp -discounts -updatedAt -createdAt -aboutplace -personaldetail -capacity -companydetail -tandc").lean();
         let allEventsImageVideo = [];
         async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
-            console.log("photo", imagevideo.photos);
-            console.log("video", imagevideo.videos);
             if (imagevideo.photos && imagevideo.photos != '' || imagevideo.videos && imagevideo.videos != '') {
                 async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
                     photo._id = imagevideo._id;
