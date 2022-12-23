@@ -4,31 +4,32 @@ let discountSchema = new mongoose.Schema({
     sid: {
 		type: mongoose.Types.ObjectId,
         trim: true,
-		required: true,
+		required: false,
 	},
     isAdded: { 
         type: Boolean,
-		required: true,
+		required: false,
         default: false
     },
 	discountname: { 
         type: String,
 		trim: true,
-		required: true,
+		required: false,
     },
     discounttype: { 
         type: String,
 		trim: true,
-		required: true,
+		required: false,
     },
     description: { 
         type: String,
-        default: ''
+        default: '',
+		required: false,
     },
     discount: { 
         type: String,
 		trim: true,
-		required: true,
+		required: false,
     },
     tandc: { 
         type: String,

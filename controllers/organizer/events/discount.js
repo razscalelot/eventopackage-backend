@@ -16,8 +16,8 @@ exports.discount = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             const { eventid, discounts } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                let finalDiscount = [];
                 if (discounts && discounts.length > 0) {
-                    let finalDiscount = [];
                     async.forEachSeries(discounts, (discount, next_discount) => {
                         if (discount.services && discount.services.length > 0) {
                             let serviceArray = [];
@@ -49,6 +49,20 @@ exports.discount = async (req, res) => {
                             return responseManager.onError(error, res);
                         });
                     });
+                }else{
+                    finalDiscount.push(discounts);
+                    if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
+                        let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
+                            {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel)},
+                            {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel)},
+                            {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel)},
+                            // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                        ]).lean();
+                        return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                    } else {
+                        return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
+                    }
                 }
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
