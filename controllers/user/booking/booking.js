@@ -62,6 +62,17 @@ exports.booking = async (req, res) => {
                                         end_timestamp: endTimestamp
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
+                                    let noofreview = parseInt(await primary.model(constants.MODELS.eventreviews, eventreviewModel).countDocuments({ eventid: mongoose.Types.ObjectId(output._id) }));
+                                    if (noofreview > 0) {
+                                        let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(output._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
+                                        if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
+                                            output.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
+                                            // allEvents.push(event);
+                                        }
+                                    } else {
+                                        output.ratings = '0.0';
+                                        // allEvents.push(event);
+                                    }
                                     return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => { 
                                     return responseManager.onError(error, res);
