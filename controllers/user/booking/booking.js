@@ -3,6 +3,7 @@ const responseManager = require('../../../utilities/response.manager');
 const constants = require('../../../utilities/constants');
 const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
+const eventreviewModel = require('../../../models/eventreviews.model');
 const async = require("async");
 const mongoose = require('mongoose');
 exports.booking = async (req, res) => {
