@@ -21,7 +21,7 @@ router.post('/', async (req, res, next) => {
         if (userData && userData != null && userData.mobileverified == true) {
             let decPassword = await helper.passwordDecryptor(userData.password);
             if (decPassword == password) {
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: fcm_token });
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: fcm_token, mobileverified: true });
                 let accessToken = await helper.generateAccessToken({ userid: userData._id.toString() });
                 return responseManager.onSuccess('User login successfully!', { token: accessToken }, res);
             } else {
