@@ -11,7 +11,7 @@ exports.booking = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
-            const { user, eventId, trans_Id, name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
+            const { user, eventId, trans_Id, name, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 console.log("date", start_date);
                 if (start_date && end_date && start_time && end_time) {
@@ -49,6 +49,8 @@ exports.booking = async (req, res) => {
                                         eventId: mongoose.Types.ObjectId(eventId),
                                         trans_Id: trans_Id,
                                         name: name,
+                                        url: url,
+                                        category_name: category_name,
                                         address: address,
                                         payment_status: payment_status,
                                         selectedItems: finalItems,
@@ -145,6 +147,7 @@ exports.bookinglist = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
+
             if (eventData && eventData != null) {
                 return responseManager.onSuccess('Booking list data!', eventData, res);
             } else {
