@@ -31,7 +31,7 @@ router.post('/', async (req, res, next) => {
             const url = process.env.FACTOR_URL + userData.phone_no + "/AUTOGEN";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { otpVerifyKey: otpSend.data.Details });
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { otpVerifyKey: otpSend.data.Details, mobileverified: true });
                 return responseManager.onSuccess('OTP send!', { key: otpSend.data.Details }, res);
             } else {
                 return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
