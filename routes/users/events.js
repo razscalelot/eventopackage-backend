@@ -17,5 +17,6 @@ router.post('/checkavailability', helper.authenticateToken, bookingCtrl.checkava
 // get apis
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 router.get('/wishlist/list', helper.authenticateToken, wishlistCtrl.list);
+router.get('/bookinglist', helper.authenticateToken, bookingCtrl.bookinglist);
 
 module.exports = router;

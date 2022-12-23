@@ -14,7 +14,7 @@ exports.booking = async (req, res) => {
             const { user, eventId, trans_Id, name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 console.log("date", start_date);
-                if(start_date && end_date && start_time && end_time){
+                if (start_date && end_date && start_time && end_time) {
                     let finalItems = [];
                     let finalEquipments = [];
                     let finalServices = [];
@@ -75,13 +75,13 @@ exports.booking = async (req, res) => {
                                         // allEvents.push(event);
                                     }
                                     return responseManager.onSuccess('Event Book successfully!', output, res);
-                                })().catch((error) => { 
+                                })().catch((error) => {
                                     return responseManager.onError(error, res);
                                 });
                             });
                         });
                     });
-                }else{
+                } else {
                     return responseManager.badrequest({ message: 'Invalid start or end date time to book event data, please try again' }, res);
                 }
             } else {
@@ -101,39 +101,59 @@ exports.checkavailability = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { eventId, start_date, end_date, start_time, end_time } = req.body;
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
-                if(start_date && end_date && start_time && end_time){
+                if (start_date && end_date && start_time && end_time) {
                     let xstart_date = start_date.split("-");
                     let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime();
                     let yend_date = end_date.split("-");
-                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();    
-                    let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({eventId : mongoose.Types.ObjectId(eventId)}).lean();
-                    if(existingData && existingData.length > 0){
+                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();
+                    let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventId) }).lean();
+                    if (existingData && existingData.length > 0) {
                         async.forEachSeries(existingData, (booking, next_booking) => {
 
                             next_booking();
                         });
-                    }else{
+                    } else {
                         return responseManager.onSuccess('Booking are available.', 1, res);
                     }
                     //, $or : [{ $and : [{start_timestamp : { $gte : startTimestamp}}, {end_timestamp : { $lte : startTimestamp}}] }, { $and : [{start_timestamp : { $gte : endTimestamp}}, {end_timestamp : { $lte : endTimestamp}}] }]}
                     console.log("existingData", existingData);
                     console.log('startTimestamp', startTimestamp);
                     console.log('endTimestamp', endTimestamp);
-                    if(existingData && existingData.length > 0){
-                        return responseManager.badrequest({ message: 'Booking are not available., please try again' }, res);                        
-                    }else{
+                    if (existingData && existingData.length > 0) {
+                        return responseManager.badrequest({ message: 'Booking are not available., please try again' }, res);
+                    } else {
                         return responseManager.onSuccess('Booking are available.', 1, res);
                     }
-                }else{
+                } else {
                     return responseManager.badrequest({ message: 'Invalid start or end date time to check event booking availability, please try again' }, res);
                 }
-            }else{
+            } else {
                 return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
             }
-        }else{
+        } else {
             return responseManager.badrequest({ message: 'Invalid user data to check event booking availability, please try again' }, res);
         }
-    }else{
+    } else {
         return responseManager.badrequest({ message: 'Invalid token to check event booking availability, please try again' }, res);
+    }
+};
+exports.bookinglist = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
+        if (userdata && userdata.status == true && userdata.mobileverified == true) {
+            let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+            let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
+            if (eventData && eventData != null) {
+                return responseManager.onSuccess('Booking list data!', eventData, res);
+            } else {
+                return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
+            }
+        } else {
+            return responseManager.badrequest({ message: 'Invalid organizerid to get event discount details, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to get event data, please try again' }, res);
     }
 };
