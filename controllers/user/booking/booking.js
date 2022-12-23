@@ -65,17 +65,6 @@ exports.booking = async (req, res) => {
                                         end_timestamp: endTimestamp
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
-                                    let noofreview = parseInt(await primary.model(constants.MODELS.eventreviews, eventreviewModel).countDocuments({ eventid: mongoose.Types.ObjectId(output._id) }));
-                                    if (noofreview > 0) {
-                                        let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(output._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
-                                        if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
-                                            output.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
-                                            // allEvents.push(event);
-                                        }
-                                    } else {
-                                        output.ratings = '0.0';
-                                        // allEvents.push(event);
-                                    }
                                     return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
                                     return responseManager.onError(error, res);
@@ -147,9 +136,28 @@ exports.bookinglist = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
-
             if (eventData && eventData != null) {
-                return responseManager.onSuccess('Booking list data!', eventData, res);
+                console.log("eventData", eventData);
+                let allEvents = [];
+                async.forEachSeries(eventData, (event, next_event) => {
+                    console.log("event", event);
+                    (async () => {
+                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventId: mongoose.Types.ObjectId(event.eventId) }).lean();
+                        event.isUserReview = (currentuserreview == null) ? false : true
+                        if (noofreview > 0) {
+                            let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
+                            if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
+                                event.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
+                                allEvents.push(event);
+                            }
+                        } else {
+                            event.ratings = '0.0';
+                            allEvents.push(event);
+                        }
+                        next_event();
+                    })().catch((error) => { })
+                });
+                return responseManager.onSuccess('Booking list data!', allEvents, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
             }
