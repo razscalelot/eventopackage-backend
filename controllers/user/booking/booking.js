@@ -3,6 +3,7 @@ const responseManager = require('../../../utilities/response.manager');
 const constants = require('../../../utilities/constants');
 const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
+const async = require("async");
 const mongoose = require('mongoose');
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
@@ -11,6 +12,7 @@ exports.booking = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { user, eventId, trans_Id, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
+                console.log("date", start_date);
                 if(start_date && end_date && start_time && end_time){
                     let finalItems = [];
                     let finalEquipments = [];
@@ -86,16 +88,20 @@ exports.checkavailability = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { eventId, start_date, end_date, start_time, end_time } = req.body;
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
+                console.log("date", start_date);
                 if(start_date && end_date && start_time && end_time){
                     let xstart_date = start_date.split("-");
                     let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime();
                     let yend_date = end_date.split("-");
                     let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();    
-                    let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventid : mongoose.Types.ObjectId(eventId), $or : [{ $and : [{start_timestamp : { $gte : startTimestamp}}, {end_timestamp : { $lte : startTimestamp}}] }, { $and : [{start_timestamp : { $gte : endTimestamp}}, {end_timestamp : { $lte : endTimestamp}}] }]}).lean();
+                    let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId : mongoose.Types.ObjectId(eventId), $or : [{ $and : [{start_timestamp : { $gte : startTimestamp}}, {end_timestamp : { $lte : startTimestamp}}] }, { $and : [{start_timestamp : { $gte : endTimestamp}}, {end_timestamp : { $lte : endTimestamp}}] }]}).lean();
+                    console.log("existingData", existingData);
+                    console.log('startTimestamp', startTimestamp);
+                    console.log('endTimestamp', endTimestamp);
                     if(existingData && existingData.length > 0){
-                        return responseManager.onSuccess({ message: 'Booking are available.' }, res);
+                        return responseManager.badrequest({ message: 'Booking are not available., please try again' }, res);                        
                     }else{
-                        return responseManager.badrequest({ message: 'Booking are not available., please try again' }, res);
+                        return responseManager.onSuccess('Booking are available.', 1, res);
                     }
                 }else{
                     return responseManager.badrequest({ message: 'Invalid start or end date time to check event booking availability, please try again' }, res);
