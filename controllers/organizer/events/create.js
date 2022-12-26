@@ -19,6 +19,7 @@ exports.createevent = async (req, res) => {
                         let obj = {
                             display_name: display_name,
                             event_type: event_type,
+                            is_live: false,
                             event_category: mongoose.Types.ObjectId(event_category),
                             updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                         };
@@ -45,6 +46,7 @@ exports.createevent = async (req, res) => {
                         let obj = {
                             display_name: display_name,
                             event_type: event_type,
+                            is_live: false,
                             event_category: mongoose.Types.ObjectId(event_category),
                             createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                             updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
