@@ -11,7 +11,7 @@ exports.addservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { serviceid, eventType, name, price, price_type, quantity } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
@@ -66,7 +66,7 @@ exports.listservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             const { eventType } = req.query;
             // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
@@ -92,7 +92,7 @@ exports.getoneservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { serviceid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
@@ -117,7 +117,7 @@ exports.removeservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { serviceid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)) {
@@ -140,7 +140,7 @@ exports.selectservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, services } = req.body;
             let finalServices = [];
             async.forEachSeries(services, (service, next_service) => {
@@ -184,7 +184,7 @@ exports.getselectservice = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid } = req.query;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate({

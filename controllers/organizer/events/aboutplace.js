@@ -9,7 +9,7 @@ exports.aboutplace = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true&& organizerData.is_approved == true) {
             console.log('req.body', req);
             const { eventid, banner, place_price, price_type, details } = req.body;
             console.log('const eventid', eventid, place_price);
@@ -44,7 +44,7 @@ exports.getaboutplace = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {

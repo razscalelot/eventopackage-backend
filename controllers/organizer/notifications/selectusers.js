@@ -9,7 +9,7 @@ exports.selectusers = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { notificationid, numberofusers, published_location, selected_plan, is_selected_all } = req.body;
             if (notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)) {
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();

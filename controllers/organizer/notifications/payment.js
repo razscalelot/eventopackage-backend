@@ -15,7 +15,7 @@ exports.paynow = async (req, res) => {
         var bk_emailcost = 0;
         var bk_smscost = 0;
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)) {
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                 if (notificationData && notificationData.payment == false && notificationData.createdBy.toString() == req.token.organizerid.toString()) {

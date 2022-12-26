@@ -11,7 +11,7 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).find({ 
                 status: true
             }).lean().then((notificationcouponslist) => {
@@ -30,7 +30,7 @@ router.post('/getone', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { notificationcouponid } = req.body;
             if (notificationcouponid && notificationcouponid != '' && mongoose.Types.ObjectId.isValid(notificationcouponid)) {
                 let primary = mongoConnection.useDb(constants.DEFAULT_DB);

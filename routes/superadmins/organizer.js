@@ -54,7 +54,7 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
                 let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
                 if(organizerData && organizerData.mobileverified == true){
                     if(organizerData.status == false){
-                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {status : true});
+                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {is_approved : true});
                         return responseManager.onSuccess('Organizer approved sucecssfully!', 1, res);
                     }else{
                         return responseManager.badrequest({ message: 'Organizer is already approved' }, res);
@@ -82,7 +82,7 @@ router.post('/disapprove', helper.authenticateToken, async (req, res) => {
                 let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
                 if(organizerData && organizerData.mobileverified == true){
                     if(organizerData.status == true){
-                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {status : false});
+                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {is_approved : false});
                         return responseManager.onSuccess('Organizer disapproved sucecssfully!', 1, res);
                     }else{
                         return responseManager.badrequest({ message: 'Organizer is already disapproved' }, res);

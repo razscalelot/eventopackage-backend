@@ -9,7 +9,7 @@ exports.addcategory = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { categoryid, category_name } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (categoryid && categoryid != '' && mongoose.Types.ObjectId.isValid(categoryid)) {
@@ -49,7 +49,7 @@ exports.listcategory = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             primary.model(constants.MODELS.categories, categoryModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((categories) => {
                 return responseManager.onSuccess('Categories list!', categories, res);
@@ -68,7 +68,7 @@ exports.getonecategory = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { categoryid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (categoryid && categoryid != '' && mongoose.Types.ObjectId.isValid(categoryid)) {
@@ -89,7 +89,7 @@ exports.removecategory = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { categoryid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (categoryid && categoryid != '' && mongoose.Types.ObjectId.isValid(categoryid)) {
