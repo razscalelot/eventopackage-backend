@@ -22,72 +22,28 @@ exports.getselectservice = async (req, res) => {
                     {path: "equipments",model: primary.model(constants.MODELS.equipments, equipmentModel),select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
                 ]).lean();
                 if (eventData && eventData != null) {
+                    let allServices = [];
                     async.forEachSeries(eventData.services, (service, next_service) => {
-                        async.forEachSeries(eventData.discounts, (discount, next_discount) => {
-                            discount.services.forEach((element) => {
-                                if (element._id.toString() == service._id.toString()) {
-                                    let totalPrice = parseInt(service.price) - (parseInt(service.price) * parseInt(discount.discount) / 100);
-                                    service.totalPrice = totalPrice
-                                    service.discount = discount.discount;
-                                }
-                            });
-                            next_discount();
-                        });
+                        service.type = 'service';
                         allServices.push(service);
                         next_service();
                     }, () => {
-                        async.forEachSeries(eventData.items, (item, next_item) => {
-                            async.forEachSeries(eventData.discounts, (discount, next_discount) => {
-                                discount.items.forEach((element) => {
-                                    if (element._id.toString() == item._id.toString()) {
-                                        let totalPrice = parseInt(item.price) - (parseInt(item.price) * parseInt(discount.discount) / 100);
-                                        item.totalPrice = totalPrice
-                                        item.discount = discount.discount;
-                                    }
-                                });
-                                next_discount();
-                            });
-                            allItems.push(item);
+                        async.forEachSeries(eventData.items, (item, next_item) => {    
+                            item.type = 'item';                        
+                            allServices.push(item);
                             next_item();
                         }, () => {
                             async.forEachSeries(eventData.equipments, (equipment, next_equipment) => {
-                                async.forEachSeries(eventData.discounts, (discount, next_discount) => {
-                                    discount.equipments.forEach((element) => {
-                                        if (element._id.toString() == equipment._id.toString()) {
-                                            let totalPrice = parseInt(equipment.price) - (parseInt(equipment.price) * parseInt(discount.discount) / 100);
-                                            equipment.totalPrice = totalPrice
-                                            equipment.discount = discount.discount;
-                                        }
-                                    });
-                                    next_discount();
-                                });
-                                allEquipments.push(equipment);
+                                equipment.type = 'equipment';
+                                allServices.push(equipment);
                                 next_equipment();
                             }, () => {
                                 (async () => {
-                                    if (noofreview > 0) {
-                                        let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(eventData._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
-                                        if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
-                                            eventData.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
-                                            // allEvents.push(event);
-                                        }
-                                    } else {
-                                        eventData.ratings = '0.0';
-                                        // allEvents.push(event);
-                                    }
-                                    let wishlist = await primary.model(constants.MODELS.eventwishlists, wishlistModel).findOne({ eventid: mongoose.Types.ObjectId(eventid), userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
-                                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({ eventid: mongoose.Types.ObjectId(eventid) }).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }).lean();
-                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(eventid) }).lean();
-                                    eventData.whishlist_status = (wishlist == null) ? false : true
-                                    eventData.isUserReview = (currentuserreview == null) ? false : true
-                                    eventData.reviews = allreview;
-                                    return responseManager.onSuccess('User event data!', eventData, res);
+                                    return responseManager.onSuccess('User event data!', allServices, res);
                                 })().catch((error) => { });
                             });
                         });
                     });
-
-                    return responseManager.onSuccess('Organizer event data!', 1, res);
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
                 }
