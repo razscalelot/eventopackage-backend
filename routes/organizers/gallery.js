@@ -5,6 +5,7 @@ const responseManager = require('../../utilities/response.manager');
 const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const categorieModel = require('../../models/categories.model');
+const organizerModel = require('../../models/organizers.model');
 const eventModel = require('../../models/events.model');
 const async = require('async');
 const mongoose = require('mongoose');
