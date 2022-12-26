@@ -32,6 +32,7 @@ router.post('/', async (req, res, next) => {
                 fcm_token : fcm_token,
                 is_approved : true,
                 status : true,
+                is_approved : true,
                 mobileverified : false,
                 businessProfile : {}
             };
