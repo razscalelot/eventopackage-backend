@@ -27,6 +27,7 @@ const calendarCtrl = require('../../controllers/organizer/events/calendar');
 const eventRemoveCtrl = require('../../controllers/organizer/events/remove');
 const eventListCtrl = require('../../controllers/organizer/events/list');
 const getoneCtrl = require('../../controllers/organizer/events/getone');
+const liveCtrl = require('../../controllers/organizer/events/live');
 // post apis
 router.post('/save', helper.authenticateToken, createCtrl.createevent);
 router.post('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.aboutplace);
@@ -43,6 +44,8 @@ router.post('/discount', helper.authenticateToken, discountCtrl.discount);
 router.post('/calendar', helper.authenticateToken, calendarCtrl.calendar);
 router.post('/remove', helper.authenticateToken, eventRemoveCtrl.removeevent);
 router.post('/list', helper.authenticateToken, eventListCtrl.list);
+router.post('/liveone', helper.authenticateToken, liveCtrl.makeonelive);
+router.post('/livemulti', helper.authenticateToken, liveCtrl.makemultilive);
 // get apis
 router.get('/', helper.authenticateToken, createCtrl.getevent);
 router.get('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.getaboutplace);
