@@ -99,30 +99,31 @@ exports.checkavailability = async (req, res) => {
                     let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();
                     let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventId) }).lean();
                     if (existingData && existingData.length > 0) {
-                        return responseManager.onSuccess('Booking are available.', 1, res);
+                        let flg = 1;
+                        async.forEachSeries(existingData, (booking, next_booking) => {
+                            if (booking.start_timestamp && booking.end_timestamp && ((booking.start_timestamp >= startTimestamp && startTimestamp <= booking.end_timestamp) || (booking.start_timestamp >= endTimestamp && endTimestamp <= booking.end_timestamp))) {
+                                flg = 0;
+                            }
+                            next_booking();
+                        }, () => {
+                            if (flg) {
+                                return responseManager.onSuccess('Booking is available.', 1, res);
+                            } else {
+                                return responseManager.onSuccess('Booking is not available.', 0, res);
+                            }
+                        });
                     } else {
-                        return responseManager.onSuccess('Booking are available.', 1, res);
+                        return responseManager.badrequest({ message: 'Invalid start or end date time to check event booking availability, please try again' }, res);
                     }
-                    // //, $or : [{ $and : [{start_timestamp : { $gte : startTimestamp}}, {end_timestamp : { $lte : startTimestamp}}] }, { $and : [{start_timestamp : { $gte : endTimestamp}}, {end_timestamp : { $lte : endTimestamp}}] }]}
-                    // console.log("existingData", existingData);
-                    // console.log('startTimestamp', startTimestamp);
-                    // console.log('endTimestamp', endTimestamp);
-                    // if (existingData && existingData.length > 0) {
-                    //     return responseManager.badrequest({ message: 'Booking are not available., please try again' }, res);
-                    // } else {
-                    //     return responseManager.onSuccess('Booking are available.', 1, res);
-                    // }
                 } else {
-                    return responseManager.badrequest({ message: 'Invalid start or end date time to check event booking availability, please try again' }, res);
+                    return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
                 }
             } else {
-                return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
+                return responseManager.badrequest({ message: 'Invalid user data to check event booking availability, please try again' }, res);
             }
         } else {
-            return responseManager.badrequest({ message: 'Invalid user data to check event booking availability, please try again' }, res);
+            return responseManager.badrequest({ message: 'Invalid token to check event booking availability, please try again' }, res);
         }
-    } else {
-        return responseManager.badrequest({ message: 'Invalid token to check event booking availability, please try again' }, res);
     }
 };
 exports.bookinglist = async (req, res) => {
