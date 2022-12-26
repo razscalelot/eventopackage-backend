@@ -134,7 +134,17 @@ exports.bookinglist = async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
             if (eventData && eventData != null) {
-                return responseManager.onSuccess('Booking list data!', eventData, res);
+                let allEvents = [];
+                async.forEachSeries(eventData, (event, next_event) => {
+                    (async () => {
+                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).lean();
+                        event.isUserReview = (currentuserreview == null) ? false : true
+                        allEvents.push(event);
+                        next_event();
+                    })().catch((error) => { });
+                }, () => {
+                    return responseManager.onSuccess('Booking list data!', eventData, res);
+                });
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
             }
