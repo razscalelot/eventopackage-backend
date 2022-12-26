@@ -34,6 +34,7 @@ router.post('/aboutplace', helper.authenticateToken, aboutPlaceCtrl.aboutplace);
 router.post('/personaldetail', helper.authenticateToken, personaldetailCtrl.personaldetail);
 router.post('/media', helper.authenticateToken, mediaCtrl.media);
 router.post('/selectservice', helper.authenticateToken, serviceCtrl.selectservice);
+router.post('/selectservice', helper.authenticateToken, serviceCtrl.selectservice);
 router.post('/selectitem', helper.authenticateToken, itemCtrl.selectitem);
 router.post('/selectequipment', helper.authenticateToken, equipmentCtrl.selectequipment);
 router.post('/othercost', helper.authenticateToken, othercostCtrl.othercost);
@@ -59,6 +60,7 @@ router.get('/capacity', helper.authenticateToken, capacityCtrl.getcapacity);
 router.get('/companydetail', helper.authenticateToken, companydetailCtrl.getcompanydetail);
 router.get('/tandc', helper.authenticateToken, tandcCtrl.gettandc);
 router.get('/discount', helper.authenticateToken, discountCtrl.getdiscount);
+router.get('/discount/getselectservice', helper.authenticateToken, discountCtrl.getselectservice);
 router.get('/calendar', helper.authenticateToken, calendarCtrl.getcalendar);
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 // organizer wise category

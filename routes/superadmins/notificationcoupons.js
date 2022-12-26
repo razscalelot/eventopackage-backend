@@ -37,7 +37,7 @@ router.post('/', helper.authenticateToken, async (req, res) => {
 });
 router.post('/save', helper.authenticateToken, async (req, res) => {
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
-        const { notificationcouponid, code, description, amount, percentage, limit, expiry_date, expiry_time, status } = req.body;
+        const { notificationcouponid, title, code, description, amount, percentage, limit, expiry_date, expiry_time, status } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if(superadmin){
@@ -51,7 +51,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                 const finalDate = new Date(newdate);
                                 let timestamp = (expiry_date && expiry_date != '' && expiry_time && expiry_time != '') ? finalDate.getTime() : 0;
                                 let obj = {
-                                    code : code,
+                                    title: title,
+                                    code: code.trim().replace(/\s/g, '').toUpperCase(),
                                     description : description,
                                     amount : amount,
                                     percentage : percentage,
@@ -74,7 +75,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                 const finalDate = new Date(newdate);
                                 let timestamp = (expiry_date && expiry_date != '' && expiry_time && expiry_time != '') ? finalDate.getTime() : 0;
                                 let obj = {
-                                    code : code,
+                                    title: title,
+                                    code: code.trim().replace(/\s/g, '').toUpperCase(),
                                     description : description,
                                     amount : parseFloat(amount),
                                     percentage : parseFloat(percentage),

@@ -30,8 +30,8 @@ router.post('/', async (req, res, next) => {
                 refer_code : refer_code,
                 my_refer_code : my_referCode,
                 fcm_token : fcm_token,
-                is_approved : false,
-                status : false,
+                is_approved : true,
+                status : true,
                 mobileverified : false,
                 businessProfile : {}
             };
