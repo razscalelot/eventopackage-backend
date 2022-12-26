@@ -143,7 +143,7 @@ exports.bookinglist = async (req, res) => {
                         next_event();
                     })().catch((error) => { });
                 }, () => {
-                    return responseManager.onSuccess('Booking list data!', eventData, res);
+                    return responseManager.onSuccess('Booking list data!', allEvents, res);
                 });
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
