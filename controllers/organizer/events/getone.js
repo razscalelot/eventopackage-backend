@@ -45,7 +45,7 @@ exports.getone = async (req, res) => {
                                 totalPrice = parseFloat(eventData.personaldetail.price);
                             }
                         }
-                        eventData.totalPrice = totalPrice;
+                        eventData.totalPrice = parseFloat(totalPrice).toFixed(2);
                     });
                     return responseManager.onSuccess('Organizer event data!', eventData, res);
                 }else{

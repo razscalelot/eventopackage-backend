@@ -53,7 +53,7 @@ exports.getone = async (req, res) => {
                                 totalPrice = parseFloat(eventData.personaldetail.price);
                             }
                         }
-                        eventData.totalPrice = totalPrice;
+                        eventData.totalPrice = parseFloat(totalPrice).toFixed(2);
                     });
                     async.forEachSeries(eventData.services, (service, next_service) => {
                         async.forEachSeries(eventData.discounts, (discount, next_discount) => {
