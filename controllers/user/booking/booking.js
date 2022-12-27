@@ -113,7 +113,7 @@ exports.checkavailability = async (req, res) => {
                             }
                         });
                     } else {
-                        return responseManager.badrequest({ message: 'Invalid start or end date time to check event booking availability, please try again' }, res);
+                        return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res)
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
