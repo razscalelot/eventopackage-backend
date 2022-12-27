@@ -85,9 +85,9 @@ exports.discount = async (req, res) => {
                             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
                                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel)},
-                                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel)},
-                                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel)},
+                                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: "_id"},
+                                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: "_id"},
+                                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: "_id"},
                                     // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                                 ]).lean();
                                 return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
