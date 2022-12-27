@@ -37,11 +37,11 @@ exports.getone = async (req, res) => {
                     async.forEach(eventData.discounts, (discount, next_discount) => {
                         if (discount.discounttype === "discount_on_total_bill") {
                             if (eventData.aboutplace) {
-                                let getPrice = parseInt(eventData.aboutplace.place_price) - (parseInt(eventData.aboutplace.place_price) * parseInt(discount.discount) / 100);
-                                totalPrice += getPrice;
+                                let getPrice = parseFloat(eventData.aboutplace.place_price) - (parseFloat(eventData.aboutplace.place_price) * parseFloat(discount.discount) / 100);
+                                totalPrice += parseFloat(getPrice).toFixed(2);
                             } else if (eventData.personaldetail) {
-                                let getPrice = parseInt(eventData.personaldetail.price) - (parseInt(eventData.personaldetail.price) * parseInt(discount.discount) / 100);
-                                totalPrice += getPrice;
+                                let getPrice = parseFloat(eventData.personaldetail.price) - (parseFloat(eventData.personaldetail.price) * parseFloat(discount.discount) / 100);
+                                totalPrice += parseFloat(getPrice).toFixed(2);
                             }
                         }
                         next_discount();
@@ -59,8 +59,8 @@ exports.getone = async (req, res) => {
                         async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                             discount.services.forEach((element) => {
                                 if (element._id.toString() == service._id.toString()) {
-                                    let totalPrice = parseInt(service.price) - (parseInt(service.price) * parseInt(discount.discount) / 100);
-                                    service.totalPrice = totalPrice
+                                    let totalPrice = parseFloat(service.price) - (parseFloat(service.price) * parseFloat(discount.discount) / 100);
+                                    service.totalPrice = parseFloat(totalPrice).toFixed(2)
                                     service.discount = discount.discount;
                                 }
                             });
@@ -73,8 +73,8 @@ exports.getone = async (req, res) => {
                             async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                 discount.items.forEach((element) => {
                                     if (element._id.toString() == item._id.toString()) {
-                                        let totalPrice = parseInt(item.price) - (parseInt(item.price) * parseInt(discount.discount) / 100);
-                                        item.totalPrice = totalPrice
+                                        let totalPrice = parseFloat(item.price) - (parseFloat(item.price) * parseFloat(discount.discount) / 100);
+                                        item.totalPrice = parseFloat(totalPrice).toFixed(2)
                                         item.discount = discount.discount;
                                     }
                                 });
@@ -87,8 +87,8 @@ exports.getone = async (req, res) => {
                                 async.forEachSeries(eventData.discounts, (discount, next_discount) => {
                                     discount.equipments.forEach((element) => {
                                         if (element._id.toString() == equipment._id.toString()) {
-                                            let totalPrice = parseInt(equipment.price) - (parseInt(equipment.price) * parseInt(discount.discount) / 100);
-                                            equipment.totalPrice = totalPrice
+                                            let totalPrice = parseFloat(equipment.price) - (parseFloat(equipment.price) * parseFloat(discount.discount) / 100);
+                                            equipment.totalPrice = parseFloat(totalPrice).toFixed(2)
                                             equipment.discount = discount.discount;
                                         }
                                     });
