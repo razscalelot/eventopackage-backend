@@ -52,7 +52,7 @@ exports.list = async (req, res) => {
                                 totalPrice = parseFloat(event.personaldetail.price);
                             }
                         }
-                        event.totalPrice = totalPrice;
+                        event.totalPrice = parseFloat(totalPrice).toFixed(2);
                         allEvents.push(event);
                         next_event();
                     });
