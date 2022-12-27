@@ -64,7 +64,7 @@ exports.list = async (req, res) => {
                             }
                            } 
                         });
-                        event.totalPrice = totalPrice
+                        event.totalPrice = parseFloat(totalPrice).toFixed(2)
                         if (noofreview > 0) {
                             let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
                             if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
