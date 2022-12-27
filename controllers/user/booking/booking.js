@@ -107,9 +107,9 @@ exports.checkavailability = async (req, res) => {
                             next_booking();
                         }, () => {
                             if (flg) {
-                                return responseManager.onSuccess('Booking is available.', 1, res);
+                                return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
                             } else {
-                                return responseManager.onSuccess('Booking is not available.', 0, res);
+                                return responseManager.onSuccess('There are no bookings available on the selected date and time.', 0, res);
                             }
                         });
                     } else {
