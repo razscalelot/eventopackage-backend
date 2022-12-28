@@ -60,7 +60,7 @@ exports.getone = async (req, res) => {
                             discount.services.forEach((element) => {
                                 if (element._id.toString() == service._id.toString()) {
                                     let totalPrice = parseFloat(service.price) - (parseFloat(service.price) * parseFloat(discount.discount) / 100);
-                                    service.totalPrice = parseFloat(totalPrice).toFixed(2)
+                                    parseFloat(service.totalPrice).toFixed(2) = totalPrice;
                                     service.discount = discount.discount;
                                 }
                             });
@@ -74,7 +74,7 @@ exports.getone = async (req, res) => {
                                 discount.items.forEach((element) => {
                                     if (element._id.toString() == item._id.toString()) {
                                         let totalPrice = parseFloat(item.price) - (parseFloat(item.price) * parseFloat(discount.discount) / 100);
-                                        item.totalPrice = parseFloat(totalPrice).toFixed(2)
+                                        parseFloat(item.totalPrice).toFixed(2) = totalPrice
                                         item.discount = discount.discount;
                                     }
                                 });

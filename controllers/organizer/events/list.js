@@ -56,19 +56,23 @@ exports.list = async (req, res) => {
                                 }
                             }
                             event.totalPrice = parseFloat(totalPrice).toFixed(2);
-                            allEvents.push(event);
+                            // allEvents.push(event);
+                            (async () => {
+                                if (noofreview > 0) {
+                                    let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
+                                    if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
+                                        event.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
+                                        allEvents.push(event);
+                                    }
+                                } else {
+                                    event.ratings = '0.0';
+                                    allEvents.push(event);
+                                }
+
+                                next_event();
+                            })().catch((error) => { })
                         });
-                        if (noofreview > 0) {
-                            let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
-                            if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
-                                event.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
-                                allEvents.push(event);
-                            }
-                        } else {
-                            event.ratings = '0.0';
-                            allEvents.push(event);
-                        }
-                        next_event();
+
                     })().catch((error) => { })
                 }, () => {
                     events.docs = allEvents;
