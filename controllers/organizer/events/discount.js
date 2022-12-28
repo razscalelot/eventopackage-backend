@@ -17,9 +17,9 @@ exports.getselectservice = async (req, res) => {
             const { eventid } = req.query;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                    {path: "services",model: primary.model(constants.MODELS.services, serviceModel),select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "items",model: primary.model(constants.MODELS.items, itemModel),select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "equipments",model: primary.model(constants.MODELS.equipments, equipmentModel),select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
+                    { path: "services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
+                    { path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status' },
                 ]).lean();
                 if (eventData && eventData != null) {
                     let allServices = [];
@@ -28,8 +28,8 @@ exports.getselectservice = async (req, res) => {
                         allServices.push(service);
                         next_service();
                     }, () => {
-                        async.forEachSeries(eventData.items, (item, next_item) => {    
-                            item.type = 'item';                        
+                        async.forEachSeries(eventData.items, (item, next_item) => {
+                            item.type = 'item';
                             allServices.push(item);
                             next_item();
                         }, () => {
@@ -85,9 +85,9 @@ exports.discount = async (req, res) => {
                             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
                                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: "_id"},
-                                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: "_id"},
-                                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: "_id"},
+                                    { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: "_id" },
+                                    { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: "_id" },
+                                    { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: "_id" },
                                     // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                                 ]).lean();
                                 return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
@@ -98,14 +98,14 @@ exports.discount = async (req, res) => {
                             return responseManager.onError(error, res);
                         });
                     });
-                }else{
+                } else {
                     finalDiscount.push(discounts);
                     if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                         await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
                         let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                            {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel)},
-                            {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel)},
-                            {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel)},
+                            { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
+                            { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
+                            { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
                             // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
                         ]).lean();
                         return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
@@ -133,12 +133,28 @@ exports.getdiscount = async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                    {path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: "_id"},
-                    {path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: "_id"},
-                    {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: "_id"},
+                    { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel), select: "_id" },
+                    { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel), select: "_id" },
+                    { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: "_id" },
                 ]).lean();
                 if (eventData && eventData != null) {
-                    return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                    let allServices = [];
+                    let allItems = [];
+                    let allEquipments = [];
+                    async.forEachSeries(eventData.discounts, (service, next_service) => {
+                        if (service.length < 0) {
+                            service.services.forEach((element) => {
+                                allServices.push(element._id.toString());
+                            });
+                        }
+                        next_service();
+                    }, () => {
+
+                        (async () => {
+                            eventData.discounts.service = allServices;
+                            return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                        })().catch((error) => { });
+                    });
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
                 }

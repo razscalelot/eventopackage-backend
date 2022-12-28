@@ -4,6 +4,7 @@ const responseManager = require('../../../utilities/response.manager');
 const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
 const categoryModel = require('../../../models/categories.model');
+const eventreviewModel = require('../../../models/eventreviews.model');
 const mongoose = require('mongoose');
 const async = require('async');
 exports.list = async (req, res) => {
@@ -33,29 +34,42 @@ exports.list = async (req, res) => {
                 let allEvents = [];
                 async.forEachSeries(events.docs, (event, next_event) => {
                     let totalPrice = 0;
-                    async.forEach(event.discounts, (discount, next_discount) => {
-                        if (discount.discounttype === "discount_on_total_bill") {
-                            if (event.aboutplace) {
-                                let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
-                                totalPrice += getPrice;
-                            } else if (event.personaldetail) {
-                                let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
-                                totalPrice += getPrice;
+                    (async () => {
+                        let noofreview = parseInt(await primary.model(constants.MODELS.eventreviews, eventreviewModel).countDocuments({ eventid: mongoose.Types.ObjectId(event._id) }));
+                        async.forEach(event.discounts, (discount, next_discount) => {
+                            if (discount.discounttype === "discount_on_total_bill") {
+                                if (event.aboutplace) {
+                                    let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
+                                    totalPrice += getPrice;
+                                } else if (event.personaldetail) {
+                                    let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
+                                    totalPrice += getPrice;
+                                }
                             }
-                        }
-                        next_discount();
-                    }, () => {
-                        if (totalPrice == 0) {
-                            if (event.aboutplace) {
-                                totalPrice = parseFloat(event.aboutplace.place_price);
-                            } else if (event.personaldetail) {
-                                totalPrice = parseFloat(event.personaldetail.price);
+                            next_discount();
+                        }, () => {
+                            if (totalPrice == 0) {
+                                if (event.aboutplace) {
+                                    totalPrice = parseFloat(event.aboutplace.place_price);
+                                } else if (event.personaldetail) {
+                                    totalPrice = parseFloat(event.personaldetail.price);
+                                }
                             }
+                            event.totalPrice = parseFloat(totalPrice).toFixed(2);
+                            allEvents.push(event);
+                        });
+                        if (noofreview > 0) {
+                            let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
+                            if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
+                                event.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
+                                allEvents.push(event);
+                            }
+                        } else {
+                            event.ratings = '0.0';
+                            allEvents.push(event);
                         }
-                        event.totalPrice = parseFloat(totalPrice).toFixed(2);
-                        allEvents.push(event);
                         next_event();
-                    });
+                    })().catch((error) => { })
                 }, () => {
                     events.docs = allEvents;
                     return responseManager.onSuccess('Events list!', events, res);
