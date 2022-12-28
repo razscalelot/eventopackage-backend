@@ -46,6 +46,7 @@ const organizerpaths = [
   { pathUrl: '/register', routeFile: 'register' },
   { pathUrl: '/profile', routeFile: 'profile'},
   { pathUrl: '/events', routeFile: 'events'},
+  { pathUrl: '/booking', routeFile: 'booking'},
   { pathUrl: '/discount', routeFile: 'discount' },
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/promotionplan', routeFile: 'promotionplan'},

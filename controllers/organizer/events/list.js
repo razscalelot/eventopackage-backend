@@ -62,10 +62,12 @@ exports.list = async (req, res) => {
                                     let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
                                     if (totalReviewsCountObj && totalReviewsCountObj.length > 0 && totalReviewsCountObj[0].sum) {
                                         event.ratings = parseFloat(parseFloat(totalReviewsCountObj[0].sum) / noofreview).toFixed(1);
+                                        event.totalreview = noofreview;
                                         allEvents.push(event);
                                     }
                                 } else {
                                     event.ratings = '0.0';
+                                    event.totalreview = 0;
                                     allEvents.push(event);
                                 }
 
