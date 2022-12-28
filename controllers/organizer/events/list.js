@@ -28,7 +28,7 @@ exports.list = async (req, res) => {
                 limit: parseInt(limit),
                 sort: { _id: -1 },
                 populate: { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name description event_type" },
-                select: 'display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail discounts is_live',
+                select: 'display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail discounts is_live is_approved',
                 lean: true
             }).then((events) => {
                 let allEvents = [];

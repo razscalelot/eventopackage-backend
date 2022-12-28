@@ -17,22 +17,13 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
         let organizerdata = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerdata && organizerdata.status == true && organizerdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).lean();
-            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({}).lean();
-            let bookingEvents = [];
-            async.forEachSeries(eventData, (event, next_event) => {
-                console.log("event", event._id);
-                async.forEachSeries(eventBookingData, (eventbooking, next_eventbooking) => {
-                    console.log("eventbooking", eventbooking.eventId);
-                    if (mongoose.Types.ObjectId(event._id) == mongoose.Types.ObjectId(eventbooking.eventId)) {
-                        bookingEvents.push(eventbooking);
-                    }
-                    next_eventbooking();
-                });
-                next_event();
-            });
-            if (bookingEvents && bookingEvents != null) {
-                return responseManager.onSuccess('Booking list data!', bookingEvents, res);
+            let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
+            console.log("eventData", eventData);
+            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId : { $in : eventData }}).lean();
+            console.log("eventBookingData", eventBookingData);
+            
+            if (eventBookingData && eventBookingData != null) {
+                return responseManager.onSuccess('Booking list data!', eventBookingData, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
             }
