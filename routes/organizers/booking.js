@@ -18,10 +18,15 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
         if (organizerdata && organizerdata.status == true && organizerdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
-            console.log("eventData", eventData);
-            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId : { $in : eventData }}).lean();
-            console.log("eventBookingData", eventBookingData);
-            
+            let allEventsId = [];
+            async.forEachSeries(eventData, (event, next_wishlist) => {
+                if (event._id && event._id != '' && mongoose.Types.ObjectId.isValid(event._id)) {
+                    allEventsId.push(mongoose.Types.ObjectId(event._id));
+                }
+                next_wishlist();
+            });
+            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: { $in: allEventsId } }).lean();
+
             if (eventBookingData && eventBookingData != null) {
                 return responseManager.onSuccess('Booking list data!', eventBookingData, res);
             } else {

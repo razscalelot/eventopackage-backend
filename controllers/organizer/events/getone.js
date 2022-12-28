@@ -1,5 +1,6 @@
 const eventModel = require('../../../models/events.model');
 const organizerModel = require('../../../models/organizers.model');
+const userModel = require('../../../models/users.model');
 const responseManager = require('../../../utilities/response.manager');
 const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
@@ -7,6 +8,7 @@ const categoryModel = require('../../../models/categories.model');
 const serviceModel = require('../../../models/service.model');
 const itemModel = require('../../../models/items.model');
 const equipmentModel = require('../../../models/equipments.model');
+const eventreviewModel = require('../../../models/eventreviews.model');
 const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
@@ -47,6 +49,8 @@ exports.getone = async (req, res) => {
                         }
                         eventData.totalPrice = parseFloat(totalPrice).toFixed(2);
                     });
+                    let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({ eventid: mongoose.Types.ObjectId(eventid) }).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }).lean();
+                    eventData.reviews = allreview;
                     return responseManager.onSuccess('Organizer event data!', eventData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);
