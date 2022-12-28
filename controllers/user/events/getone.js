@@ -60,12 +60,13 @@ exports.getone = async (req, res) => {
                             discount.services.forEach((element) => {
                                 if (element._id.toString() == service._id.toString()) {
                                     let totalPrice = parseFloat(service.price) - (parseFloat(service.price) * parseFloat(discount.discount) / 100);
-                                    parseFloat(service.totalPrice).toFixed(2) = totalPrice;
+                                    service.totalPrice = parseFloat(totalPrice).toFixed(2)
                                     service.discount = discount.discount;
                                 }
                             });
                             next_discount();
                         });
+                        service.price = parseFloat(service.price).toFixed(2);
                         allServices.push(service);
                         next_service();
                     }, () => {
@@ -74,12 +75,13 @@ exports.getone = async (req, res) => {
                                 discount.items.forEach((element) => {
                                     if (element._id.toString() == item._id.toString()) {
                                         let totalPrice = parseFloat(item.price) - (parseFloat(item.price) * parseFloat(discount.discount) / 100);
-                                        parseFloat(item.totalPrice).toFixed(2) = totalPrice
+                                        item.totalPrice = parseFloat(totalPrice).toFixed(2)
                                         item.discount = discount.discount;
                                     }
                                 });
                                 next_discount();
                             });
+                            item.price = parseFloat(item.price).toFixed(2);
                             allItems.push(item);
                             next_item();
                         }, () => {
@@ -94,6 +96,7 @@ exports.getone = async (req, res) => {
                                     });
                                     next_discount();
                                 });
+                                equipment.price = parseFloat(equipment.price).toFixed(2);
                                 allEquipments.push(equipment);
                                 next_equipment();
                             }, () => {
