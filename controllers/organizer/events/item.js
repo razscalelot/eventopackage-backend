@@ -70,7 +70,7 @@ exports.listitem = async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             const { eventType } = req.query;
             // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.items, itemModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((items) => {
+                primary.model(constants.MODELS.items, itemModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).sort({_id: -1}).lean().then((items) => {
                     return responseManager.onSuccess('Items list!', items, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);

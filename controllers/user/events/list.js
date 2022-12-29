@@ -36,7 +36,7 @@ exports.list = async (req, res) => {
             }).select('event_category createdBy display_name event_type timestamp status createdAt updatedAt aboutplace personaldetail capacity discounts').populate([
                 { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name" },
                 { path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic" }
-            ]).lean().then((result) => {
+            ]).sort({_id: -1}).lean().then((result) => {
                 let allEvents = [];
                 async.forEachSeries(result, (event, next_event) => {
                     (async () => {

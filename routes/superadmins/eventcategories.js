@@ -111,7 +111,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         const { event_type } = req.query;
         if (superadmin) {
-            primary.model(constants.MODELS.categories, categoryModel).find({ event_type: event_type }).then((categories) => {
+            primary.model(constants.MODELS.categories, categoryModel).find({ createdBy: mongoose.Types.ObjectId(req.token.superadminid), event_type: event_type }).sort({_id: -1}).then((categories) => {
                 return responseManager.onSuccess('Categories list!', categories, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

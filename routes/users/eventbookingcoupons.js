@@ -14,7 +14,7 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
         if (userData && userData.status == true && userData.mobileverified == true) {
             primary.model(constants.MODELS.eventbookingcoupons, eventbookingcouponModel).find({ 
                 status: true
-            }).lean().then((eventbookingcouponlist) => {
+            }).sort({_id: -1}).lean().then((eventbookingcouponlist) => {
                 return responseManager.onSuccess('Event booking coupon list!', eventbookingcouponlist, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

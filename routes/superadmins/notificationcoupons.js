@@ -135,7 +135,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if(superadmin){
-            primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).find({}).then((notificationcouponslist) => {
+            primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).find({}).sort({_id: -1}).then((notificationcouponslist) => {
                 return responseManager.onSuccess('notificationcoupons list!', notificationcouponslist, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

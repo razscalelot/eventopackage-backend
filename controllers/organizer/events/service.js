@@ -70,7 +70,7 @@ exports.listservice = async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             const { eventType } = req.query;
             // if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                primary.model(constants.MODELS.services, serviceModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((services) => {
+                primary.model(constants.MODELS.services, serviceModel).find({ eventType: eventType, createdBy : mongoose.Types.ObjectId(req.token.organizerid) }).sort({_id: -1}).lean().then((services) => {
                     return responseManager.onSuccess('Services list!', services, res);
                 }).catch((error) => {
                     return responseManager.onError(error, res);

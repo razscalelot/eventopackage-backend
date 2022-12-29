@@ -139,7 +139,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if (superadmin) {
-            primary.model(constants.MODELS.eventbookingcoupons, eventbookingcouponModel).find({}).then((eventbookingcouponslist) => {
+            primary.model(constants.MODELS.eventbookingcoupons, eventbookingcouponModel).find({}).sort({_id: -1}).then((eventbookingcouponslist) => {
                 return responseManager.onSuccess('Event booking coupons list!', eventbookingcouponslist, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

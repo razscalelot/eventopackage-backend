@@ -133,7 +133,7 @@ exports.bookinglist = async (req, res) => {
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).lean();
+            let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).sort({_id: -1}).lean();
             if (eventData && eventData != null) {
                 let allEvents = [];
                 async.forEachSeries(eventData, (event, next_event) => {

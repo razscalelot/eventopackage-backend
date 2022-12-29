@@ -122,7 +122,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if(superadmin){
-            primary.model(constants.MODELS.ourproduct, ourproductModel).find({}).then((ourproductlist) => {
+            primary.model(constants.MODELS.ourproduct, ourproductModel).find({}).sort({_id: -1}).then((ourproductlist) => {
                 return responseManager.onSuccess('Our product list!', ourproductlist, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

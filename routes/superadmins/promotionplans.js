@@ -126,7 +126,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if(superadmin){
-            primary.model(constants.MODELS.promotionplans, promotionplanModel).find({}).then((planslist) => {
+            primary.model(constants.MODELS.promotionplans, promotionplanModel).find({}).sort({_id: -1}).then((planslist) => {
                 return responseManager.onSuccess('Plans list!', planslist, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);
