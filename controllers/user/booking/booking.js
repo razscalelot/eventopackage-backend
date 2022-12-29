@@ -138,7 +138,7 @@ exports.bookinglist = async (req, res) => {
                 let allEvents = [];
                 async.forEachSeries(eventData, (event, next_event) => {
                     (async () => {
-                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).lean();
+                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).sort({_id: -1}).lean();
                         event.isUserReview = (currentuserreview == null) ? false : true
                         allEvents.push(event);
                         next_event();

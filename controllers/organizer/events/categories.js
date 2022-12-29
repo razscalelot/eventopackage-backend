@@ -58,7 +58,7 @@ exports.listcategory = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { event_type } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            primary.model(constants.MODELS.categories, categoryModel).find({$or: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid), event_type: event_type},{ public: true, event_type: event_type }]}).sort({_id: -1}).lean().then((categories) => {
+            primary.model(constants.MODELS.categories, categoryModel).find({$and: [{$or: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid)},{ public: true }]}, { $or: [{ event_type: event_type}]}]}).sort({_id: -1}).lean().then((categories) => {
                 return responseManager.onSuccess('Categories list!', categories, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

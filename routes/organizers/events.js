@@ -61,7 +61,7 @@ router.get('/companydetail', helper.authenticateToken, companydetailCtrl.getcomp
 router.get('/tandc', helper.authenticateToken, tandcCtrl.gettandc);
 router.get('/discount', helper.authenticateToken, discountCtrl.getdiscount);
 router.get('/discount/getselectservice', helper.authenticateToken, discountCtrl.getselectservice);
-router.get('/calendar', helper.authenticateToken, calendarCtrl.getcalendar);
+// router.get('/calendar', helper.authenticateToken, calendarCtrl.getcalendar);
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 // organizer wise category
 router.post('/addcategory', helper.authenticateToken, categoryCtrl.addcategory);
