@@ -10,12 +10,15 @@ exports.addcategory = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
-            const { categoryid, category_name } = req.body;
+            const { categoryid, category_name, event_type } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (categoryid && categoryid != '' && mongoose.Types.ObjectId.isValid(categoryid)) {
                 if (category_name && category_name.trim() != '') {
                     let obj = {
                         category_name: category_name,
+                        event_type: event_type,
+                        status: true,
+                        public: false,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
                     await primary.model(constants.MODELS.categories, categoryModel).findByIdAndUpdate(categoryid, obj);
@@ -27,7 +30,10 @@ exports.addcategory = async (req, res) => {
             } else {
                 if (category_name && category_name.trim() != '') {
                     let obj = {
-                        category_name: category_name,
+                        category_name: category_name,                        
+                        event_type: event_type,
+                        status: true,
+                        public: false,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
@@ -50,8 +56,9 @@ exports.listcategory = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
+            const { event_type } = req.query;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            primary.model(constants.MODELS.categories, categoryModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).lean().then((categories) => {
+            primary.model(constants.MODELS.categories, categoryModel).find({$or: [{ createdBy: mongoose.Types.ObjectId(req.token.organizerid), event_type: event_type},{ public: true, event_type: event_type }]}).lean().then((categories) => {
                 return responseManager.onSuccess('Categories list!', categories, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);
