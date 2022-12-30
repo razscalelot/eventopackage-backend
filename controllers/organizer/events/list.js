@@ -77,11 +77,14 @@ exports.list = async (req, res) => {
 
                     })().catch((error) => { })
                 }, () => {
+                    let removeEvents = [];
                     let finalEvents = [];
                     if(category_name && category_name != ''){
                         async.forEachSeries(allEvents, (xevent, next_xevent) => {
                             if (xevent.event_category.category_name == category_name) {
                                 finalEvents.push(xevent);
+                            }else{
+                                removeEvents.push(xevent);
                             }
                             next_xevent();
                         }, () => {
