@@ -7,7 +7,7 @@ const constants = require('../../utilities/constants');
 const eventModel = require('../../models/events.model');
 const organizerModel = require('../../models/organizers.model');
 const eventbookingModel = require('../../models/eventbookings.model');
-const eventreviewModel = require('../../models/eventreviews.model');
+const userModel = require('../../models/users.model');
 const async = require("async");
 const mongoose = require('mongoose');
 router.get('/list', helper.authenticateToken, async (req, res) => {
@@ -25,8 +25,9 @@ router.get('/list', helper.authenticateToken, async (req, res) => {
                 }
                 next_wishlist();
             });
-            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: { $in: allEventsId } }).lean();
-
+            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: { $in: allEventsId } }).populate([
+                { path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }
+            ]).sort({_id: -1}).lean();
             if (eventBookingData && eventBookingData != null) {
                 return responseManager.onSuccess('Booking list data!', eventBookingData, res);
             } else {
