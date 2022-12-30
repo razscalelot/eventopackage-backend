@@ -89,11 +89,11 @@ exports.list = async (req, res) => {
                             next_xevent();
                         }, () => {
                             events.docs = finalEvents;
-                            return responseManager.onSuccess("event List", finalEvents, res);
+                            return responseManager.onSuccess("event List", events, res);
                         });  
                     }else{
                         events.docs = allEvents;
-                        return responseManager.onSuccess("event List", allEvents, res);
+                        return responseManager.onSuccess("event List", events, res);
                     }                  
                 });
             }).catch((error) => {
