@@ -13,7 +13,6 @@ exports.booking = async (req, res) => {
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { user, eventId, trans_Id, name, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
-                console.log("date", start_date);
                 if (start_date && end_date && start_time && end_time) {
                     let finalItems = [];
                     let finalEquipments = [];
@@ -61,12 +60,16 @@ exports.booking = async (req, res) => {
                                         end_date: end_date,
                                         start_time: start_time,
                                         end_time: end_time,
+                                        isUserReview: false,
                                         start_timestamp: startTimestamp,
                                         end_timestamp: endTimestamp
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
+                                    console.log("output", output);
                                     let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({_id: -1}).lean();
+                                    console.log("currentuserreview", currentuserreview);
                                     output.isUserReview = (currentuserreview == null) ? false : true
+                                    console.log("output.isUserReview", output);
                                     return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
                                     return responseManager.onError(error, res);
