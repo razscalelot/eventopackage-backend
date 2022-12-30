@@ -13,7 +13,7 @@ exports.list = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
-            const { page, limit, search, event_type } = req.body;
+            const { page, limit, search, event_type, category_name } = req.body;
             await primary.model(constants.MODELS.events, eventModel).paginate({
                 $or: [
                     { display_name: { '$regex': new RegExp(search, "i") } },
@@ -77,8 +77,21 @@ exports.list = async (req, res) => {
 
                     })().catch((error) => { })
                 }, () => {
-                    events.docs = allEvents;
-                    return responseManager.onSuccess('Events list!', events, res);
+                    let finalEvents = [];
+                    if(category_name && category_name != ''){
+                        async.forEachSeries(allEvents, (xevent, next_xevent) => {
+                            if (xevent.event_category.category_name == category_name) {
+                                finalEvents.push(xevent);
+                            }
+                            next_xevent();
+                        }, () => {
+                            events.docs = finalEvents;
+                            return responseManager.onSuccess("event List", finalEvents, res);
+                        });  
+                    }else{
+                        events.docs = allEvents;
+                        return responseManager.onSuccess("event List", allEvents, res);
+                    }                  
                 });
             }).catch((error) => {
                 return responseManager.onError(error, res);
