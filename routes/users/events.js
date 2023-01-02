@@ -14,6 +14,7 @@ router.post('/wishlist/getone', helper.authenticateToken, wishlistCtrl.getone);
 router.post('/wishlist/remove', helper.authenticateToken, wishlistCtrl.remove);
 router.post('/booking', helper.authenticateToken, bookingCtrl.booking);
 router.post('/checkavailability', helper.authenticateToken, bookingCtrl.checkavailability);
+router.post('/calendar', helper.authenticateToken, bookingCtrl.calendar);
 // get apis
 router.get('/getone', helper.authenticateToken, getoneCtrl.getone);
 router.get('/wishlist/list', helper.authenticateToken, wishlistCtrl.list);

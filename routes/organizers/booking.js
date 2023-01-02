@@ -10,29 +10,43 @@ const eventbookingModel = require('../../models/eventbookings.model');
 const userModel = require('../../models/users.model');
 const async = require("async");
 const mongoose = require('mongoose');
-router.get('/list', helper.authenticateToken, async (req, res) => {
+router.post('/list', helper.authenticateToken, async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerdata = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerdata && organizerdata.status == true && organizerdata.mobileverified == true) {
+            const { page, limit, search } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
             let allEventsId = [];
-            async.forEachSeries(eventData, (event, next_wishlist) => {
+            let query = {};
+            async.forEachSeries(eventData, (event, next_booking) => {
                 if (event._id && event._id != '' && mongoose.Types.ObjectId.isValid(event._id)) {
                     allEventsId.push(mongoose.Types.ObjectId(event._id));
                 }
-                next_wishlist();
+                next_booking();
             });
-            let eventBookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: { $in: allEventsId } }).populate([
-                { path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }
-            ]).sort({_id: -1}).lean();
-            if (eventBookingData && eventBookingData != null) {
+            query = {
+                eventId: { $in: allEventsId } 
+            };
+            primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate(query, {
+                page,
+                limit: parseInt(limit),
+                sort: { _id: -1 },
+                populate: {
+                    path: 'userid',
+                    model: primary.model(constants.MODELS.users, userModel),
+                    select : 'name profile_name'
+                },                
+                // select: '_id userid eventId trans_Id name url category_name address payment_status createdAt updatedAt selectedItems selectedEquipments selectedServices totalPrice start_date end_date start_time end_time start_timestamp end_timestamp',
+                lean: true
+            }).then((eventBookingData) => {
+                console.log("eventBookingData", eventBookingData);
                 return responseManager.onSuccess('Booking list data!', eventBookingData, res);
-            } else {
-                return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
-            }
+            }).catch((error) => {
+                return responseManager.onError(error, res);
+            });
         } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to get event discount details, please try again' }, res);
         }

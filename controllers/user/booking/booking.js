@@ -1,6 +1,7 @@
 const mongoConnection = require('../../../utilities/connections');
 const responseManager = require('../../../utilities/response.manager');
 const constants = require('../../../utilities/constants');
+const helper = require('../../../utilities/helper');
 const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
@@ -14,6 +15,7 @@ exports.booking = async (req, res) => {
             const { user, eventId, trans_Id, name, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 if (start_date && end_date && start_time && end_time) {
+                    let invoiceNo = await helper.getInvoiceNo();
                     let finalItems = [];
                     let finalEquipments = [];
                     let finalServices = [];
@@ -49,6 +51,7 @@ exports.booking = async (req, res) => {
                                         trans_Id: trans_Id,
                                         name: name,
                                         url: url,
+                                        invoice_no: invoiceNo,
                                         category_name: category_name,
                                         address: address,
                                         payment_status: payment_status,
@@ -66,7 +69,7 @@ exports.booking = async (req, res) => {
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     console.log("output", output);
-                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({_id: -1}).lean();
+                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
                                     console.log("currentuserreview", currentuserreview);
                                     output.isUserReview = (currentuserreview == null) ? false : true
                                     console.log("output.isUserReview", output);
@@ -88,6 +91,84 @@ exports.booking = async (req, res) => {
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid token to book event data, please try again' }, res);
+    }
+};
+exports.calendar = async (req, res) => {
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
+        if (userdata && userdata.status == true && userdata.mobileverified == true) {
+            const { eventId } = req.body;
+            if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
+                let today = new Date();
+                let i = 1;
+                let finalObj = {};
+                for (i = 1; i <= 365; i++) {
+                    finalObj[today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()] = [];
+                    today.setDate(today.getDate() + 1);
+                }
+                for (const [key, value] of Object.entries(finalObj)) {
+                    (async () => {
+                        let start = new Date(key + ' 00:00:00').getTime() + 19800000;
+                        let end = new Date(key + ' 23:59:00').getTime() + 19800000;
+                        let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
+                            eventId: mongoose.Types.ObjectId(eventId),
+                            $or: [
+                                {
+                                    start_timestamp: {
+                                        $and: [
+                                            { $gte: start },
+                                            { $lte: end }
+                                        ]
+                                    },
+                                    end_timestamp: {
+                                        $and: [
+                                            { $gte: start },
+                                            { $lte: end }
+                                        ]
+                                    }
+                                },
+                                {
+                                    start_timestamp: { $lte: start }, end_timestamp: { $gte: end }
+                                }
+                            ]
+                        }).sort({ start_timestamp: 1 }).lean();
+                        console.log('bookings', bookings);
+                        finalObj[key] = bookings;
+                    })().catch((error) => {
+                        console.log('error', error);
+                    });
+
+                }
+                // finalObj.forEach()
+                // async.forEachSeries(finalObj, (oneday, next_day) => {
+
+                // }, () => {
+
+                // });
+
+                return responseManager.onSuccess('all bookings', finalObj, res);
+
+                // let currentTime = Date.now();
+
+                // let bookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventId), start_timestamp : { $gte : currentTime} }).sort({start_timestamp : 1}).lean();
+                // let FinalBooking = [];
+                // if(bookingData && bookingData.length > 0){
+
+                //     async.forEachSeries(bookingData, (booking, next_booking) => {
+
+                //     });
+                // }else{
+                //     return responseManager.onSuccess('all bookings', FinalBooking, res);
+                // }
+            } else {
+                return responseManager.badrequest({ message: 'Invalid user data to check event booking availability, please try again' }, res);
+            }
+        } else {
+            return responseManager.badrequest({ message: 'Invalid token to check event booking availability, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to check event booking availability, please try again' }, res);
     }
 };
 exports.checkavailability = async (req, res) => {
@@ -138,12 +219,12 @@ exports.bookinglist = async (req, res) => {
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).sort({_id: -1}).lean();
+            let eventData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ userid: mongoose.Types.ObjectId(req.token.userid) }).sort({ _id: -1 }).lean();
             if (eventData && eventData != null) {
                 let allEvents = [];
                 async.forEachSeries(eventData, (event, next_event) => {
                     (async () => {
-                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).sort({_id: -1}).lean();
+                        let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).sort({ _id: -1 }).lean();
                         console.log("currentuserreview", currentuserreview);
                         event.isUserReview = (currentuserreview == null) ? false : true
                         console.log("event.isUserReview", event.isUserReview);
