@@ -21,17 +21,13 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
             let allEventsId = [];
-            let query = {};
             async.forEachSeries(eventData, (event, next_booking) => {
                 if (event._id && event._id != '' && mongoose.Types.ObjectId.isValid(event._id)) {
                     allEventsId.push(mongoose.Types.ObjectId(event._id));
                 }
                 next_booking();
             });
-            query = {
-                eventId: { $in: allEventsId } 
-            };
-            primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate(query, {
+            primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate({eventId: { $in: allEventsId } }, {
                 page,
                 limit: parseInt(limit),
                 sort: { _id: -1 },
@@ -59,7 +55,7 @@ router.post('/getone', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             const { invoiceid } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (invoiceid && invoiceid != '' && mongoose.Types.ObjectId.isValid(invoiceid)) {
