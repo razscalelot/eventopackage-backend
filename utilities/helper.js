@@ -11,11 +11,11 @@ exports.makeid = (length) => {
     }
     return result;
 };
-exports.getInvoiceNo = (min = 0, max = 90000) => {
+exports.getInvoiceNo = (min = 0, max = 900000) => {
     min = Math.ceil(min);
     max = Math.floor(max);
     const num = Math.floor(Math.random() * (max - min + 1)) + min;
-    return num.toString().padStart(6, "0")
+    return num.toString().padStart(5, "0")
 };
 exports.getFileType = (mimeType) => {
     let filteredData = allowedContentTypes.filter((element) => {

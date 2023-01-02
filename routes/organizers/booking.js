@@ -42,7 +42,6 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                 // select: '_id userid eventId trans_Id name url category_name address payment_status createdAt updatedAt selectedItems selectedEquipments selectedServices totalPrice start_date end_date start_time end_time start_timestamp end_timestamp',
                 lean: true
             }).then((eventBookingData) => {
-                console.log("eventBookingData", eventBookingData);
                 return responseManager.onSuccess('Booking list data!', eventBookingData, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);

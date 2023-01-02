@@ -68,11 +68,8 @@ exports.booking = async (req, res) => {
                                         end_timestamp: endTimestamp
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
-                                    console.log("output", output);
                                     let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
-                                    console.log("currentuserreview", currentuserreview);
                                     output.isUserReview = (currentuserreview == null) ? false : true
-                                    console.log("output.isUserReview", output);
                                     return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
                                     return responseManager.onError(error, res);
@@ -225,9 +222,7 @@ exports.bookinglist = async (req, res) => {
                 async.forEachSeries(eventData, (event, next_event) => {
                     (async () => {
                         let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(event.eventId) }).sort({ _id: -1 }).lean();
-                        console.log("currentuserreview", currentuserreview);
                         event.isUserReview = (currentuserreview == null) ? false : true
-                        console.log("event.isUserReview", event.isUserReview);
                         allEvents.push(event);
                         next_event();
                     })().catch((error) => { });
