@@ -43,7 +43,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                 // select: '_id userid eventId trans_Id name url category_name address payment_status createdAt updatedAt selectedItems selectedEquipments selectedServices totalPrice start_date end_date start_time end_time start_timestamp end_timestamp',
                 lean: true
             }).then((eventBookingData) => {
-                return responseManager.onSuccess('Booking list data!', eventBookingData, res);
+                return responseManager.onSuccess('Invoice list data!', eventBookingData, res);
             }).catch((error) => {
                 return responseManager.onError(error, res);
             });
@@ -52,6 +52,35 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid token to get event data, please try again' }, res);
+    }
+});
+router.post('/getone', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
+            const { invoiceid } = req.body;
+            let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+            if (invoiceid && invoiceid != '' && mongoose.Types.ObjectId.isValid(invoiceid)) {
+                let invoiceData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(invoiceid).populate({
+                    path: "userid",
+                    model: primary.model(constants.MODELS.users, userModel),
+                    select: 'name profile_pic'
+                }).lean();
+                if (invoiceData && invoiceData != null) {
+                    return responseManager.onSuccess('Invoice data!', invoiceData, res);
+                } else {
+                    return responseManager.badrequest({ message: 'Invalid invoice id get invoice data, please try again' }, res);
+                }
+            } else {
+                return responseManager.badrequest({ message: 'Invalid invoice id get invoice data, please try again' }, res);
+            }
+        } else {
+            return responseManager.badrequest({ message: 'Invalid organizerid to get invoice, please try again' }, res);
+        }
+    } else {
+        return responseManager.badrequest({ message: 'Invalid token to get invoice data, please try again' }, res);
     }
 });
 module.exports = router;
