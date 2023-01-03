@@ -77,6 +77,7 @@ const userpaths = [
   { pathUrl: '/register', routeFile: 'register' },
   { pathUrl: '/profile', routeFile: 'profile'},
   { pathUrl: '/events', routeFile: 'events' },
+  { pathUrl: '/invoice', routeFile: 'invoice'},
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
 ];

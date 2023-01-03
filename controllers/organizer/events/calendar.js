@@ -40,9 +40,15 @@ exports.calendar = async (req, res) => {
                                 },
                                 {
                                     start_timestamp: { $lte: start }, end_timestamp: { $gte: end }
+                                }, 
+                                {
+                                    $and : [{start_timestamp: { $gte: start }}, {start_timestamp: { $lte: end }}]
+                                },
+                                {
+                                    $and : [{end_timestamp: { $gte: start }}, {end_timestamp: { $lte: end }}]
                                 }
                             ]
-                        }).select("name start_time end_time").sort({ start_timestamp: 1 }).lean();
+                        }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
                         if(bookings && bookings.length > 0){
                             finalBookings[day.day] = bookings;
                         }else{
