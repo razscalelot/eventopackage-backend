@@ -105,7 +105,6 @@ exports.calendar = async (req, res) => {
                         index : i,
                         day : today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()
                     })
-                    //finalObj[today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()] = [];
                     today.setDate(today.getDate() + 1);
                 }
                 let finalBookings = {}; 
@@ -126,7 +125,7 @@ exports.calendar = async (req, res) => {
                                     start_timestamp: { $lte: start }, end_timestamp: { $gte: end }
                                 }
                             ]
-                        }).sort({ start_timestamp: 1 }).lean();
+                        }).select("name start_time end_time").sort({ start_timestamp: 1 }).lean();
                         if(bookings && bookings.length > 0){
                             finalBookings[day.day] = bookings;
                         }else{
@@ -137,27 +136,6 @@ exports.calendar = async (req, res) => {
                 }, () => {
                     return responseManager.onSuccess('all bookings', finalBookings, res);
                 });
-                // finalObj.forEach()
-                // async.forEachSeries(finalObj, (oneday, next_day) => {
-
-                // }, () => {
-
-                // });
-
-                
-
-                // let currentTime = Date.now();
-
-                // let bookingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventId), start_timestamp : { $gte : currentTime} }).sort({start_timestamp : 1}).lean();
-                // let FinalBooking = [];
-                // if(bookingData && bookingData.length > 0){
-
-                //     async.forEachSeries(bookingData, (booking, next_booking) => {
-
-                //     });
-                // }else{
-                //     return responseManager.onSuccess('all bookings', FinalBooking, res);
-                // }
             } else {
                 return responseManager.badrequest({ message: 'Invalid user data to check event booking availability, please try again' }, res);
             }
