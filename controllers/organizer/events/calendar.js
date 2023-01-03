@@ -20,7 +20,7 @@ exports.calendar = async (req, res) => {
                 for (i = 1; i <= 365; i++) {
                     finalObj.push({
                         index : i,
-                        day : today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()
+                        day : today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate() 
                     })
                     today.setDate(today.getDate() + 1);
                 }
