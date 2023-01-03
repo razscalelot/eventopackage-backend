@@ -9,6 +9,7 @@ const serviceModel = require('../../../models/service.model');
 const itemModel = require('../../../models/items.model');
 const equipmentModel = require('../../../models/equipments.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
+const eventbookingModel = require('../../../models/eventbookings.model');
 const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
@@ -50,7 +51,9 @@ exports.getone = async (req, res) => {
                         eventData.totalPrice = parseFloat(totalPrice).toFixed(2);
                     });
                     let allreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).find({ eventid: mongoose.Types.ObjectId(eventid) }).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }).lean();
+                    let allattendee = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventid) }).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic" }).lean();
                     eventData.reviews = allreview;
+                    eventData.attendee = allattendee;
                     return responseManager.onSuccess('Organizer event data!', eventData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Invalid event id to get event data, please try again' }, res);
