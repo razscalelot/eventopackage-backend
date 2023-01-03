@@ -99,44 +99,44 @@ exports.calendar = async (req, res) => {
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 let today = new Date();
                 let i = 1;
-                let finalObj = {};
+                let finalObj = [];
                 for (i = 1; i <= 365; i++) {
-                    finalObj[today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()] = [];
+                    finalObj.push({
+                        index : i,
+                        day : today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()
+                    })
+                    //finalObj[today.getFullYear() + '-' + ((today.getMonth()) + 1) + '-' + today.getDate()] = [];
                     today.setDate(today.getDate() + 1);
                 }
-                for (const [key, value] of Object.entries(finalObj)) {
+                let finalBookings = {}; 
+                async.forEachSeries(finalObj, (day, next_day) => {
                     (async () => {
-                        let start = new Date(key + ' 00:00:00').getTime() + 19800000;
-                        let end = new Date(key + ' 23:59:00').getTime() + 19800000;
+                        let start = new Date(day.day + ' 00:00:00').getTime() + 19800000;
+                        let end = new Date(day.day + ' 23:59:00').getTime() + 19800000;
                         let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
                             eventId: mongoose.Types.ObjectId(eventId),
                             $or: [
                                 {
-                                    start_timestamp: {
-                                        $and: [
-                                            { $gte: start },
-                                            { $lte: end }
-                                        ]
-                                    },
-                                    end_timestamp: {
-                                        $and: [
-                                            { $gte: start },
-                                            { $lte: end }
-                                        ]
-                                    }
+                                    $and : [
+                                        { start_timestamp : { $gte: start }},{ start_timestamp : { $lte: end }}, 
+                                        { end_timestamp : { $gte: start }},  { end_timestamp : { $lte: end }}
+                                    ]
                                 },
                                 {
                                     start_timestamp: { $lte: start }, end_timestamp: { $gte: end }
                                 }
                             ]
                         }).sort({ start_timestamp: 1 }).lean();
-                        console.log('bookings', bookings);
-                        finalObj[key] = bookings;
-                    })().catch((error) => {
-                        console.log('error', error);
-                    });
-
-                }
+                        if(bookings && bookings.length > 0){
+                            finalBookings[day.day] = bookings;
+                        }else{
+                            finalBookings[day.day] = [];
+                        }
+                        next_day();
+                    })().catch((error) => {});
+                }, () => {
+                    return responseManager.onSuccess('all bookings', finalBookings, res);
+                });
                 // finalObj.forEach()
                 // async.forEachSeries(finalObj, (oneday, next_day) => {
 
@@ -144,7 +144,7 @@ exports.calendar = async (req, res) => {
 
                 // });
 
-                return responseManager.onSuccess('all bookings', finalObj, res);
+                
 
                 // let currentTime = Date.now();
 
