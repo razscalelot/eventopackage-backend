@@ -43,10 +43,8 @@ router.post('/', async (req, res) => {
                     role: 'Backend',
                 },
             }).then((response) => {
-                console.log('success', response);
                 return responseManager.onSuccess('Thank you for getting in touch. we will reply by email as soon as possible.', 1, res);
             }).catch((error) => {
-                console.log('error', error);
                 return responseManager.onError(error, res);
             });
         } else {
