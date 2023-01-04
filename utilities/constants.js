@@ -23,6 +23,7 @@ let constants = {
         notificationcoupons : 'notificationcoupons',
         eventbookingcoupons: 'eventbookingcoupons',
         eventbookings: 'eventbookings',
+        getintouches : 'getintouches'
     }
 };
 module.exports = constants;

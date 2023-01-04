@@ -34,6 +34,9 @@ mongoose.connection.once('open', () => {
   console.log("Oops! database connection error:" + error);
 });
 app.use('/', indexRouter);
+const landingpaths = [
+  { pathUrl: '/getintouch', routeFile: 'getintouch'}
+];
 const adminpaths = [
   { pathUrl: '/', routeFile: 'index'}
 ];
@@ -81,6 +84,9 @@ const userpaths = [
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
 ];
+landingpaths.forEach((path) => {
+	app.use('/landing'+path.pathUrl, require('./routes/landing/' + path.routeFile));
+});
 adminpaths.forEach((path) => {
 	app.use('/admin'+path.pathUrl, require('./routes/admins/' + path.routeFile));
 });
