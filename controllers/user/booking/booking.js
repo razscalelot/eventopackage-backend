@@ -15,7 +15,8 @@ exports.booking = async (req, res) => {
             const { user, eventId, trans_Id, name, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 if (start_date && end_date && start_time && end_time) {
-                    let invoiceNo = await helper.getInvoiceNo();
+                    let totalInvoice = parseInt(await primary.model(constants.MODELS.eventbookings, eventbookingModel).countDocuments({}));
+                    let invoiceNo = helper.getInvoiceNo(totalInvoice);
                     let finalItems = [];
                     let finalEquipments = [];
                     let finalServices = [];

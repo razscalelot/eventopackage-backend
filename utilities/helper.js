@@ -11,18 +11,12 @@ exports.makeid = (length) => {
     }
     return result;
 };
-exports.getInvoiceNo = (min = 0, max = 900000) => {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    const num = Math.floor(Math.random() * (max - min + 1)) + min;
-    return num.toString().padStart(5, "0")
-};
 exports.getFileType = (mimeType) => {
     let filteredData = allowedContentTypes.filter((element) => {
         return element.mimeType == mimeType;
     });
     return filteredData.length > 0 ? filteredData[0].fName : "";
-}
+};
 exports.generateAccessToken = async (userData) => {
     return jwt.sign(userData, process.env.APP_LOGIN_AUTH_TOKEN, {});
 };
@@ -42,7 +36,7 @@ exports.authenticateToken = async (req, res, next) => {
     } else {
         return response.unauthorisedRequest(res);
     }
-}
+};
 exports.passwordDecryptor = async (passwordKeyDecrypt) => {
     try {
         var decLayer1 = CryptoJS.TripleDES.decrypt(passwordKeyDecrypt, process.env.PASSWORD_ENCRYPTION_SECRET);
@@ -55,7 +49,7 @@ exports.passwordDecryptor = async (passwordKeyDecrypt) => {
     } catch (err) {
         throw err;
     }
-}
+};
 exports.passwordEncryptor = async (passwordKeyEncrypt) => {
     try {
         var encLayer1 = CryptoJS.AES.encrypt(passwordKeyEncrypt, process.env.PASSWORD_ENCRYPTION_SECRET).toString();
@@ -65,5 +59,24 @@ exports.passwordEncryptor = async (passwordKeyEncrypt) => {
     } catch (err) {
         throw err;
     }
-}
-
+};
+exports.getInvoiceNo = (invno) => {
+    var inv_number = invno + 1;
+    var lengoftemp = inv_number.toString().length;
+    if(lengoftemp == 1){
+        inv_number = '0000000'+inv_number;
+    }else if(lengoftemp == 2){
+        inv_number = '000000'+inv_number;
+    }else if(lengoftemp == 3){
+        inv_number = '00000'+inv_number;
+    }else if(lengoftemp == 4){
+        inv_number = '0000'+inv_number;
+    }else if(lengoftemp == 5){
+        inv_number = '000'+inv_number;
+    }else if(lengoftemp == 6){
+        inv_number = '00'+inv_number;
+    }else if(lengoftemp == 7){
+        inv_number = '0'+inv_number;
+    }
+    return inv_number;
+};
