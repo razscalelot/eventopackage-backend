@@ -40,11 +40,11 @@ const allowedContentTypes = [
     { extn: '3gp', mimeType: 'audio/3gpp', fName: 'VID' },
     { extn: '3gp2', mimeType: 'video/3gpp2', fName: 'VID' },
     { extn: '3gp2', mimeType: 'audio/3gpp2', fName: 'VID' },
-    { extn : 'flv', mimrType: 'video/x-flv', fName: 'VID' },
-    { extn : 'm3u8', mimrType: 'application/x-mpegURL', fName: 'VID' },
-    { extn : 'ts', mimrType: 'video/MP2T', fName: 'VID' },
-    { extn : 'mov', mimrType: 'video/quicktime', fName: 'VID' },
-    { extn : 'wmv', mimrType: 'video/x-ms-wmv', fName: 'VID' },
+    { extn : 'flv', mimeType: 'video/x-flv', fName: 'VID' },
+    { extn : 'm3u8', mimeType: 'application/x-mpegURL', fName: 'VID' },
+    { extn : 'ts', mimeType: 'video/MP2T', fName: 'VID' },
+    { extn : 'mov', mimeType: 'video/quicktime', fName: 'VID' },
+    { extn : 'wmv', mimeType: 'video/x-ms-wmv', fName: 'VID' },
 ];
 const imagearray = ['image/webp', 'image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/vnd.microsoft.icon', 'image/tiff', 'image/svg+xml'];
 const audiovideoarray = ['audio/mpeg', 'audio/aac', 'audio/wav', 'audio/opus', 'audio/amr', 'audio/ogg', 'video/x-msvideo', 'video/mp4', 'video/webm', 'audio/webm', 'video/3gpp', 'audio/3gpp', 'video/3gpp2', 'audio/3gpp2'];
