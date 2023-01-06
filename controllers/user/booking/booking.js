@@ -162,26 +162,34 @@ exports.checkavailability = async (req, res) => {
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 if (start_date && end_date && start_time && end_time) {
                     let xstart_date = start_date.split("-");
-                    let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime();
+                    let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime() + 19800000;
                     let yend_date = end_date.split("-");
-                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();
-                    let existingData = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ eventId: mongoose.Types.ObjectId(eventId) }).lean();
-                    if (existingData && existingData.length > 0) {
-                        let flg = 1;
-                        async.forEachSeries(existingData, (booking, next_booking) => {
-                            if (booking.start_timestamp && booking.end_timestamp && ((booking.start_timestamp >= startTimestamp && startTimestamp <= booking.end_timestamp) || (booking.start_timestamp >= endTimestamp && endTimestamp <= booking.end_timestamp))) {
-                                flg = 0;
+                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime()+ 19800000;;
+                    let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
+                        eventId: mongoose.Types.ObjectId(eventId),
+                        $or: [
+                            {
+                                $and : [
+                                    { start_timestamp : { $gte: startTimestamp }}, { start_timestamp : { $lte: endTimestamp }}, 
+                                    { end_timestamp : { $gte: startTimestamp }},  { end_timestamp : { $lte: endTimestamp }}
+                                ]
+                            },
+                            {
+                                start_timestamp: { $lte: startTimestamp }, end_timestamp: { $gte: endTimestamp }
+                            },
+                            {
+                                $and : [{start_timestamp: { $gte: startTimestamp }}, {start_timestamp: { $lte: endTimestamp }}]
+                            },
+                            {
+                                $and : [{end_timestamp: { $gte: startTimestamp }}, {end_timestamp: { $lte: endTimestamp }}]
                             }
-                            next_booking();
-                        }, () => {
-                            if (flg) {
-                                return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
-                            } else {
-                                return responseManager.onSuccess('There are no bookings available on the selected date and time.', 0, res);
-                            }
-                        });
+                        ]
+                    }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
+                    console.log("bookings", bookings);
+                    if(bookings && bookings.length > 0){
+                        return responseManager.onSuccess('There are no bookings available on the selected date and time.', 0, res)
                     } else {
-                        return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res)
+                        return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
