@@ -20,7 +20,7 @@ exports.getsettings = async (req, res) => {
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                 if (notificationData && notificationData.payment == false && notificationData.createdBy.toString() == req.token.organizerid.toString()) {
                     console.log('333333');
-                    if (notificationData.usertype && (notificationData.usertype == 'eventusers' || notificationData.usertype == 'shopusers' || notificationData.usertype == 'onlineofferusers' || notificationData.usertype == 'livestreamusers')) {
+                    if (notificationData.usertype && (notificationData.usertype == 'haveyouplace' || notificationData.usertype == 'personalskillsbusiness' || notificationData.usertype == 'groupskillsbusiness')) {
                         console.log('444444');
                         let defaultSetting = await primary.model(constants.MODELS.settings, settingModel).find({}).lean();
                         if (defaultSetting && defaultSetting.length > 0) {

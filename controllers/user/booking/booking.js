@@ -67,7 +67,9 @@ exports.booking = async (req, res) => {
                                         end_time: end_time,
                                         isUserReview: false,
                                         start_timestamp: startTimestamp,
-                                        end_timestamp: endTimestamp
+                                        end_timestamp: endTimestamp,
+                                        created_at: Date.now(),
+                                        updated_at: Date.now()
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
