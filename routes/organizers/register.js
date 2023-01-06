@@ -29,6 +29,7 @@ router.post('/', async (req, res, next) => {
                 profile_pic: "",
                 refer_code : refer_code,
                 my_refer_code : my_referCode,
+                coins: 0,
                 fcm_token : fcm_token,
                 is_approved : true,
                 status : true,

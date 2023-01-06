@@ -29,7 +29,7 @@ router.post('/', async (req, res, next) => {
                 profile_pic: "",
                 refer_code : (refer_code) ? refer_code : '',
                 my_refer_code : my_referCode,
-                f_coin: 0,
+                coins: 0,
                 about: '',
                 status : true,
                 mobileverified : false,
