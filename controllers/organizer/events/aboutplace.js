@@ -10,11 +10,8 @@ exports.aboutplace = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true&& organizerData.is_approved == true) {
-            console.log('req.body', req);
             const { eventid, banner, place_price, price_type, details } = req.body;
-            console.log('const eventid', eventid, place_price);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                console.log('if eventid', eventid);
                 if (place_price && place_price != '' && price_type && price_type != '') {
                     let obj = {
                         banner: banner,
@@ -22,7 +19,6 @@ exports.aboutplace = async (req, res) => {
                         price_type: price_type,
                         details: details
                     };
-                    console.log('obj', obj);
                     await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
                     let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                     return responseManager.onSuccess('Organizer event about data updated successfully!', eventData, res);
