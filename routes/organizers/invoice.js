@@ -34,7 +34,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                 populate: {
                     path: 'userid',
                     model: primary.model(constants.MODELS.users, userModel),
-                    select : 'name profile_name'
+                    select : 'name profile_pic'
                 },                
                 // select: '_id userid eventId trans_Id name url category_name address payment_status createdAt updatedAt selectedItems selectedEquipments selectedServices totalPrice start_date end_date start_time end_time start_timestamp end_timestamp',
                 lean: true
