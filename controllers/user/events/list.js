@@ -17,6 +17,8 @@ exports.list = async (req, res) => {
             const { event_type, price, min_person, max_person, search } = req.body;
             primary.model(constants.MODELS.events, eventModel).find({
                 status: true,
+                // is_approved: true,
+                is_live: true,
                 $or: [
                     { display_name: { '$regex': new RegExp(search, "i") } },
                     { event_type: { '$regex': new RegExp(search, "i") } },
