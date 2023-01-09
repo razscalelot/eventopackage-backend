@@ -20,7 +20,7 @@ exports.personaldetail = async (req, res) => {
                             country_code: (req.body.country_code) ? req.body.country_code : '',
                             mobile: (req.body.mobile) ? req.body.mobile : '',
                             is_mobile_hidden: (req.body.is_mobile_hidden) ? req.body.is_mobile_hidden : false,
-                            alt_mobile: (req.body.alt_mobile) ? req.body.alt_mobile : '',
+                            alt_mobile_no: (req.body.alt_mobile_no) ? req.body.alt_mobile_no : '',
                             alt_mobile_hidden: (req.body.alt_mobile_hidden) ? req.body.alt_mobile_hidden : '',
                             email: (req.body.email) ? req.body.email : '',
                             is_email_hidden: (req.body.is_email_hidden) ? req.body.is_email_hidden : false,
