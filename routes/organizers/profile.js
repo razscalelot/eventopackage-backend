@@ -35,13 +35,16 @@ router.post('/', helper.authenticateToken, async (req, res, next) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             let obj = {
                 name: name,
-                dob: dob,
-                city: city,
-                pincode: pincode,
-                state: state,
-                country: country,
                 address: address,
+                dob: dob,
+                country: country,
                 about: about,
+                flat_no : flat_no,
+                street : street,
+                area : area,
+                city: city,
+                state: state,
+                pincode: pincode,
                 updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
             };
             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(req.token.organizerid, obj);
@@ -96,7 +99,7 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
 router.post('/businessprofile', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, phone_no, country_code, address, dob, country, about } = req.body;
+    const { name, email, contact_no, country_code, address, dob, country, about } = req.body;
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let existingData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
@@ -105,8 +108,12 @@ router.post('/businessprofile', helper.authenticateToken, async (req, res, next)
                 profile_pic: (existingData.businessProfile && existingData.businessProfile.profile_pic && existingData.businessProfile.profile_pic != '') ? existingData.businessProfile.profile_pic : '',
                 name: name,
                 email: email,
-                phone_no: phone_no,
-                country_code: country_code,
+                country_code : country_code,
+                contact_no: contact_no,
+                flat_no : flat_no,
+                street : street,
+                area : area,
+                city : city,
                 address: address,
                 dob: dob,
                 country: country,

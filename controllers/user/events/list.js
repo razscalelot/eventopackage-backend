@@ -38,7 +38,7 @@ exports.list = async (req, res) => {
             }).select('event_category createdBy display_name event_type timestamp status createdAt updatedAt aboutplace personaldetail capacity discounts').populate([
                 { path: 'event_category', model: primary.model(constants.MODELS.categories, categoryModel), select: "category_name" },
                 { path: 'createdBy', model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic" }
-            ]).sort({_id: -1}).lean().then((result) => {
+            ]).sort({ _id: -1 }).lean().then((result) => {
                 let allEvents = [];
                 async.forEachSeries(result, (event, next_event) => {
                     (async () => {
@@ -48,23 +48,23 @@ exports.list = async (req, res) => {
                         let totalPrice = 0;
                         async.forEach(event.discounts, (discount, next_discount) => {
                             if (discount.discounttype === "discount_on_total_bill") {
-                                if (event.aboutplace){
+                                if (event.aboutplace) {
                                     let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
                                     totalPrice += getPrice;
-                                }else if(event.personaldetail){
+                                } else if (event.personaldetail) {
                                     let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
                                     totalPrice += getPrice;
                                 }
                             }
                             next_discount();
                         }, () => {
-                           if(totalPrice == 0){
-                            if (event.aboutplace){
-                                totalPrice = parseFloat(event.aboutplace.place_price);
-                            }else if(event.personaldetail){
-                                totalPrice = parseFloat(event.personaldetail.price);
+                            if (totalPrice == 0) {
+                                if (event.aboutplace) {
+                                    totalPrice = parseFloat(event.aboutplace.place_price);
+                                } else if (event.personaldetail) {
+                                    totalPrice = parseFloat(event.personaldetail.price);
+                                }
                             }
-                           } 
                         });
                         event.totalPrice = parseFloat(totalPrice).toFixed(2)
                         if (noofreview > 0) {
@@ -82,34 +82,34 @@ exports.list = async (req, res) => {
                 }, () => {
                     let finalEvents = [];
                     async.forEachSeries(allEvents, (xevent, next_xevent) => {
-                        if(min_person && max_person && !isNaN(min_person) && !isNaN(max_person) && parseInt(min_person) != 0 && parseInt(max_person) != 0 && parseInt(min_person) < parseInt(max_person)){
-                            if(price && !isNaN(price) && parseFloat(price) != 0){
-                                if(xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)){
-                                    if(parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)){
-                                        if(parseFloat(price) >= xevent.totalPrice){
+                        if (min_person && max_person && !isNaN(min_person) && !isNaN(max_person) && parseInt(min_person) != 0 && parseInt(max_person) != 0 && parseInt(min_person) < parseInt(max_person)) {
+                            if (price && !isNaN(price) && parseFloat(price) != 0) {
+                                if (xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)) {
+                                    if (parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)) {
+                                        if (parseFloat(price) >= xevent.totalPrice) {
                                             finalEvents.push(xevent);
                                         }
                                     }
-                                }else{
-                                    if(parseFloat(price) >= xevent.totalPrice){
+                                } else {
+                                    if (parseFloat(price) >= xevent.totalPrice) {
                                         finalEvents.push(xevent);
                                     }
                                 }
-                            }else{
-                                if(xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)){
-                                    if(parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)){
+                            } else {
+                                if (xevent.capacity && xevent.capacity.person_capacity && !isNaN(xevent.capacity.person_capacity)) {
+                                    if (parseInt(min_person) <= parseInt(xevent.capacity.person_capacity) && parseInt(xevent.capacity.person_capacity) <= parseInt(max_person)) {
                                         finalEvents.push(xevent);
                                     }
-                                }else{
+                                } else {
                                     finalEvents.push(xevent);
                                 }
                             }
-                        }else{
-                            if(price && !isNaN(price) && parseFloat(price) != 0){
-                                if(parseFloat(price) >= xevent.totalPrice){
+                        } else {
+                            if (price && !isNaN(price) && parseFloat(price) != 0) {
+                                if (parseFloat(price) >= xevent.totalPrice) {
                                     finalEvents.push(xevent);
                                 }
-                            }else{
+                            } else {
                                 finalEvents.push(xevent);
                             }
                         }

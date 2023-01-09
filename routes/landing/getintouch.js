@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     const { name, company_name, email, description } = req.body;
     if (name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && company_name && company_name.trim() != '' && description && description.trim() != '') {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let checkExisting = await primary.model(constants.MODELS.getintouches, getintouchModel).findOne({email: email}).lean();
+        let checkExisting = await primary.model(constants.MODELS.getintouches, getintouchModel).findOne({ email: email }).lean();
         if (checkExisting == null) {
             let obj = {
                 name: name,
@@ -29,19 +29,15 @@ router.post('/', async (req, res) => {
             }
             const receivers = [
                 {
-                    email: 'raj.scalelot@gmail.com',
-                    name: 'Raz Kalsariya'
+                    email: process.env.SIB_EMAIL_ID,
+                    name: 'Evento Package'
                 },
             ];
             tranEmailApi.sendTransacEmail({
                 sender,
                 to: receivers,
-                subject: 'Testing API for Send In Blue',
-                textContent: `testing testing Cules Coding will teach you how to become a developer.`,
-                htmlContent: `<h1>`+company_name+`</h1><a href="https://scalelot.com/">Visit</a>`+ description,
-                params: {
-                    role: 'Backend',
-                },
+                subject: name + ' Query ' + company_name,
+                htmlContent: `<h3>` + company_name + `</h3><br/><h5>` + description + `</h5>`,
             }).then((response) => {
                 return responseManager.onSuccess('Thank you for getting in touch. we will reply by email as soon as possible.', 1, res);
             }).catch((error) => {
