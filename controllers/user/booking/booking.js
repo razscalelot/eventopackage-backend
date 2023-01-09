@@ -190,7 +190,7 @@ exports.checkavailability = async (req, res) => {
                     }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
                     console.log("bookings", bookings);
                     if(bookings && bookings.length > 0){
-                        return responseManager.onSuccess('There are no bookings available on the selected date and time.', 0, res)
+                        return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
                         return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
                     }
