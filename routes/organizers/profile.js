@@ -28,7 +28,7 @@ router.get('/', helper.authenticateToken, async (req, res, next) => {
 router.post('/', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, dob, city, pincode, state, country, address, about } = req.body;
+    const { name, dob, city, pincode, state, country, address, about, flat_no, street, area } = req.body;
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
@@ -99,7 +99,7 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
 router.post('/businessprofile', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, contact_no, country_code, address, dob, country, about } = req.body;
+    const { name, email, contact_no, country_code, address, dob, country, about, flat_no, street, area, city } = req.body;
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let existingData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
