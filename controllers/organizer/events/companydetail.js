@@ -15,6 +15,7 @@ exports.companydetail = async (req, res) => {
                 let obj = {
                     name: (req.body.name) ? req.body.name : '',
                     gst: (req.body.gst) ? req.body.gst : '',
+                    country_code: (req.body.country_code) ? req.body.country_code : '',
                     contact_no: (req.body.contact_no) ? req.body.contact_no : '',
                     email: (req.body.email) ? req.body.email : '',
                     about: (req.body.about) ? req.body.about : '',

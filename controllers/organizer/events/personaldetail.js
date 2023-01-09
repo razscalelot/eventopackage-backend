@@ -17,6 +17,7 @@ exports.personaldetail = async (req, res) => {
                         let obj = {
                             professional_skill: (req.body.professional_skill) ? req.body.professional_skill : '',
                             full_name: (req.body.full_name) ? req.body.full_name : '',
+                            country_code: (req.body.country_code) ? req.body.country_code : '',
                             mobile_no: (req.body.mobile_no) ? req.body.mobile_no : '',
                             is_mobile_hidden: (req.body.is_mobile_hidden) ? req.body.is_mobile_hidden : false,
                             alt_mobile_no: (req.body.alt_mobile_no) ? req.body.alt_mobile_no : '',
