@@ -57,7 +57,7 @@ exports.paynow = async (req, res) => {
                                             "customer": {
                                                 "name": organizerData.name,
                                                 "email": organizerData.email,
-                                                "contact": organizerData.country_code + organizerData.phone_no
+                                                "contact": organizerData.country_code + organizerData.mobile
                                             },
                                             "notify": {
                                                 "sms": true,
@@ -86,7 +86,7 @@ exports.paynow = async (req, res) => {
                                             "customer": {
                                                 "name": organizerData.name,
                                                 "email": organizerData.email,
-                                                "contact": organizerData.country_code + organizerData.phone_no
+                                                "contact": organizerData.country_code + organizerData.mobile
                                             },
                                             "notify": {
                                                 "sms": true,
@@ -116,7 +116,7 @@ exports.paynow = async (req, res) => {
                                         "customer": {
                                             "name": organizerData.name,
                                             "email": organizerData.email,
-                                            "contact": organizerData.country_code + organizerData.phone_no
+                                            "contact": organizerData.country_code + organizerData.mobile
                                         },
                                         "notify": {
                                             "sms": true,
@@ -176,7 +176,7 @@ exports.paynow = async (req, res) => {
                                                 "customer": {
                                                     "name": organizerData.name,
                                                     "email": organizerData.email,
-                                                    "contact": organizerData.country_code + organizerData.phone_no
+                                                    "contact": organizerData.country_code + organizerData.mobile
                                                 },
                                                 "notify": {
                                                     "sms": true,
@@ -208,7 +208,7 @@ exports.paynow = async (req, res) => {
                                             "customer": {
                                                 "name": organizerData.name,
                                                 "email": organizerData.email,
-                                                "contact": organizerData.country_code + organizerData.phone_no
+                                                "contact": organizerData.country_code + organizerData.mobile
                                             },
                                             "notify": {
                                                 "sms": true,
@@ -263,7 +263,7 @@ exports.paynow = async (req, res) => {
                                                 "customer": {
                                                     "name": organizerData.name,
                                                     "email": organizerData.email,
-                                                    "contact": organizerData.country_code + organizerData.phone_no
+                                                    "contact": organizerData.country_code + organizerData.mobile
                                                 },
                                                 "notify": {
                                                     "sms": true,
@@ -295,7 +295,7 @@ exports.paynow = async (req, res) => {
                                             "customer": {
                                                 "name": organizerData.name,
                                                 "email": organizerData.email,
-                                                "contact": organizerData.country_code + organizerData.phone_no
+                                                "contact": organizerData.country_code + organizerData.mobile
                                             },
                                             "notify": {
                                                 "sms": true,
@@ -353,7 +353,7 @@ exports.paynow = async (req, res) => {
                                                 "customer": {
                                                     "name": organizerData.name,
                                                     "email": organizerData.email,
-                                                    "contact": organizerData.country_code + organizerData.phone_no
+                                                    "contact": organizerData.country_code + organizerData.mobile
                                                 },
                                                 "notify": {
                                                     "sms": true,
@@ -382,7 +382,7 @@ exports.paynow = async (req, res) => {
                                                 "customer": {
                                                     "name": organizerData.name,
                                                     "email": organizerData.email,
-                                                    "contact": organizerData.country_code + organizerData.phone_no
+                                                    "contact": organizerData.country_code + organizerData.mobile
                                                 },
                                                 "notify": {
                                                     "sms": true,
@@ -412,7 +412,7 @@ exports.paynow = async (req, res) => {
                                             "customer": {
                                                 "name": organizerData.name,
                                                 "email": organizerData.email,
-                                                "contact": organizerData.country_code + organizerData.phone_no
+                                                "contact": organizerData.country_code + organizerData.mobile
                                             },
                                             "notify": {
                                                 "sms": true,

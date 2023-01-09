@@ -9,7 +9,7 @@ let schema = new mongoose.Schema({
 		type: String,
 		require: true
 	},
-	phone_no: {
+	mobile: {
 		type: String,
 		require: true
 	},

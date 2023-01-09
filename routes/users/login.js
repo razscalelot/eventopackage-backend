@@ -15,10 +15,10 @@ const config = {
 
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { phone_no, password, fcm_token } = req.body;
-    if (phone_no && password && phone_no.length == 10 && password.length >= 6) {
+    const { mobile, password, fcm_token } = req.body;
+    if (mobile && password && mobile.length == 10 && password.length >= 6) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let userData = await primary.model(constants.MODELS.users, userModel).findOne({ phone_no: phone_no, status: true }).lean();
+        let userData = await primary.model(constants.MODELS.users, userModel).findOne({ mobile: mobile, status: true }).lean();
         if (userData && userData != null && userData.mobileverified == true) {
             let decPassword = await helper.passwordDecryptor(userData.password);
             if (decPassword == password) {
@@ -44,7 +44,7 @@ router.post('/', async (req, res, next) => {
                 return responseManager.badrequest({ message: 'Invalid password, please try again' }, res);
             }
         }else if (userData && userData != null && userData.mobileverified == false) {
-            const url = process.env.FACTOR_URL + userData.phone_no + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + userData.mobile + "/AUTOGEN";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { otpVerifyKey: otpSend.data.Details, mobileverified: true });

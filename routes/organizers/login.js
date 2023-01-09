@@ -8,10 +8,10 @@ const organizerModel = require('../../models/organizers.model');
 const userModel = require('../../models/users.model');
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { phone_no, password } = req.body;
-    if(phone_no && password && phone_no.length == 10 && password.length >= 6){
+    const { mobile, password } = req.body;
+    if(mobile && password && mobile.length == 10 && password.length >= 6){
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({phone_no: phone_no, is_approved: true, status: true, mobileverified : true}).lean();
+        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({mobile: mobile, is_approved: true, status: true, mobileverified : true}).lean();
         if(organizerData && organizerData != null && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true){
             let decPassword = await helper.passwordDecryptor(organizerData.password);
             if(decPassword == password){

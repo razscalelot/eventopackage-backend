@@ -16,7 +16,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerdata = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerdata && organizerdata.status == true && organizerdata.mobileverified == true) {
-            const { page, limit, search } = req.body;
+            const { page, limit, date, time, event_type } = req.body;
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
             let allEventsId = [];
@@ -30,7 +30,18 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
             query = {
                 eventId: { $in: allEventsId } 
             };
-            primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate(query, {
+            primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate({
+                eventId: { $in: allEventsId }, 
+                $or: [
+                    { date: { '$regex': new RegExp(date, "i") } },
+                ],
+                $or: [
+                    { time: { '$regex': new RegExp(time, "i") } },
+                ],
+                $or: [
+                    { event_type: { '$regex': new RegExp(event_type, "i") } },
+                ]
+            }, {
                 page,
                 limit: parseInt(limit),
                 sort: { _id: -1 },

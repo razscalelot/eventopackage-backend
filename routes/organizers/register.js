@@ -13,17 +13,17 @@ const config = {
 };
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, phone_no, country_code, password, refer_code, fcm_token } = req.body;
-    if(name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && phone_no && phone_no.length == 10 && country_code && country_code.trim() != '' && password && password.length >= 6){
+    const { name, email, mobile, country_code, password, refer_code, fcm_token } = req.body;
+    if(name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && mobile && mobile.length == 10 && country_code && country_code.trim() != '' && password && password.length >= 6){
         let ecnPassword = await helper.passwordEncryptor(password);
         let my_referCode = await helper.makeid(6);
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({  $or: [ {phone_no: phone_no}, {email: email} ] }).lean();
+        let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({  $or: [ {mobile: mobile}, {email: email} ] }).lean();
         if(checkExisting == null){
             let obj = {
                 name : name,
                 email : email,
-                phone_no : phone_no,
+                mobile : mobile,
                 country_code : country_code,
                 password : ecnPassword,
                 profile_pic: "",
@@ -37,7 +37,7 @@ router.post('/', async (req, res, next) => {
                 mobileverified : false,
                 businessProfile : {}
             };
-            const url = process.env.FACTOR_URL + phone_no + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
             let otpSend = await axios.get(url,config);
             if(otpSend.data.Details){
                 obj.otpVerifyKey = otpSend.data.Details;
@@ -56,9 +56,9 @@ router.post('/', async (req, res, next) => {
 router.post('/verifyotp', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-    const { key, otp, phone_no } = req.body;
-    if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && phone_no && phone_no.length == 10){
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({phone_no : phone_no, otpVerifyKey : key}).lean();
+    const { key, otp, mobile } = req.body;
+    if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && mobile && mobile.length == 10){
+        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({mobile : mobile, otpVerifyKey : key}).lean();
         if(organizerData){
             const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url ,config);
@@ -77,12 +77,12 @@ router.post('/verifyotp', async (req, res, next) => {
 });
 router.post('/forgotpassword', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { phone_no } = req.body;
-    if(phone_no && phone_no != '' && phone_no.length == 10){
+    const { mobile } = req.body;
+    if(mobile && mobile != '' && mobile.length == 10){
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({phone_no: phone_no}).lean();
+        let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({mobile: mobile}).lean();
         if(checkExisting){
-            const url = process.env.FACTOR_URL + phone_no + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
             let otpSend = await axios.get(url,config);
             if(otpSend.data.Details){
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});
@@ -100,9 +100,9 @@ router.post('/forgotpassword', async (req, res) => {
 router.post('/changepassword', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-    const { password, phone_no } = req.body;
-    if(password && password.trim() != '' && password.length >= 6 && phone_no && phone_no.length == 10){
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({phone_no : phone_no}).lean();
+    const { password, mobile } = req.body;
+    if(password && password.trim() != '' && password.length >= 6 && mobile && mobile.length == 10){
+        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({mobile : mobile}).lean();
         if(organizerData){
             let ecnPassword = await helper.passwordEncryptor(password);
             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, {password : ecnPassword});

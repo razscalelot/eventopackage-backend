@@ -12,15 +12,15 @@ exports.personaldetail = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                if (req.body.full_name && req.body.full_name.trim() != '' && req.body.mobile_no && req.body.mobile_no.trim() != '' && req.body.mobile_no.trim().length == 10 && req.body.email && req.body.email.trim() != '' && req.body.city && req.body.city.trim() != '' && req.body.state && req.body.state.trim() != '' && req.body.pincode && req.body.pincode.trim() != '') {
+                if (req.body.full_name && req.body.full_name.trim() != '' && req.body.mobile && req.body.mobile.trim() != '' && req.body.mobile.trim().length == 10 && req.body.email && req.body.email.trim() != '' && req.body.city && req.body.city.trim() != '' && req.body.state && req.body.state.trim() != '' && req.body.pincode && req.body.pincode.trim() != '') {
                     if ((/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email))) {
                         let obj = {
                             professional_skill: (req.body.professional_skill) ? req.body.professional_skill : '',
                             full_name: (req.body.full_name) ? req.body.full_name : '',
                             country_code: (req.body.country_code) ? req.body.country_code : '',
-                            mobile_no: (req.body.mobile_no) ? req.body.mobile_no : '',
+                            mobile: (req.body.mobile) ? req.body.mobile : '',
                             is_mobile_hidden: (req.body.is_mobile_hidden) ? req.body.is_mobile_hidden : false,
-                            alt_mobile_no: (req.body.alt_mobile_no) ? req.body.alt_mobile_no : '',
+                            alt_mobile: (req.body.alt_mobile) ? req.body.alt_mobile : '',
                             alt_mobile_hidden: (req.body.alt_mobile_hidden) ? req.body.alt_mobile_hidden : '',
                             email: (req.body.email) ? req.body.email : '',
                             is_email_hidden: (req.body.is_email_hidden) ? req.body.is_email_hidden : false,
