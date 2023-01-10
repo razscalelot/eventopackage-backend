@@ -51,9 +51,11 @@ exports.list = async (req, res) => {
                                 if (event.aboutplace) {
                                     let getPrice = parseInt(event.aboutplace.place_price) - (parseInt(event.aboutplace.place_price) * parseInt(discount.discount) / 100);
                                     totalPrice += getPrice;
+                                    event.aboutplace.place_price = parseFloat(event.aboutplace.place_price).toFixed(2);
                                 } else if (event.personaldetail) {
                                     let getPrice = parseInt(event.personaldetail.price) - (parseInt(event.personaldetail.price) * parseInt(discount.discount) / 100);
                                     totalPrice += getPrice;
+                                    event.personaldetail.price = parseFloat(event.personaldetail.price).toFixed(2);
                                 }
                             }
                             next_discount();
