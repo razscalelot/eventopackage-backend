@@ -46,6 +46,11 @@ exports.getone = async (req, res) => {
                         }
                         next_discount();
                     }, () => {
+                        if (eventData.aboutplace) {
+                            eventData.aboutplace.place_price = parseFloat(eventData.aboutplace.place_price).toFixed(2);
+                        } else if (eventData.personaldetail) {
+                            eventData.personaldetail.price = parseFloat(eventData.personaldetail.price).toFixed(2);
+                        }
                         if (totalPrice == 0) {
                             if (eventData.aboutplace) {
                                 totalPrice = parseFloat(eventData.aboutplace.place_price);
