@@ -53,7 +53,7 @@ exports.createevent = async (req, res) => {
                             createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                             updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                             timestamp: Date.now(),
-                            status: false
+                            status: true
                         };
                         let createdEvent = await primary.model(constants.MODELS.events, eventModel).create(obj);
                         let eventData = await primary.model(constants.MODELS.events, eventModel).findById(createdEvent._id).populate({
