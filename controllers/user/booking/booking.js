@@ -4,6 +4,7 @@ const constants = require('../../../utilities/constants');
 const helper = require('../../../utilities/helper');
 const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
+const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const async = require("async");
 const mongoose = require('mongoose');
@@ -167,7 +168,8 @@ exports.checkavailability = async (req, res) => {
                     let xstart_date = start_date.split("-");
                     let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime() + 19800000;
                     let yend_date = end_date.split("-");
-                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime()+ 19800000;;
+                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime()+ 19800000;
+
                     let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
                         eventId: mongoose.Types.ObjectId(eventId),
                         $or: [
@@ -187,11 +189,12 @@ exports.checkavailability = async (req, res) => {
                                 $and : [{end_timestamp: { $gte: startTimestamp }}, {end_timestamp: { $lte: endTimestamp }}]
                             }
                         ]
-                    }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
-                    console.log("bookings", bookings);
+                    }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();   
                     if(bookings && bookings.length > 0){
                         return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
+                        // let event = await primary.model(constants.MODELS.events, eventModel).findOne({_id: mongoose.Types.ObjectId(eventId)}).sort({ start_timestamp: 1 }).lean();
+                        // console.log("event", event.aboutplace.price_type);
                         return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
                     }
                 } else {
