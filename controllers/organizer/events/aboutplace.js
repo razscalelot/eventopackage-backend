@@ -12,7 +12,7 @@ exports.aboutplace = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, banner, place_price, price_type, max_day, clearing_time, details } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                if (place_price && place_price != '' && price_type && price_type != '' && clearing_time && clearing_time != '') {
+                if (place_price && place_price != '' && price_type && price_type != '') {
                     if (price_type == 'per_event') {
                         if (max_day && max_day != '') {
                             let obj = {
