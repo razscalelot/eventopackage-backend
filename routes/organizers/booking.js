@@ -20,16 +20,12 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let eventData = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).select("_id").lean();
             let allEventsId = [];
-            let query = {};
             async.forEachSeries(eventData, (event, next_booking) => {
                 if (event._id && event._id != '' && mongoose.Types.ObjectId.isValid(event._id)) {
                     allEventsId.push(mongoose.Types.ObjectId(event._id));
                 }
                 next_booking();
             });
-            query = {
-                eventId: { $in: allEventsId } 
-            };
             primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate({
                 eventId: { $in: allEventsId }, 
                 $or: [
