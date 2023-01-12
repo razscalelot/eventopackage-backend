@@ -11,12 +11,12 @@ const mongoose = require('mongoose');
 function minusHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() - hours);
-    return dateCopy.getTime()  + 19800000;
+    return dateCopy.getTime();
 }
 function addHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() + hours);
-    return dateCopy.getTime()  + 19800000;
+    return dateCopy.getTime();
 }
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
