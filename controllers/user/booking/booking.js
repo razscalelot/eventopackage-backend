@@ -11,12 +11,38 @@ const mongoose = require('mongoose');
 function minusHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() - hours);
-    return dateCopy.getTime() - 19800000;
+    return dateCopy.getTime();
 }
 function addHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() + hours);
-    return dateCopy.getTime() - 19800000;
+    return dateCopy.getTime();
+}
+function timeDiffCalc(dateFuture, dateNow) {
+    let diffInMilliSeconds = Math.abs(dateFuture - dateNow) / 1000;
+    const days = Math.floor(diffInMilliSeconds / 86400);
+
+    diffInMilliSeconds -= days * 86400;
+    const hours = Math.floor(diffInMilliSeconds / 3600) % 24;
+
+    diffInMilliSeconds -= hours * 3600;
+    const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
+
+    diffInMilliSeconds -= minutes * 60;
+
+    let difference = '';
+    if (days > 0) {
+        difference += (days === 1) ? `${days} day, ` : `${days} days, `;
+    }
+
+    difference += (hours === 0 || hours === 1) ? `${hours} hour, ` : `${hours} hours, `;
+    difference += (minutes === 0 || hours === 1) ? `${minutes} minutes` : `${minutes} minutes`;
+
+    return {
+        day: days,
+        hour: hours,
+        minute: minutes
+    };
 }
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
@@ -189,9 +215,6 @@ exports.checkavailability = async (req, res) => {
                         newStartTimestamp = minusHours(startTimestamp, parseInt(event.personaldetail.clearing_time));
                         newEndTimestamp = addHours(endTimestamp, parseInt(event.personaldetail.clearing_time));
                     }
-                    console.log("time ---", newStartTimestamp, newEndTimestamp);
-                    console.log("--- Old time ---", startTimestamp, endTimestamp);
-                    console.log("event._id", event._id);
                     let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
                         eventId: event._id,
                         $or: [
@@ -215,9 +238,37 @@ exports.checkavailability = async (req, res) => {
                     if (bookings && bookings.length > 0) {
                         return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
-                        // let event = await primary.model(constants.MODELS.events, eventModel).findOne({_id: mongoose.Types.ObjectId(eventId)}).sort({ start_timestamp: 1 }).lean();
-                        // console.log("event", event.aboutplace.price_type);
-                        return responseManager.onSuccess('Bookings available on the selected date and time.', 1, res);
+                        let delta = timeDiffCalc(startTimestamp, endTimestamp);
+                        console.log("delta", delta);
+                        let FinalPrice = 0;
+                        if (event.aboutplace) {
+                            if (event.aboutplace.price_type == 'per_hour') {
+                                FinalPrice = event.aboutplace.place_price * delta.hour;
+                                console.log("event.aboutplace per_hour price", FinalPrice);
+                            }
+                            if (event.aboutplace.price_type == 'per_day') {
+                                FinalPrice = event.aboutplace.place_price * delta.day;
+                                console.log("event.aboutplace per_day price", FinalPrice);
+                            }
+                            if (event.aboutplace.price_type == 'per_event') {
+                                FinalPrice = event.aboutplace.place_price;
+                                console.log("event.aboutplace per_day price", FinalPrice);
+                            }
+                        }else{
+                            if (event.personaldetail.price_type == 'per_hour') {
+                                FinalPrice = event.personaldetail.price * delta.hour;
+                                console.log("event.personaldetail per_hour price", FinalPrice);
+                            }
+                            if (event.personaldetail.price_type == 'per_day') {
+                                FinalPrice = event.personaldetail.price * delta.day;
+                                console.log("event.personaldetail per_day price", FinalPrice);
+                            }
+                            if (event.personaldetail.price_type == 'per_event') {
+                                FinalPrice = event.personaldetail.price;
+                                console.log("event.personaldetail per_day price", FinalPrice);
+                            }
+                        }
+                        return responseManager.onSuccess('Bookings available on the selected date and time.', {FinalPrice: parseFloat(FinalPrice).toFixed(2)}, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
