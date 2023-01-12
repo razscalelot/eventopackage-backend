@@ -12,7 +12,7 @@ exports.personaldetail = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                if (req.body.full_name && req.body.full_name.trim() != '' && req.body.mobile && req.body.mobile.trim() != '' && req.body.mobile.trim().length == 10 && req.body.email && req.body.email.trim() != '' && req.body.city && req.body.city.trim() != '' && req.body.state && req.body.state.trim() != '' && req.body.pincode && req.body.pincode.trim() != '' && req.body.clearing_time && req.body.clearing_time != '') {
+                if (req.body.full_name && req.body.full_name.trim() != '' && req.body.mobile && req.body.mobile.trim() != '' && req.body.mobile.trim().length == 10 && req.body.email && req.body.email.trim() != '' && req.body.city && req.body.city.trim() != '' && req.body.state && req.body.state.trim() != '' && req.body.pincode && req.body.pincode.trim() != '') {
                     if (req.body.price_type == 'per_event') {
                         if (req.body.max_day && req.body.max_day != '') {
                             if ((/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email))) {

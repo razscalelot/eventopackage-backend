@@ -169,6 +169,11 @@ exports.checkavailability = async (req, res) => {
                     let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime() + 19800000;
                     let yend_date = end_date.split("-");
                     let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime()+ 19800000;
+                    
+                    // let newStartTimestamp = startTimestamp - 3600;
+                    // let newEndTimestamp = endTimestamp + 3600;
+                    // console.log("newStartTimestamp OldstartTimestamp", newStartTimestamp, startTimestamp);
+                    // console.log("newEndTimestamp OldnewEndTimestamp", newEndTimestamp, endTimestamp);
 
                     let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
                         eventId: mongoose.Types.ObjectId(eventId),
