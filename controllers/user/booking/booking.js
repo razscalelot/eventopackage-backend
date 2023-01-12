@@ -8,6 +8,16 @@ const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const async = require("async");
 const mongoose = require('mongoose');
+function minusHours(date, hours) {
+    const dateCopy = new Date(date);
+    dateCopy.setHours(dateCopy.getHours() - hours);
+    return dateCopy.getTime();
+}
+function addHours(date, hours) {
+    const dateCopy = new Date(date);
+    dateCopy.setHours(dateCopy.getHours() + hours);
+    return dateCopy.getTime();
+}
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -107,12 +117,12 @@ exports.calendar = async (req, res) => {
                 let finalObj = [];
                 for (i = 1; i <= 365; i++) {
                     finalObj.push({
-                        index : i,
-                        day : today.getFullYear() + '-' + ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1)  + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate()
+                        index: i,
+                        day: today.getFullYear() + '-' + ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1) + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate()
                     })
                     today.setDate(today.getDate() + 1);
                 }
-                let finalBookings = {}; 
+                let finalBookings = {};
                 async.forEachSeries(finalObj, (day, next_day) => {
                     (async () => {
                         let start = new Date(day.day + ' 00:00:00').getTime() + 19800000;
@@ -121,29 +131,29 @@ exports.calendar = async (req, res) => {
                             eventId: mongoose.Types.ObjectId(eventId),
                             $or: [
                                 {
-                                    $and : [
-                                        { start_timestamp : { $gte: start }}, { start_timestamp : { $lte: end }}, 
-                                        { end_timestamp : { $gte: start }},  { end_timestamp : { $lte: end }}
+                                    $and: [
+                                        { start_timestamp: { $gte: start } }, { start_timestamp: { $lte: end } },
+                                        { end_timestamp: { $gte: start } }, { end_timestamp: { $lte: end } }
                                     ]
                                 },
                                 {
                                     start_timestamp: { $lte: start }, end_timestamp: { $gte: end }
                                 },
                                 {
-                                    $and : [{start_timestamp: { $gte: start }}, {start_timestamp: { $lte: end }}]
+                                    $and: [{ start_timestamp: { $gte: start } }, { start_timestamp: { $lte: end } }]
                                 },
                                 {
-                                    $and : [{end_timestamp: { $gte: start }}, {end_timestamp: { $lte: end }}]
+                                    $and: [{ end_timestamp: { $gte: start } }, { end_timestamp: { $lte: end } }]
                                 }
                             ]
                         }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
-                        if(bookings && bookings.length > 0){
+                        if (bookings && bookings.length > 0) {
                             finalBookings[day.day] = bookings;
-                        }else{
+                        } else {
                             finalBookings[day.day] = [];
                         }
                         next_day();
-                    })().catch((error) => {});
+                    })().catch((error) => { });
                 }, () => {
                     return responseManager.onSuccess('all bookings', finalBookings, res);
                 });
@@ -168,34 +178,41 @@ exports.checkavailability = async (req, res) => {
                     let xstart_date = start_date.split("-");
                     let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime() + 19800000;
                     let yend_date = end_date.split("-");
-                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime()+ 19800000;
-                    
-                    // let newStartTimestamp = startTimestamp - 3600;
-                    // let newEndTimestamp = endTimestamp + 3600;
-                    // console.log("newStartTimestamp OldstartTimestamp", newStartTimestamp, startTimestamp);
-                    // console.log("newEndTimestamp OldnewEndTimestamp", newEndTimestamp, endTimestamp);
-
+                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime() + 19800000;
+                    let newStartTimestamp = '';
+                    let newEndTimestamp = '';
+                    let event = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(eventId) }).sort({ start_timestamp: 1 }).lean();
+                    if (event.event_type == 'have_you_places') {
+                        newStartTimestamp = minusHours(startTimestamp, parseInt(event.aboutplace.clearing_time));
+                        newEndTimestamp = addHours(endTimestamp, parseInt(event.aboutplace.clearing_time));
+                    } else {
+                        newStartTimestamp = minusHours(startTimestamp, parseInt(event.personaldetail.clearing_time));
+                        newEndTimestamp = addHours(endTimestamp, parseInt(event.personaldetail.clearing_time));
+                    }
+                    console.log("time ---", newStartTimestamp, newEndTimestamp);
+                    console.log("--- Old time ---", startTimestamp, endTimestamp);
+                    console.log("event._id", event._id);
                     let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
-                        eventId: mongoose.Types.ObjectId(eventId),
+                        eventId: event._id,
                         $or: [
                             {
-                                $and : [
-                                    { start_timestamp : { $gte: startTimestamp }}, { start_timestamp : { $lte: endTimestamp }}, 
-                                    { end_timestamp : { $gte: startTimestamp }},  { end_timestamp : { $lte: endTimestamp }}
+                                $and: [
+                                    { start_timestamp: { $gte: newStartTimestamp } }, { start_timestamp: { $lte: newEndTimestamp } },
+                                    { end_timestamp: { $gte: newStartTimestamp } }, { end_timestamp: { $lte: newEndTimestamp } }
                                 ]
                             },
                             {
-                                start_timestamp: { $lte: startTimestamp }, end_timestamp: { $gte: endTimestamp }
+                                start_timestamp: { $lte: newStartTimestamp }, end_timestamp: { $gte: newEndTimestamp }
                             },
                             {
-                                $and : [{start_timestamp: { $gte: startTimestamp }}, {start_timestamp: { $lte: endTimestamp }}]
+                                $and: [{ start_timestamp: { $gte: newStartTimestamp } }, { start_timestamp: { $lte: newEndTimestamp } }]
                             },
                             {
-                                $and : [{end_timestamp: { $gte: startTimestamp }}, {end_timestamp: { $lte: endTimestamp }}]
+                                $and: [{ end_timestamp: { $gte: newStartTimestamp } }, { end_timestamp: { $lte: newEndTimestamp } }]
                             }
                         ]
-                    }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();   
-                    if(bookings && bookings.length > 0){
+                    }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
+                    if (bookings && bookings.length > 0) {
                         return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
                         // let event = await primary.model(constants.MODELS.events, eventModel).findOne({_id: mongoose.Types.ObjectId(eventId)}).sort({ start_timestamp: 1 }).lean();
