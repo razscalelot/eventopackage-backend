@@ -193,7 +193,7 @@ exports.checkavailability = async (req, res) => {
                     console.log("--- Old time ---", startTimestamp, endTimestamp);
                     console.log("event._id", event._id);
                     let bookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
-                        eventId: event._id,
+                        eventId: mongoose.Types.ObjectId(eventId),
                         $or: [
                             {
                                 $and: [
