@@ -197,18 +197,18 @@ exports.checkavailability = async (req, res) => {
                         $or: [
                             {
                                 $and: [
-                                    { start_timestamp: { $gte: newStartTimestamp } }, { start_timestamp: { $lte: newEndTimestamp } },
-                                    { end_timestamp: { $gte: newStartTimestamp } }, { end_timestamp: { $lte: newEndTimestamp } }
+                                    { start_timestamp: { $gte: startTimestamp } }, { start_timestamp: { $lte: endTimestamp } },
+                                    { end_timestamp: { $gte: startTimestamp } }, { end_timestamp: { $lte: endTimestamp } }
                                 ]
                             },
                             {
-                                start_timestamp: { $lte: newStartTimestamp }, end_timestamp: { $gte: newEndTimestamp }
+                                start_timestamp: { $lte: startTimestamp }, end_timestamp: { $gte: endTimestamp }
                             },
                             {
-                                $and: [{ start_timestamp: { $gte: newStartTimestamp } }, { start_timestamp: { $lte: newEndTimestamp } }]
+                                $and: [{ start_timestamp: { $gte: startTimestamp } }, { start_timestamp: { $lte: endTimestamp } }]
                             },
                             {
-                                $and: [{ end_timestamp: { $gte: newStartTimestamp } }, { end_timestamp: { $lte: newEndTimestamp } }]
+                                $and: [{ end_timestamp: { $gte: startTimestamp } }, { end_timestamp: { $lte: endTimestamp } }]
                             }
                         ]
                     }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
