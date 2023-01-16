@@ -271,6 +271,7 @@ exports.booking = async (req, res) => {
                                     </html>`;
                                     let file = { content: html };
                                     html_to_pdf.generatePdf(file, options).then(pdfBuffer => {
+                                        console.log('pdfBuffer', pdfBuffer);
                                         const ext = 'pdf';
                                         var timestamp = Date.now().toString();
                                         const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
