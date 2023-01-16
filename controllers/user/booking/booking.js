@@ -6,8 +6,12 @@ const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
 const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
+const awsCloud = require('../../../utilities/aws');
 const async = require("async");
 const mongoose = require('mongoose');
+const puppeteer = require('puppeteer');
+var pdfFilename = 'downloadFiles/invoice.pdf';
+const option = { format: 'A4' };
 function minusHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() - hours);
@@ -109,9 +113,189 @@ exports.booking = async (req, res) => {
                                         updated_at: Date.now()
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
-                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
-                                    output.isUserReview = (currentuserreview == null) ? false : true
-                                    return responseManager.onSuccess('Event Book successfully!', output, res);
+                                    let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).lean();
+                                    const html = `<!DOCTYPE html>
+                                    <html lang="en">
+                                    <head>
+                                      <meta charset="UTF-8">
+                                      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                                      <meta name="viewport" content="width=s, initial-scale=1.0">
+                                      <title>Invoic</title>
+                                      <style>
+                                         @media screen {
+                                             p.bodyText {font-family:verdana, arial, sans-serif;}
+                                          }
+                                          @media print {
+                                             p.bodyText {font-family:georgia, times, serif;}
+                                          }
+                                          @media screen, print {
+                                             p.bodyText {font-size:10pt}
+                                          }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      <div style="width:100%; max-width: 1000px; margin: 0 auto; padding: 15px; background-color: #fcfcfc;">
+                                        <form action="#">
+                                          <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
+                                            <div style="width: 80%;">
+                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">FESTUM EVENTO PRIVATE LIMITED</h3>
+                                              <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
+                                                <div style="display: flex; align-items: center;">
+                                                  <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center;">
+                                                  <span style="display: block; margin-bottom: 3px;">CIN :</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">054054054056</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center;">
+                                                  <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">000022221111</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center;">
+                                                  <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">amirajbhai@gmail.com</span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div style="width: 20%;">
+                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
+                                              <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
+                                                <span style="display: block; margin-bottom: 3px;">INVOICE NO. # INV-00001</span>
+                                                <span style="display: block; margin-bottom: 3px;">INVOICE DATE : 23 DEC 2022</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div style="width: 100%; margin-top: 50px; color: #ED7D59;">
+                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">CLIENT DETAILS : <span style="display: inline-block; margin-left: 10px; color: #363636;">5212265</span></h3>
+                                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
+                                              <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">Name :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">Name</span>
+                                              </div>
+                                              <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
+                                              </div>
+                                              <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">2512365489321</span>
+                                              </div>
+                                              <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">DATE & TIME :</span>
+                                                <div style="display: flex; align-items: baseline;">
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">02/02/2023</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin:0px 5px; font-size: 15px;">|</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636;">10:55AM</span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div style="width: 700px; margin: 0 auto; margin-top: 50px; ">
+                                            <table style="width: 100%; height: auto; border-collapse: collapse;">
+                                              <thead>
+                                                <tr style="text-align: left;">
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 15%;">QTY</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 15%;">RATE</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
+                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                            <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
+                                              <tbody>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
+                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                          <div style="margin-top: 50px;">
+                                            <div style="display: flex; align-items: center;">
+                                              <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
+                                              <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; margin-top: 50px;">
+                                              <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
+                                              <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                            </div>
+                                          </div>
+                                          <h2 style="margin-top: 100px;">THANK YOU</h2>
+                                        </form>
+                                      </div>
+                                    </body>
+                                    </html>`;
+                                    puppeteer.create(html, option).toFile(pdfFilename, (err, htopresponse) => {
+                                        if (err) {
+                                            return responseManager.onError(err, res);
+                                        } else {
+                                            var data = fs.readFileSync(pdfFilename);
+                                            if (data) {
+                                                const ext = 'pdf';
+                                                var timestamp = Date.now().toString();
+                                                const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
+                                                awsCloud.saveToS3withFileName(data, eventId, 'application/pdf', filename).then((result) => {
+                                                    let obj = {
+                                                        s3_url: process.env.AWS_BUCKET_URI,
+                                                        url: result.data.Key
+                                                    };
+                                                    primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
+                                                        return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
+                                                    }).catch((error) => {
+                                                        return responseManager.onError(error, res);
+                                                    });
+                                                }).catch((error) => {
+                                                    return responseManager.onError(error, res);
+                                                });
+                                            }
+                                        }
+                                    });
+                                    // let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
+                                    // output.isUserReview = (currentuserreview == null) ? false : true
+                                    // return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
                                     return responseManager.onError(error, res);
                                 });
@@ -239,36 +423,29 @@ exports.checkavailability = async (req, res) => {
                         return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
                         let delta = timeDiffCalc(startTimestamp, endTimestamp);
-                        console.log("delta", delta);
                         let FinalPrice = 0;
                         if (event.aboutplace) {
                             if (event.aboutplace.price_type == 'per_hour') {
                                 FinalPrice = event.aboutplace.place_price * delta.hour;
-                                console.log("event.aboutplace per_hour price", FinalPrice);
                             }
                             if (event.aboutplace.price_type == 'per_day') {
                                 FinalPrice = event.aboutplace.place_price * delta.day;
-                                console.log("event.aboutplace per_day price", FinalPrice);
                             }
                             if (event.aboutplace.price_type == 'per_event') {
                                 FinalPrice = event.aboutplace.place_price;
-                                console.log("event.aboutplace per_day price", FinalPrice);
                             }
-                        }else{
+                        } else {
                             if (event.personaldetail.price_type == 'per_hour') {
                                 FinalPrice = event.personaldetail.price * delta.hour;
-                                console.log("event.personaldetail per_hour price", FinalPrice);
                             }
                             if (event.personaldetail.price_type == 'per_day') {
                                 FinalPrice = event.personaldetail.price * delta.day;
-                                console.log("event.personaldetail per_day price", FinalPrice);
                             }
                             if (event.personaldetail.price_type == 'per_event') {
                                 FinalPrice = event.personaldetail.price;
-                                console.log("event.personaldetail per_day price", FinalPrice);
                             }
                         }
-                        return responseManager.onSuccess('Bookings available on the selected date and time.', {FinalPrice: parseFloat(FinalPrice).toFixed(2)}, res);
+                        return responseManager.onSuccess('Bookings available on the selected date and time.', { FinalPrice: parseFloat(FinalPrice).toFixed(2) }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
