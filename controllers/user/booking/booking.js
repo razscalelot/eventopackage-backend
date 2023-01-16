@@ -293,6 +293,7 @@ exports.booking = async (req, res) => {
                                                     });
                                                 }).catch((error) => {
                                                     console.log('error 1', error);
+                                                    console.log('res 1', res);
                                                     return responseManager.onError(error, res);
                                                 });
                                             }
