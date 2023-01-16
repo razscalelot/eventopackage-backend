@@ -7,7 +7,8 @@ const eventbookingModel = require('../../../models/eventbookings.model');
 const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const awsCloud = require('../../../utilities/aws');
-var html_to_pdf = require('html-pdf-node');
+var htmltopdf = require("html-pdf");
+const path = require("path");
 const async = require("async");
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -269,26 +270,36 @@ exports.booking = async (req, res) => {
                                       </div>
                                     </body>
                                     </html>`;
-                                    let file = { content: html };
-                                    html_to_pdf.generatePdf(file, options).then(pdfBuffer => {
-                                        console.log('pdfBuffer', pdfBuffer);
-                                        const ext = 'pdf';
-                                        var timestamp = Date.now().toString();
-                                        const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
-                                        awsCloud.saveToS3withFileName(pdfBuffer, eventId, 'application/pdf', filename).then((result) => {
-                                            let obj = {
-                                                s3_url: process.env.AWS_BUCKET_URI,
-                                                url: result.data.Key
-                                            };
-                                            primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                                return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
-                                            }).catch((error) => {
-                                                return responseManager.onError(error, res);
-                                            });
-                                        }).catch((error) => {
-                                            return responseManager.onError(error, res);
-                                        });
+                                    htmltopdf.create(html, options).toFile(pdfFilename, (err, res) => {
+                                        if(err){
+                                            return responseManager.onError(err, res);
+                                        }else{
+                                            var data = fs.readFileSync(pdfFilename);
+                                            if(data){
+                                                const ext = 'pdf';
+                                                var timestamp = Date.now().toString();
+                                                const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
+                                                awsCloud.saveToS3withFileName(data, eventId, 'application/pdf', filename).then((result) => {
+                                                    let obj = {
+                                                        s3_url: process.env.AWS_BUCKET_URI,
+                                                        url: result.data.Key
+                                                    };
+                                                    primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
+                                                        console.log("obj", obj);
+                                                        console.log("updateResult", updateResult);
+                                                        return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
+                                                    }).catch((error) => {
+                                                        return responseManager.onError(error, res);
+                                                    });
+                                                }).catch((error) => {
+                                                    console.log('error 1', error);
+                                                    return responseManager.onError(error, res);
+                                                });
+                                            }
+                                        }
                                     });
+                            
+
                                     // puppeteer.create(html, option).toFile(pdfFilename, (err, htopresponse) => {
                                     //     if (err) {
                                     //         return responseManager.onError(err, res);
