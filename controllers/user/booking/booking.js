@@ -7,13 +7,12 @@ const eventbookingModel = require('../../../models/eventbookings.model');
 const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const awsCloud = require('../../../utilities/aws');
-var htmltopdf = require("html-pdf");
-const path = require("path");
 const async = require("async");
 const mongoose = require('mongoose');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 var pdfFilename = 'downloadFiles/invoice.pdf';
-const options = { format: 'A4' };
+const option = { format: 'A4' };
 function minusHours(date, hours) {
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() - hours);
@@ -116,7 +115,9 @@ exports.booking = async (req, res) => {
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).lean();
-                                    var html = `<!DOCTYPE html>
+                                    const browser = await puppeteer.launch();
+                                    const page = await browser.newPage();
+                                    const html = `<!DOCTYPE html>
                                     <html lang="en">
                                     <head>
                                       <meta charset="UTF-8">
@@ -270,87 +271,80 @@ exports.booking = async (req, res) => {
                                       </div>
                                     </body>
                                     </html>`;
-                                    console.log("html", html);
-                                    var data = fs.readFileSync(html, 'utf8');
-                                    console.log("data", data);
-                                    htmltopdf.create(data, options).toFile(pdfFilename, (err, res) => {
-                                        if(err){
-                                            console.log("booking error", res, err);
-                                            return responseManager.onError(err, res);
-                                        }else{
-                                            if(data){
-                                                const ext = 'pdf';
-                                                var timestamp = Date.now().toString();
-                                                const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
-                                                awsCloud.saveToS3withFileName(data, eventId, 'application/pdf', filename).then((result) => {
-                                                    let obj = {
-                                                        s3_url: process.env.AWS_BUCKET_URI,
-                                                        url: result.data.Key
-                                                    };
-                                                    console.log("obj", obj);
-                                                    primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                                        console.log("updateResult", updateResult);
-                                                        return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
-                                                    }).catch((error) => {
-                                                        return responseManager.onError(error, res);
-                                                    });
-                                                }).catch((error) => {
-                                                    console.log('error 1', error);
-                                                    console.log('res 1', res);
-                                                    return responseManager.onError(error, res);
-                                                });
-                                            }
-                                        }
+                                    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+                                    await page.emulateMediaType('screen');
+                                    const ext = 'pdf';
+                                    var timestamp = Date.now().toString();
+                                    const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
+                                    const pdf = await page.pdf({
+                                        path: "result.pdf",
+                                        margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
+                                        printBackground: true,
+                                        format: 'A4',
                                     });
+                                    awsCloud.saveToS3withFileName(html, eventId, 'application/pdf', filename).then((result) => {
+                                        let obj = {
+                                            s3_url: process.env.AWS_BUCKET_URI,
+                                            url: result.data.Key
+                                        };
+                                        primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
+                                            return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
+                                        }).catch((error) => {
+                                            return responseManager.onError(error, res);
+                                        });
+                                    }).catch((error) => {
+                                        return responseManager.onError(error, res);
+                                    });                                    
+                                    await browser.close();
+                                
                             
 
-                                    // puppeteer.create(html, option).toFile(pdfFilename, (err, htopresponse) => {
-                                    //     if (err) {
-                                    //         return responseManager.onError(err, res);
-                                    //     } else {
-                                    //         var data = fs.readFileSync(pdfFilename);
-                                    //         if (data) {
-                                    //             const ext = 'pdf';
-                                    //             var timestamp = Date.now().toString();
-                                    //             const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
-                                    //             awsCloud.saveToS3withFileName(data, eventId, 'application/pdf', filename).then((result) => {
-                                    //                 let obj = {
-                                    //                     s3_url: process.env.AWS_BUCKET_URI,
-                                    //                     url: result.data.Key
-                                    //                 };
-                                    //                 primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                    //                     return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
-                                    //                 }).catch((error) => {
-                                    //                     return responseManager.onError(error, res);
-                                    //                 });
-                                    //             }).catch((error) => {
-                                    //                 return responseManager.onError(error, res);
-                                    //             });
-                                    //         }
-                                    //     }
-                                    // });
-                                    // let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
-                                    // output.isUserReview = (currentuserreview == null) ? false : true
-                                    // return responseManager.onSuccess('Event Book successfully!', output, res);
-                                })().catch((error) => {
-                                    console.log("last catch error", error);
-                                    return responseManager.onError(error, res);
-                                });
+                                // puppeteer.create(html, option).toFile(pdfFilename, (err, htopresponse) => {
+                                //     if (err) {
+                                //         return responseManager.onError(err, res);
+                                //     } else {
+                                //         var data = fs.readFileSync(pdfFilename);
+                                //         if (data) {
+                                //             const ext = 'pdf';
+                                //             var timestamp = Date.now().toString();
+                                //             const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
+                                //             awsCloud.saveToS3withFileName(data, eventId, 'application/pdf', filename).then((result) => {
+                                //                 let obj = {
+                                //                     s3_url: process.env.AWS_BUCKET_URI,
+                                //                     url: result.data.Key
+                                //                 };
+                                //                 primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
+                                //                     return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
+                                //                 }).catch((error) => {
+                                //                     return responseManager.onError(error, res);
+                                //                 });
+                                //             }).catch((error) => {
+                                //                 return responseManager.onError(error, res);
+                                //             });
+                                //         }
+                                //     }
+                                // });
+                                // let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
+                                // output.isUserReview = (currentuserreview == null) ? false : true
+                                // return responseManager.onSuccess('Event Book successfully!', output, res);
+                            })().catch((error) => {
+                                return responseManager.onError(error, res);
                             });
                         });
                     });
-                } else {
-                    return responseManager.badrequest({ message: 'Invalid start or end date time to book event data, please try again' }, res);
-                }
+                });
             } else {
-                return responseManager.badrequest({ message: 'Invalid user id or event id to book event data, please try again' }, res);
+                return responseManager.badrequest({ message: 'Invalid start or end date time to book event data, please try again' }, res);
             }
         } else {
-            return responseManager.badrequest({ message: 'Invalid user id to book event data, please try again' }, res);
+            return responseManager.badrequest({ message: 'Invalid user id or event id to book event data, please try again' }, res);
         }
     } else {
-        return responseManager.badrequest({ message: 'Invalid token to book event data, please try again' }, res);
+        return responseManager.badrequest({ message: 'Invalid user id to book event data, please try again' }, res);
     }
+} else {
+    return responseManager.badrequest({ message: 'Invalid token to book event data, please try again' }, res);
+}
 };
 exports.calendar = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
