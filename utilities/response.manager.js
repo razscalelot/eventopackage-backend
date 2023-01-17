@@ -7,8 +7,6 @@ exports.onSuccess = (message, result, res) => {
 	});
 };
 exports.onError = (error, res) => {
-	console.log("response",error.message);
-	console.log("response", res);
 	res.status(500).json({
 		Message: error.message,
 		Data: 0,
