@@ -128,6 +128,7 @@ exports.booking = async (req, res) => {
                                     const allmonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                                     let finalDate = day + ' ' + allmonth[month] + ' ' + year;
                                     let delta = timeDiffCalc(startTimestamp, endTimestamp);
+                                    console.log("delta", delta);
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems != null) {
                                         async.forEach(lastCreatedbooking.selectedItems, (item, next_item) => {
@@ -136,7 +137,7 @@ exports.booking = async (req, res) => {
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                if (delta.hour < 1){
+                                                if (delta.hour >= 1){
                                                     FinalPrice = item.price * delta.hour;
                                                 }else{
                                                     FinalPrice = item.price * delta.day;
