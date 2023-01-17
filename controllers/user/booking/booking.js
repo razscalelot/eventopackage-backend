@@ -333,6 +333,7 @@ exports.booking = async (req, res) => {
                                     // output.isUserReview = (currentuserreview == null) ? false : true
                                     // return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
+                                    console.log("last catch error", error);
                                     return responseManager.onError(error, res);
                                 });
                             });
