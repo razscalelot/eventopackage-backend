@@ -152,6 +152,16 @@ exports.booking = async (req, res) => {
                                     }
                                     if (lastCreatedbooking.selectedEquipments != null) {
                                         async.forEach(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
+                                            let FinalPrice = 0;
+                                            if (item.price_type == 'per_hour') {
+                                                FinalPrice = item.price * delta.hour;
+                                            }
+                                            if (item.price_type == 'per_day') {
+                                                FinalPrice = item.price * delta.day;
+                                            }
+                                            if (item.price_type == 'per_event') {
+                                                FinalPrice = item.price;
+                                            }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
@@ -163,6 +173,16 @@ exports.booking = async (req, res) => {
                                     }
                                     if (lastCreatedbooking.selectedServices != null) {
                                         async.forEach(lastCreatedbooking.selectedServices, (item, next_services) => {
+                                            let FinalPrice = 0;
+                                            if (item.price_type == 'per_hour') {
+                                                FinalPrice = item.price * delta.hour;
+                                            }
+                                            if (item.price_type == 'per_day') {
+                                                FinalPrice = item.price * delta.day;
+                                            }
+                                            if (item.price_type == 'per_event') {
+                                                FinalPrice = item.price;
+                                            }
                                             items += `<tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
