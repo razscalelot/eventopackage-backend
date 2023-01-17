@@ -26,6 +26,7 @@ function addHours(date, hours) {
 function timeDiffCalc(dateFuture, dateNow) {
     let diffInMilliSeconds = Math.abs(dateFuture - dateNow) / 1000;
     const days = Math.floor(diffInMilliSeconds / 86400);
+    const onlyhours = Math.floor(diffInMilliSeconds / 3600);
 
     diffInMilliSeconds -= days * 86400;
     const hours = Math.floor(diffInMilliSeconds / 3600) % 24;
@@ -46,7 +47,8 @@ function timeDiffCalc(dateFuture, dateNow) {
     return {
         day: days,
         hour: hours,
-        minute: minutes
+        minute: minutes,
+        onlyhours: onlyhours
     };
 }
 exports.booking = async (req, res) => {
@@ -135,8 +137,8 @@ exports.booking = async (req, res) => {
                                             let FinalPrice = 0;
                                             let time= '';
                                             if (item.price_type == 'per_hour') {
-                                                time = delta.hour + ' hours';
-                                                FinalPrice = item.price * delta.hour;
+                                                time = delta.onlyhours + ' hours';
+                                                FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
@@ -166,8 +168,8 @@ exports.booking = async (req, res) => {
                                             let FinalPrice = 0;
                                             let time = '';
                                             if (item.price_type == 'per_hour') {
-                                                time = delta.hour + ' hours';
-                                                FinalPrice = item.price * delta.hour;
+                                                time = delta.onlyhours + ' hours';
+                                                FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
@@ -197,8 +199,8 @@ exports.booking = async (req, res) => {
                                             let FinalPrice = 0;
                                             let time = '';
                                             if (item.price_type == 'per_hour') {
-                                                time = delta.hour + ' hours';
-                                                FinalPrice = item.price * delta.hour;
+                                                time = delta.onlyhours + ' hours';
+                                                FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
