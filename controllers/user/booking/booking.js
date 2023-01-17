@@ -116,7 +116,9 @@ exports.booking = async (req, res) => {
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).lean();
                                     const browser = await puppeteer.launch({
-                                        executablePath: '/usr/bin/chromium-browser'
+                                        executablePath: '/usr/bin/chromium-browser',
+                                        headless:false,
+                                        args: ["--no-sandbox"]
                                       });
                                     const page = await browser.newPage();
                                     const html = `<!DOCTYPE html>
