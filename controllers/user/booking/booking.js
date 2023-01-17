@@ -271,7 +271,7 @@ exports.booking = async (req, res) => {
                                     </body>
                                     </html>`;
                                     var data = fs.readFileSync(pdfFilename);
-                                    htmltopdf.create(data, options).toFile(pdfFilename, (err, res) => {
+                                    htmltopdf.create(html, options).toFile(pdfFilename, (err, res) => {
                                         if(err){
                                             console.log("booking error", res, err);
                                             return responseManager.onError(err, res);
