@@ -133,23 +133,29 @@ exports.booking = async (req, res) => {
                                     if (lastCreatedbooking.selectedItems.length > 0) {
                                         async.forEachSeries(lastCreatedbooking.selectedItems, (item, next_item) => {
                                             let FinalPrice = 0;
+                                            let time= '';
                                             if (item.price_type == 'per_hour') {
+                                                time = delta.hour + ' hours';
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
+                                                    time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
                                                 }else{
+                                                    time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
                                             }
                                             if (item.price_type == 'per_event') {
+                                                time = "--";
                                                 FinalPrice = item.price;
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice}</td>
                                                     </tr>`;
                                             next_item();
@@ -158,23 +164,29 @@ exports.booking = async (req, res) => {
                                     if (lastCreatedbooking.selectedEquipments.length > 0) {
                                         async.forEachSeries(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
                                             let FinalPrice = 0;
+                                            let time = '';
                                             if (item.price_type == 'per_hour') {
+                                                time = delta.hour + ' hours';
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
+                                                    time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
                                                 }else{
+                                                    time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
                                             }
                                             if (item.price_type == 'per_event') {
+                                                time = "--";
                                                 FinalPrice = item.price;
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice}</td>
                                                     </tr>`;
                                             next_equipments();
@@ -183,23 +195,29 @@ exports.booking = async (req, res) => {
                                     if (lastCreatedbooking.selectedServices.length > 0) {
                                         async.forEachSeries(lastCreatedbooking.selectedServices, (item, next_services) => {
                                             let FinalPrice = 0;
+                                            let time = '';
                                             if (item.price_type == 'per_hour') {
+                                                time = delta.hour + ' hours';
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
+                                                    time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
                                                 }else{
+                                                    time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
                                             }
                                             if (item.price_type == 'per_event') {
+                                                time = "--";
                                                 FinalPrice = item.price;
                                             }
                                             items += `<tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice} </td>
                                                 </tr>`;
                                             next_services();
@@ -293,8 +311,9 @@ exports.booking = async (req, res) => {
                                               <thead>
                                                 <tr style="text-align: left;">
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 15%;">QTY</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 15%;">RATE</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
                                                 </tr>
                                               </thead>
