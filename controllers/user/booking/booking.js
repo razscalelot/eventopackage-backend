@@ -320,6 +320,13 @@ exports.booking = async (req, res) => {
                                                 </tr>
                                               </thead>
                                               <tbody>  
+                                                <tr style="text-align: left;">
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${totalPrice}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${start_date +"to"+ end_date}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${totalPrice} </td>
+                                                </tr>
                                               ${items} 
                                               </tbody>
                                             </table>
