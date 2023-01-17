@@ -291,9 +291,11 @@ exports.booking = async (req, res) => {
                                         primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
                                             return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
                                         }).catch((error) => {
+                                            console.log("293", error);
                                             return responseManager.onError(error, res);
                                         });
                                     }).catch((error) => {
+                                        console.log("297", error);
                                         return responseManager.onError(error, res);
                                     });                                    
                                     await browser.close();
@@ -329,6 +331,7 @@ exports.booking = async (req, res) => {
                                 // output.isUserReview = (currentuserreview == null) ? false : true
                                 // return responseManager.onSuccess('Event Book successfully!', output, res);
                             })().catch((error) => {
+                                console.log("333", error);
                                 return responseManager.onError(error, res);
                             });
                         });
