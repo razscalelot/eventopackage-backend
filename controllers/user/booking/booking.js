@@ -270,13 +270,12 @@ exports.booking = async (req, res) => {
                                       </div>
                                     </body>
                                     </html>`;
-                                    html = fs.readFileSync(html);
                                     htmltopdf.create(html, options).toFile(pdfFilename, (err, res) => {
                                         if(err){
                                             console.log("booking error", res, err);
                                             return responseManager.onError(err, res);
                                         }else{
-                                            var data = fs.readFileSync(html);
+                                            var data = fs.readFileSync(pdfFilename);
                                             if(data){
                                                 const ext = 'pdf';
                                                 var timestamp = Date.now().toString();
