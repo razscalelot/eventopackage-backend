@@ -130,8 +130,8 @@ exports.booking = async (req, res) => {
                                     let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                     console.log("delta", delta);
                                     let items = '';
-                                    if (lastCreatedbooking.selectedItems != null) {
-                                        async.forEach(lastCreatedbooking.selectedItems, (item, next_item) => {
+                                    if (lastCreatedbooking.selectedItems.length > 0) {
+                                        async.forEachSeries(lastCreatedbooking.selectedItems, (item, next_item) => {
                                             let FinalPrice = 0;
                                             if (item.price_type == 'per_hour') {
                                                 FinalPrice = item.price * delta.hour;
@@ -155,8 +155,8 @@ exports.booking = async (req, res) => {
                                             next_item();
                                         });
                                     }
-                                    if (lastCreatedbooking.selectedEquipments != null) {
-                                        async.forEach(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
+                                    if (lastCreatedbooking.selectedEquipments.length > 0) {
+                                        async.forEachSeries(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
                                             let FinalPrice = 0;
                                             if (item.price_type == 'per_hour') {
                                                 FinalPrice = item.price * delta.hour;
@@ -180,8 +180,8 @@ exports.booking = async (req, res) => {
                                             next_equipments();
                                         });
                                     }
-                                    if (lastCreatedbooking.selectedServices != null) {
-                                        async.forEach(lastCreatedbooking.selectedServices, (item, next_services) => {
+                                    if (lastCreatedbooking.selectedServices.length > 0) {
+                                        async.forEachSeries(lastCreatedbooking.selectedServices, (item, next_services) => {
                                             let FinalPrice = 0;
                                             if (item.price_type == 'per_hour') {
                                                 FinalPrice = item.price * delta.hour;
