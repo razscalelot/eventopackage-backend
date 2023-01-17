@@ -162,7 +162,6 @@ exports.booking = async (req, res) => {
                                             next_services();
                                         });
                                     }
-                                    document.getElementById("itemsBody").innerHTML += items
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
                                         args: ["--no-sandbox"]
@@ -256,7 +255,8 @@ exports.booking = async (req, res) => {
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
                                                 </tr>
                                               </thead>
-                                              <tbody id="itemsBody">   
+                                              <tbody>  
+                                              ${items} 
                                               </tbody>
                                             </table>
                                             <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
