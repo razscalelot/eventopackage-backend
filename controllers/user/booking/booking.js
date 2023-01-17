@@ -279,8 +279,7 @@ exports.booking = async (req, res) => {
                                     await page.setContent(html, { waitUntil: 'domcontentloaded' });
                                     await page.emulateMediaType('screen');
                                     const ext = 'pdf';
-                                    var timestamp = Date.now().toString();
-                                    const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
+                                    const filename = 'invoice/DOC/' + req.token.userid + '/INV' + invoiceNo + '.' + ext;
                                     const pdf = await page.pdf({
                                         path: 'invoice.pdf',
                                         // margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
