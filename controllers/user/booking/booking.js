@@ -284,8 +284,8 @@ exports.booking = async (req, res) => {
                                                         s3_url: process.env.AWS_BUCKET_URI,
                                                         url: result.data.Key
                                                     };
+                                                    console.log("obj", obj);
                                                     primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                                        console.log("obj", obj);
                                                         console.log("updateResult", updateResult);
                                                         return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
                                                     }).catch((error) => {
