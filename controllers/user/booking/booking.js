@@ -155,9 +155,9 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
                                                     </tr>`;
                                             next_item();
@@ -186,9 +186,9 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
                                                     </tr>`;
                                             next_equipments();
@@ -217,9 +217,9 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount} </td>
                                                 </tr>`;
                                             next_services();
@@ -313,9 +313,9 @@ exports.booking = async (req, res) => {
                                               <thead>
                                                 <tr style="text-align: left;">
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
+                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
                                                 </tr>
                                               </thead>
