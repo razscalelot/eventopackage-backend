@@ -56,7 +56,7 @@ exports.booking = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
-            const { user, eventId, trans_Id, name, event_type, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
+            const { user, eventId, trans_Id, price_type, name, event_type, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
             if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 if (start_date && end_date && start_time && end_time) {
                     let totalInvoice = parseInt(await primary.model(constants.MODELS.eventbookings, eventbookingModel).countDocuments({}));
@@ -94,6 +94,7 @@ exports.booking = async (req, res) => {
                                         userid: mongoose.Types.ObjectId(user),
                                         eventId: mongoose.Types.ObjectId(eventId),
                                         trans_Id: trans_Id,
+                                        price_type: price_type,
                                         name: name,
                                         event_type: event_type,
                                         url: url,
