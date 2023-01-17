@@ -270,12 +270,12 @@ exports.booking = async (req, res) => {
                                       </div>
                                     </body>
                                     </html>`;
-                                    var data = fs.readFileSync(html);
-                                    htmltopdf.create(data, options).toFile(pdfFilename, (err, res) => {
+                                    htmltopdf.create(html, options).toFile(pdfFilename, (err, res) => {
                                         if(err){
                                             console.log("booking error", res, err);
                                             return responseManager.onError(err, res);
                                         }else{
+                                            var data = fs.readFileSync(html);
                                             if(data){
                                                 const ext = 'pdf';
                                                 var timestamp = Date.now().toString();
@@ -290,11 +290,11 @@ exports.booking = async (req, res) => {
                                                         console.log("updateResult", updateResult);
                                                         return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
                                                     }).catch((error) => {
-                                                        console.log('catch error 1', error);
-                                                        console.log('catch res 1', res);
                                                         return responseManager.onError(error, res);
                                                     });
                                                 }).catch((error) => {
+                                                    console.log('error 1', error);
+                                                    console.log('res 1', res);
                                                     return responseManager.onError(error, res);
                                                 });
                                             }
