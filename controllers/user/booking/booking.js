@@ -291,11 +291,11 @@ exports.booking = async (req, res) => {
                                                         console.log("updateResult", updateResult);
                                                         return responseManager.onSuccess('Booking successfully... donwload the Invoice !', obj, res);
                                                     }).catch((error) => {
+                                                        console.log('catch error 1', error);
+                                                        console.log('catch res 1', res);
                                                         return responseManager.onError(error, res);
                                                     });
                                                 }).catch((error) => {
-                                                    console.log('error 1', error);
-                                                    console.log('res 1', res);
                                                     return responseManager.onError(error, res);
                                                 });
                                             }
