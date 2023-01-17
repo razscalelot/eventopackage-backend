@@ -135,16 +135,16 @@ exports.booking = async (req, res) => {
                                     if (lastCreatedbooking.selectedItems.length > 0) {
                                         async.forEachSeries(lastCreatedbooking.selectedItems, (item, next_item) => {
                                             let FinalPrice = 0;
-                                            let time= '';
+                                            let time = '';
                                             if (item.price_type == 'per_hour') {
                                                 time = delta.onlyhours + ' hours';
                                                 FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1){
+                                                if (delta.hour >= 1) {
                                                     time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
-                                                }else{
+                                                } else {
                                                     time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -155,7 +155,7 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_', ' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
@@ -172,10 +172,10 @@ exports.booking = async (req, res) => {
                                                 FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1){
+                                                if (delta.hour >= 1) {
                                                     time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
-                                                }else{
+                                                } else {
                                                     time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -186,7 +186,7 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_', ' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
@@ -203,10 +203,10 @@ exports.booking = async (req, res) => {
                                                 FinalPrice = item.price * delta.onlyhours;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1){
+                                                if (delta.hour >= 1) {
                                                     time = (delta.day + 1) + ' days';
                                                     FinalPrice = item.price * (delta.day + 1);
-                                                }else{
+                                                } else {
                                                     time = delta.day + ' days';
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -217,7 +217,7 @@ exports.booking = async (req, res) => {
                                             }
                                             items += `<tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_', ' ')}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount} </td>
@@ -230,7 +230,20 @@ exports.booking = async (req, res) => {
                                         args: ["--no-sandbox"]
                                     });
                                     const page = await browser.newPage();
-
+                                    let pTime = '';
+                                    if (price_type == 'per_hour') {
+                                        pTime = delta.onlyhours + ' hours';
+                                    }
+                                    if (price_type == 'per_day') {
+                                        if (delta.hour >= 1) {
+                                            pTime = (delta.day + 1) + ' days';
+                                        } else {
+                                            pTime = delta.day + ' days';
+                                        }
+                                    }
+                                    if (price_type == 'per_event') {
+                                        pTime = "--";
+                                    }
                                     const html = `<!DOCTYPE html>
                                     <html lang="en">
                                     <head>
@@ -323,7 +336,7 @@ exports.booking = async (req, res) => {
                                                 <tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${totalPrice}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${start_date +"to"+ end_date}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${pTime}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${totalPrice} </td>
                                                 </tr>
@@ -539,9 +552,9 @@ exports.checkavailability = async (req, res) => {
                                 FinalPrice = event.aboutplace.place_price * delta.hour;
                             }
                             if (event.aboutplace.price_type == 'per_day') {
-                                if (delta.hour >= 1){
+                                if (delta.hour >= 1) {
                                     FinalPrice = event.aboutplace.place_price * (delta.day + 1);
-                                }else{
+                                } else {
                                     FinalPrice = event.aboutplace.place_price * delta.day;
                                 }
                             }
@@ -553,9 +566,9 @@ exports.checkavailability = async (req, res) => {
                                 FinalPrice = event.personaldetail.price * delta.hour;
                             }
                             if (event.personaldetail.price_type == 'per_day') {
-                                if (delta.hour >= 1 && delta.day == 0){
+                                if (delta.hour >= 1 && delta.day == 0) {
                                     FinalPrice = event.personaldetail.price * 1;
-                                }else{
+                                } else {
                                     FinalPrice = event.personaldetail.price * delta.day;
                                 }
                             }
