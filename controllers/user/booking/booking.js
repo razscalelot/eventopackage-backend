@@ -280,13 +280,13 @@ exports.booking = async (req, res) => {
                                     var timestamp = Date.now().toString();
                                     const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
                                     const pdf = await page.pdf({
-                                        path: filename,
+                                        path: 'invoice.pdf',
                                         margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
                                         printBackground: true,
                                         format: 'A4',
                                     });
                                     console.log("285", pdf);
-                                    let fileBuffre = fs.readFileSync(filename);
+                                    let fileBuffre = fs.readFileSync('invoice.pdf');
                                     awsCloud.saveToS3withFileName(fileBuffre, eventId, 'application/pdf', filename).then((result) => {
                                         let obj = {
                                             s3_url: process.env.AWS_BUCKET_URI,
