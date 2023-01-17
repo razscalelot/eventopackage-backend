@@ -136,7 +136,11 @@ exports.booking = async (req, res) => {
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                FinalPrice = item.price * delta.day;
+                                                if (delta.hour > 1){
+                                                    FinalPrice = item.price * delta.hour;
+                                                }else{
+                                                    FinalPrice = item.price * delta.day;
+                                                }
                                             }
                                             if (item.price_type == 'per_event') {
                                                 FinalPrice = item.price;
