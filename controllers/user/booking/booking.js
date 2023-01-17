@@ -295,7 +295,6 @@ exports.booking = async (req, res) => {
                                             url: result.data.Key
                                         };
                                         primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                            updateResult.invoice = obj;
                                             return responseManager.onSuccess('Booking successfully... Donwload the Invoice !', updateResult, res);
                                         }).catch((error) => {
                                             console.log("293", error);
