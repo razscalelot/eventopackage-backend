@@ -116,7 +116,7 @@ exports.booking = async (req, res) => {
                                     };
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).lean();
-                                    const html = `<!DOCTYPE html>
+                                    var html = `<!DOCTYPE html>
                                     <html lang="en">
                                     <head>
                                       <meta charset="UTF-8">
@@ -276,7 +276,6 @@ exports.booking = async (req, res) => {
                                             console.log("booking error", res, err);
                                             return responseManager.onError(err, res);
                                         }else{
-                                            var data = fs.readFileSync(pdfFilename);
                                             if(data){
                                                 const ext = 'pdf';
                                                 var timestamp = Date.now().toString();
