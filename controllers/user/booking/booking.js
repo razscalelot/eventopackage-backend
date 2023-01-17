@@ -281,7 +281,7 @@ exports.booking = async (req, res) => {
                                     const filename = 'invoice/DOC/' + req.token.userid + '/INV' + timestamp + '.' + ext;
                                     const pdf = await page.pdf({
                                         path: 'invoice.pdf',
-                                        margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
+                                        // margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
                                         printBackground: true,
                                         format: 'A4',
                                     });
