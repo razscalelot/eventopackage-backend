@@ -134,8 +134,8 @@ exports.booking = async (req, res) => {
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price}</td>
                                                     </tr>`;
                                             next_item();
                                         });
@@ -145,8 +145,8 @@ exports.booking = async (req, res) => {
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price}</td>
                                                     </tr>`;
                                             next_equipments();
                                         });
@@ -156,8 +156,8 @@ exports.booking = async (req, res) => {
                                             items += `<tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} </td>
                                                 </tr>`;
                                             next_services();
                                         });
