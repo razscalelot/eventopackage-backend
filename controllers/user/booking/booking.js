@@ -116,19 +116,66 @@ exports.booking = async (req, res) => {
                                     let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
                                     let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
                                     output.isUserReview = (currentuserreview == null) ? false : true
-                                    let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).lean();
+                                    let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).populate({
+                                        path: 'userid',
+                                        model: primary.model(constants.MODELS.users, userModel),
+                                        select: 'name email address'
+                                    }).lean();
+                                    let d = new Date(lastCreatedbooking.createdAt);
+                                    let day = d.getDate();
+                                    let month = d.getMonth();
+                                    let year = d.getFullYear();
+                                    const allmonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                    let finalDate = day + ' ' + allmonth[month] + ' ' + year;
+                                    console.log("finalDate", finalDate);
+                                    let items = '';
+                                    if (lastCreatedbooking.selectedItems != null) {
+                                        async.forEach(lastCreatedbooking.selectedItems, (item, next_item) => {
+                                            items += `<tr style="text-align: left;">
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                    </tr>`;
+                                            next_item();
+                                        });
+                                    }
+                                    if (lastCreatedbooking.selectedEquipments != null) {
+                                        async.forEach(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
+                                            items += `<tr style="text-align: left;">
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                    </tr>`;
+                                            next_equipments();
+                                        });
+                                    }
+                                    if (lastCreatedbooking.selectedServices != null) {
+                                        async.forEach(lastCreatedbooking.selectedServices, (item, next_services) => {
+                                            items += `<tr style="text-align: left;">
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} ${item.price_type}</td>
+                                                </tr>`;
+                                            next_services();
+                                        });
+                                    }
+                                    document.getElementById("itemsBody").innerHTML += items
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
                                         args: ["--no-sandbox"]
                                     });
                                     const page = await browser.newPage();
+
                                     const html = `<!DOCTYPE html>
                                     <html lang="en">
                                     <head>
                                       <meta charset="UTF-8">
                                       <meta http-equiv="X-UA-Compatible" content="IE=edge">
                                       <meta name="viewport" content="width=s, initial-scale=1.0">
-                                      <title>Invoic</title>
+                                      <title>Invoice</title>
                                       <style>
                                          @media screen {
                                              p.bodyText {font-family:verdana, arial, sans-serif;}
@@ -146,7 +193,7 @@ exports.booking = async (req, res) => {
                                         <form action="#">
                                           <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
                                             <div style="width: 80%;">
-                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">FESTUM EVENTO PRIVATE LIMITED</h3>
+                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">EVENTO PACKAGE</h3>
                                               <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
                                                 <div style="display: flex; align-items: center;">
                                                   <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
@@ -162,15 +209,15 @@ exports.booking = async (req, res) => {
                                                 </div>
                                                 <div style="display: flex; align-items: center;">
                                                   <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">amirajbhai@gmail.com</span>
+                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">help@eventopackage.com</span>
                                                 </div>
                                               </div>
                                             </div>
                                             <div style="width: 20%;">
                                               <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
                                               <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
-                                                <span style="display: block; margin-bottom: 3px;">INVOICE NO. # INV-00001</span>
-                                                <span style="display: block; margin-bottom: 3px;">INVOICE DATE : 23 DEC 2022</span>
+                                                <span style="display: block; margin-bottom: 3px;">INVOICE NO. # ${lastCreatedbooking.invoice_no}</span>
+                                                <span style="display: block; margin-bottom: 3px;">INVOICE DATE : ${finalDate}</span>
                                               </div>
                                             </div>
                                           </div>
@@ -179,11 +226,11 @@ exports.booking = async (req, res) => {
                                             <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
                                               <div style="display: flex; align-items: center;">
                                                 <span style="display: block; margin-bottom: 3px;">Name :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">Name</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.name}</span>
                                               </div>
                                               <div style="display: flex; align-items: center;">
                                                 <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.address}</span>
                                               </div>
                                               <div style="display: flex; align-items: center;">
                                                 <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
@@ -209,31 +256,7 @@ exports.booking = async (req, res) => {
                                                   <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
                                                 </tr>
                                               </thead>
-                                              <tbody>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">125236</td>
-                                                  <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">125236</td>
-                                                </tr>
+                                              <tbody id="itemsBody">   
                                               </tbody>
                                             </table>
                                             <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
@@ -299,7 +322,7 @@ exports.booking = async (req, res) => {
                                             }).catch((error) => {
                                                 return responseManager.onError(error, res);
                                             });
-                                            
+
                                         }).catch((error) => {
                                             console.log("293", error);
                                             return responseManager.onError(error, res);
@@ -309,7 +332,7 @@ exports.booking = async (req, res) => {
                                         return responseManager.onError(error, res);
                                     });
                                     await browser.close();
-                                    
+
                                     // return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
                                     console.log("333", error);
