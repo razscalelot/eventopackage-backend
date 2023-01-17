@@ -138,7 +138,7 @@ exports.booking = async (req, res) => {
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
-                                                    FinalPrice = item.price * delta.hour;
+                                                    FinalPrice = item.price * (delta.day + 1);
                                                 }else{
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -163,7 +163,7 @@ exports.booking = async (req, res) => {
                                             }
                                             if (item.price_type == 'per_day') {
                                                 if (delta.hour >= 1){
-                                                    FinalPrice = item.price * delta.hour;
+                                                    FinalPrice = item.price * (delta.day + 1);
                                                 }else{
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -187,8 +187,8 @@ exports.booking = async (req, res) => {
                                                 FinalPrice = item.price * delta.hour;
                                             }
                                             if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1 && delta.day == 0){
-                                                    FinalPrice = item.price * 1;
+                                                if (delta.hour >= 1){
+                                                    FinalPrice = item.price * (delta.day + 1);
                                                 }else{
                                                     FinalPrice = item.price * delta.day;
                                                 }
@@ -511,7 +511,11 @@ exports.checkavailability = async (req, res) => {
                                 FinalPrice = event.aboutplace.place_price * delta.hour;
                             }
                             if (event.aboutplace.price_type == 'per_day') {
-                                FinalPrice = event.aboutplace.place_price * delta.day;
+                                if (delta.hour >= 1){
+                                    FinalPrice = event.aboutplace.place_price * (delta.day + 1);
+                                }else{
+                                    FinalPrice = event.aboutplace.place_price * delta.day;
+                                }
                             }
                             if (event.aboutplace.price_type == 'per_event') {
                                 FinalPrice = event.aboutplace.place_price;
@@ -521,7 +525,11 @@ exports.checkavailability = async (req, res) => {
                                 FinalPrice = event.personaldetail.price * delta.hour;
                             }
                             if (event.personaldetail.price_type == 'per_day') {
-                                FinalPrice = event.personaldetail.price * delta.day;
+                                if (delta.hour >= 1 && delta.day == 0){
+                                    FinalPrice = event.personaldetail.price * 1;
+                                }else{
+                                    FinalPrice = event.personaldetail.price * delta.day;
+                                }
                             }
                             if (event.personaldetail.price_type == 'per_event') {
                                 FinalPrice = event.personaldetail.price;
