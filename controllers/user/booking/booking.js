@@ -127,15 +127,25 @@ exports.booking = async (req, res) => {
                                     let year = d.getFullYear();
                                     const allmonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                                     let finalDate = day + ' ' + allmonth[month] + ' ' + year;
-                                    console.log("finalDate", finalDate);
+                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems != null) {
                                         async.forEach(lastCreatedbooking.selectedItems, (item, next_item) => {
+                                            let FinalPrice = 0;
+                                            if (item.price_type == 'per_hour') {
+                                                FinalPrice = item.price * delta.hour;
+                                            }
+                                            if (item.price_type == 'per_day') {
+                                                FinalPrice = item.price * delta.day;
+                                            }
+                                            if (item.price_type == 'per_event') {
+                                                FinalPrice = item.price;
+                                            }
                                             items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price}  ${item.price_type.trim().replace('_',' ')}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice}</td>
                                                     </tr>`;
                                             next_item();
                                         });
@@ -146,7 +156,7 @@ exports.booking = async (req, res) => {
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice}</td>
                                                     </tr>`;
                                             next_equipments();
                                         });
@@ -157,7 +167,7 @@ exports.booking = async (req, res) => {
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.itemCount}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 15%;">${item.price} ${item.price_type.trim().replace('_',' ')}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price} </td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice} </td>
                                                 </tr>`;
                                             next_services();
                                         });
