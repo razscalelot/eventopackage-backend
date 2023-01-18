@@ -124,16 +124,19 @@ exports.booking = async (req, res) => {
                                         model: primary.model(constants.MODELS.users, userModel),
                                         select: 'name email address'
                                     }).lean();
-                                    let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId)}).sort({ _id: -1 }).lean();
+                                    let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId) }).lean();
                                     let ePrice = 0;
                                     let eType = '';
-                                    if (bookedEvent.aboutplace){
-                                        ePrice = bookedEvent.aboutplace.place_price;
-                                        eType = bookedEvent.aboutplace.price_type;
-                                    }
-                                    if (bookedEvent.personaldetail){
-                                        ePrice = bookedEvent.personaldetail.price;
-                                        eType = bookedEvent.personaldetail.price_type;
+                                    if (bookedEvent.aboutplace) {
+                                        if (bookedEvent.aboutplace.place_price != '') {
+                                            ePrice = bookedEvent.aboutplace.place_price;
+                                            eType = bookedEvent.aboutplace.price_type;
+                                        }
+                                    } else if (bookedEvent.personaldetail) {
+                                        if (bookedEvent.personaldetail.price != '') {
+                                            ePrice = bookedEvent.personaldetail.price;
+                                            eType = bookedEvent.personaldetail.price_type;
+                                        }
                                     }
                                     let d = new Date(lastCreatedbooking.createdAt);
                                     let day = d.getDate();
