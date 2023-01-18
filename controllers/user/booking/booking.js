@@ -165,6 +165,7 @@ exports.booking = async (req, res) => {
                                     }).lean();
                                     let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId) }).lean();
                                     let subTotal = 0;
+                                    let iDiscount = 0;
                                     let ePrice = 0;
                                     let eType = '';
                                     if (bookedEvent.aboutplace) {
@@ -227,6 +228,15 @@ exports.booking = async (req, res) => {
                                     if (price_type == 'per_event') {
                                         pTime = "--";
                                         eTotalPrice = ePrice;
+                                    }
+                                    if (bookedEvent.discounts.discounttype === "discount_on_total_bill") {
+                                        if (bookedEvent.aboutplace) {
+                                            let getPrice = (parseInt(bookedEvent.aboutplace.place_price) * parseInt(bookedEvent.discounts.discount) / 100) - parseInt(bookedEvent.aboutplace.place_price);
+                                            console.log("getPrice", getPrice); 
+                                        } else if (bookedEvent.personaldetail) {
+                                            let getPrice = (parseInt(bookedEvent.personaldetail.price) * parseInt(bookedEvent.discounts.discount) / 100) - parseInt(bookedEvent.personaldetail.price);
+                                            console.log("getPrice", getPrice);
+                                        }
                                     }
                                     subTotal += eTotalPrice;
                                     const html = `<!DOCTYPE html>
