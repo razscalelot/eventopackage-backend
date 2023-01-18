@@ -232,10 +232,10 @@ exports.booking = async (req, res) => {
                                     async.forEach(bookedEvent.discounts, (discount, next_discount) => {
                                     if (discount.discounttype === "discount_on_total_bill") {
                                         if (bookedEvent.aboutplace) {
-                                            let getPrice = (parseInt(bookedEvent.aboutplace.place_price) * parseInt(discount.discount) / 100) - parseInt(bookedEvent.aboutplace.place_price);
+                                            let getPrice = parseInt(bookedEvent.aboutplace.place_price) - (parseInt(bookedEvent.aboutplace.place_price) * parseInt(discount.discount) / 100);
                                             console.log("getPrice", getPrice);
                                         } else if (bookedEvent.personaldetail) {
-                                            let getPrice =(parseInt(bookedEvent.personaldetail.price) * parseInt(discount.discount) / 100) -  parseInt(bookedEvent.personaldetail.price);
+                                            let getPrice = parseInt(bookedEvent.personaldetail.price) - (parseInt(bookedEvent.personaldetail.price) * parseInt(discount.discount) / 100);
                                             console.log("getPrice", getPrice);
                                         }
                                     }
