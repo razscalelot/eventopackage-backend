@@ -51,6 +51,44 @@ function timeDiffCalc(dateFuture, dateNow) {
         onlyhours: onlyhours
     };
 }
+
+function itemsDetails(services, items){
+    console.log("in fun services", services);
+    console.log("in fun items", items);
+    async.forEachSeries(services, (service, next_item) => {
+        console.log("in forEachSeries service", service);
+        let FinalPrice = 0;
+        let time = '';
+        if (service.price_type == 'per_hour') {
+            time = delta.onlyhours + ' hours';
+            FinalPrice = service.price * delta.onlyhours;
+        }
+        if (service.price_type == 'per_day') {
+            if (delta.hour >= 1) {
+                time = (delta.day + 1) + ' days';
+                FinalPrice = service.price * (delta.day + 1);
+            } else {
+                time = delta.day + ' days';
+                FinalPrice = service.price * delta.day;
+            }
+        }
+        if (service.price_type == 'per_event') {
+            time = "--";
+            FinalPrice = service.price;
+        }
+        items += `<tr style="text-align: left;">
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${service.name}</td>
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.price}  ${service.price_type.trim().replace('_', ' ')}</td>
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.itemCount}</td>
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * service.itemCount}</td>
+                </tr>`;
+        next_item();
+    });
+    return items;
+}
+
+
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -148,97 +186,13 @@ exports.booking = async (req, res) => {
                                     console.log("delta", delta);
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems.length > 0) {
-                                        async.forEachSeries(lastCreatedbooking.selectedItems, (item, next_item) => {
-                                            let FinalPrice = 0;
-                                            let time = '';
-                                            if (item.price_type == 'per_hour') {
-                                                time = delta.onlyhours + ' hours';
-                                                FinalPrice = item.price * delta.onlyhours;
-                                            }
-                                            if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1) {
-                                                    time = (delta.day + 1) + ' days';
-                                                    FinalPrice = item.price * (delta.day + 1);
-                                                } else {
-                                                    time = delta.day + ' days';
-                                                    FinalPrice = item.price * delta.day;
-                                                }
-                                            }
-                                            if (item.price_type == 'per_event') {
-                                                time = "--";
-                                                FinalPrice = item.price;
-                                            }
-                                            items += `<tr style="text-align: left;">
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_', ' ')}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
-                                                    </tr>`;
-                                            next_item();
-                                        });
+                                        items = itemsDetails(lastCreatedbooking.selectedItems, items);
                                     }
                                     if (lastCreatedbooking.selectedEquipments.length > 0) {
-                                        async.forEachSeries(lastCreatedbooking.selectedEquipments, (item, next_equipments) => {
-                                            let FinalPrice = 0;
-                                            let time = '';
-                                            if (item.price_type == 'per_hour') {
-                                                time = delta.onlyhours + ' hours';
-                                                FinalPrice = item.price * delta.onlyhours;
-                                            }
-                                            if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1) {
-                                                    time = (delta.day + 1) + ' days';
-                                                    FinalPrice = item.price * (delta.day + 1);
-                                                } else {
-                                                    time = delta.day + ' days';
-                                                    FinalPrice = item.price * delta.day;
-                                                }
-                                            }
-                                            if (item.price_type == 'per_event') {
-                                                time = "--";
-                                                FinalPrice = item.price;
-                                            }
-                                            items += `<tr style="text-align: left;">
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_', ' ')}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount}</td>
-                                                    </tr>`;
-                                            next_equipments();
-                                        });
+                                        items = itemsDetails(lastCreatedbooking.selectedEquipments, items);
                                     }
                                     if (lastCreatedbooking.selectedServices.length > 0) {
-                                        async.forEachSeries(lastCreatedbooking.selectedServices, (item, next_services) => {
-                                            let FinalPrice = 0;
-                                            let time = '';
-                                            if (item.price_type == 'per_hour') {
-                                                time = delta.onlyhours + ' hours';
-                                                FinalPrice = item.price * delta.onlyhours;
-                                            }
-                                            if (item.price_type == 'per_day') {
-                                                if (delta.hour >= 1) {
-                                                    time = (delta.day + 1) + ' days';
-                                                    FinalPrice = item.price * (delta.day + 1);
-                                                } else {
-                                                    time = delta.day + ' days';
-                                                    FinalPrice = item.price * delta.day;
-                                                }
-                                            }
-                                            if (item.price_type == 'per_event') {
-                                                time = "--";
-                                                FinalPrice = item.price;
-                                            }
-                                            items += `<tr style="text-align: left;">
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price} ${item.price_type.trim().replace('_', ' ')}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * item.itemCount} </td>
-                                                </tr>`;
-                                            next_services();
-                                        });
+                                        items = itemsDetails(lastCreatedbooking.selectedEquipments, items);
                                     }
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
