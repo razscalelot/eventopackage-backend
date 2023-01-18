@@ -169,13 +169,11 @@ exports.booking = async (req, res) => {
                                         if (bookedEvent.aboutplace.place_price != '') {
                                             ePrice = bookedEvent.aboutplace.place_price;
                                             eType = bookedEvent.aboutplace.price_type;
-                                            subTotal += ePrice;
                                         }
                                     } else if (bookedEvent.personaldetail) {
                                         if (bookedEvent.personaldetail.price != '') {
                                             ePrice = bookedEvent.personaldetail.price;
                                             eType = bookedEvent.personaldetail.price_type;
-                                            subTotal += ePrice;
                                         }
                                     }
                                     let d = new Date(lastCreatedbooking.createdAt);
@@ -228,6 +226,7 @@ exports.booking = async (req, res) => {
                                         pTime = "--";
                                         eTotalPrice = ePrice;
                                     }
+                                    subTotal += eTotalPrice;
                                     const html = `<!DOCTYPE html>
                                 <html lang="en">
                                 <head>
