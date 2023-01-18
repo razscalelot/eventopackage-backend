@@ -55,6 +55,7 @@ function timeDiffCalc(dateFuture, dateNow) {
 function itemsDetails(services, items){
     console.log("in fun services", services);
     console.log("in fun items", items);
+    let delta = timeDiffCalc(startTimestamp, endTimestamp);
     async.forEachSeries(services, (service, next_item) => {
         console.log("in forEachSeries service", service);
         let FinalPrice = 0;
