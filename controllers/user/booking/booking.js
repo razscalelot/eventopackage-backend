@@ -232,10 +232,10 @@ exports.booking = async (req, res) => {
                                     async.forEach(bookedEvent.discounts, (discount, next_discount) => {
                                     if (discount.discounttype === "discount_on_total_bill") {
                                         if (bookedEvent.aboutplace) {
-                                            let getPrice = (parseInt(bookedEvent.aboutplace.place_price) * parseInt(discount.discount)) / 100;
+                                            let getPrice = (parseInt(eTotalPrice) * parseInt(discount.discount)) / 100;
                                             console.log("getPrice", getPrice);
                                         } else if (bookedEvent.personaldetail) {
-                                            let getPrice = (parseInt(bookedEvent.personaldetail.price) * parseInt(discount.discount)) / 100;
+                                            let getPrice = (parseInt(eTotalPrice) * parseInt(discount.discount)) / 100;
                                             console.log("getPrice", getPrice);
                                         }
                                     }
@@ -266,7 +266,7 @@ exports.booking = async (req, res) => {
                                     <form action="#">
                                         <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
                                         <div style="width: 80%;">
-                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">EVENTO PACKAGE</h3>
+                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">FESTUM EVENTO PRIVATE LIMITED</h3>
                                             <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
                                             <div style="display: flex; align-items: center;">
                                                 <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
