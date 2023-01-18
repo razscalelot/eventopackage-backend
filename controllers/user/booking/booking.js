@@ -124,6 +124,17 @@ exports.booking = async (req, res) => {
                                         model: primary.model(constants.MODELS.users, userModel),
                                         select: 'name email address'
                                     }).lean();
+                                    let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId)}).sort({ _id: -1 }).lean();
+                                    let ePrice = 0;
+                                    let eType = '';
+                                    if (bookedEvent.aboutplace){
+                                        ePrice = bookedEvent.aboutplace.place_price;
+                                        eType = bookedEvent.aboutplace.price_type;
+                                    }
+                                    if (bookedEvent.personaldetail){
+                                        ePrice = bookedEvent.personaldetail.price;
+                                        eType = bookedEvent.personaldetail.price_type;
+                                    }
                                     let d = new Date(lastCreatedbooking.createdAt);
                                     let day = d.getDate();
                                     let month = d.getMonth();
@@ -232,18 +243,23 @@ exports.booking = async (req, res) => {
                                     });
                                     const page = await browser.newPage();
                                     let pTime = '';
+                                    let eTotalPrice = 0;
                                     if (price_type == 'per_hour') {
                                         pTime = delta.onlyhours + ' hours';
+                                        eTotalPrice = ePrice * delta.onlyhours;
                                     }
                                     if (price_type == 'per_day') {
                                         if (delta.hour >= 1) {
                                             pTime = (delta.day + 1) + ' days';
+                                            eTotalPrice = ePrice * (delta.day + 1);
                                         } else {
                                             pTime = delta.day + ' days';
+                                            eTotalPrice = ePrice * delta.day;
                                         }
                                     }
                                     if (price_type == 'per_event') {
                                         pTime = "--";
+                                        eTotalPrice = ePrice;
                                     }
                                     const html = `<!DOCTYPE html>
                                     <html lang="en">
@@ -336,10 +352,10 @@ exports.booking = async (req, res) => {
                                               <tbody>  
                                                 <tr style="text-align: left;">
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${totalPrice}</td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${ePrice} ${eType.trim().replace('_', ' ')}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${pTime}</td>
                                                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${totalPrice} </td>
+                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${eTotalPrice} </td>
                                                 </tr>
                                               ${items} 
                                               </tbody>
