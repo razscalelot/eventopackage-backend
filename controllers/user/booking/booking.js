@@ -52,7 +52,7 @@ function timeDiffCalc(dateFuture, dateNow) {
     };
 }
 
-function itemsDetails(services, items){
+function itemsDetails(services, items, startTimestamp, endTimestamp){
     console.log("in fun services", services);
     console.log("in fun items", items);
     let delta = timeDiffCalc(startTimestamp, endTimestamp);
@@ -189,15 +189,15 @@ exports.booking = async (req, res) => {
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems.length > 0) {
                                         console.log("in if ", lastCreatedbooking.selectedItems);
-                                        items += itemsDetails(lastCreatedbooking.selectedItems, items);
+                                        items += itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp);
                                     }
                                     if (lastCreatedbooking.selectedEquipments.length > 0) {
                                         console.log("in if ", lastCreatedbooking.selectedEquipments);
-                                        items += itemsDetails(lastCreatedbooking.selectedEquipments, items);
+                                        items += itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp);
                                     }
                                     if (lastCreatedbooking.selectedServices.length > 0) {
                                         console.log("in if ", lastCreatedbooking.selectedServices);
-                                        items += itemsDetails(lastCreatedbooking.selectedServices, items);
+                                        items += itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp);
                                     }
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
