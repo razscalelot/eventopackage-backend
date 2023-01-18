@@ -52,26 +52,27 @@ function timeDiffCalc(dateFuture, dateNow) {
     };
 }
 function itemsDetails(services, items, startTimestamp, endTimestamp, subTotal) {
-    let delta = timeDiffCalc(startTimestamp, endTimestamp);
-    let FinalPrice = 0;
-    let time = '';
+    let delta = timeDiffCalc(startTimestamp, endTimestamp);  
+    let fPrice = 0;
     async.forEachSeries(services, (service, next_item) => {
+        let FinalPrice = 0;
+        let time = '';
         if (service.price_type == 'per_hour') {
             time = delta.onlyhours + ' hours';
-            FinalPrice += service.price * delta.onlyhours * service.itemCount;
+            FinalPrice = service.price * delta.onlyhours * service.itemCount;
         }
         if (service.price_type == 'per_day') {
             if (delta.hour >= 1) {
                 time = (delta.day + 1) + ' days';
-                FinalPrice += service.price * (delta.day + 1) * service.itemCount;
+                FinalPrice = service.price * (delta.day + 1) * service.itemCount;
             } else {
                 time = delta.day + ' days';
-                FinalPrice += service.price * delta.day * service.itemCount;
+                FinalPrice = service.price * delta.day * service.itemCount;
             }
         }
         if (service.price_type == 'per_event') {
             time = "--";
-            FinalPrice += service.price;
+            FinalPrice = service.price;
         }
         items += `<tr style="text-align: left;">
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${service.name}</td>
@@ -80,9 +81,10 @@ function itemsDetails(services, items, startTimestamp, endTimestamp, subTotal) {
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.itemCount}</td>
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(FinalPrice).toFixed(2)}</td>
                 </tr>`;
+        fPrice += FinalPrice; 
         next_item();
     });
-    let finalSubTotal = subTotal + FinalPrice;
+    let finalSubTotal = subTotal + fPrice;
     return {
         items: items, finalSubTotal: finalSubTotal
     }
