@@ -51,26 +51,22 @@ function timeDiffCalc(dateFuture, dateNow) {
         onlyhours: onlyhours
     };
 }
-
-function itemsDetails(services, items, startTimestamp, endTimestamp){
-    console.log("in fun services", services);
-    console.log("in fun items", items);
+function itemsDetails(services, items, startTimestamp, endTimestamp, subTotal) {
     let delta = timeDiffCalc(startTimestamp, endTimestamp);
     async.forEachSeries(services, (service, next_item) => {
-        console.log("in forEachSeries service", service);
         let FinalPrice = 0;
         let time = '';
         if (service.price_type == 'per_hour') {
             time = delta.onlyhours + ' hours';
-            FinalPrice = service.price * delta.onlyhours;
+            FinalPrice = service.price * delta.onlyhours * service.itemCount;
         }
         if (service.price_type == 'per_day') {
             if (delta.hour >= 1) {
                 time = (delta.day + 1) + ' days';
-                FinalPrice = service.price * (delta.day + 1);
+                FinalPrice = service.price * (delta.day + 1) * service.itemCount;
             } else {
                 time = delta.day + ' days';
-                FinalPrice = service.price * delta.day;
+                FinalPrice = service.price * delta.day * service.itemCount;
             }
         }
         if (service.price_type == 'per_event') {
@@ -82,14 +78,15 @@ function itemsDetails(services, items, startTimestamp, endTimestamp){
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.price}  ${service.price_type.trim().replace('_', ' ')}</td>
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                     <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.itemCount}</td>
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${FinalPrice * service.itemCount}</td>
+                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(FinalPrice).toFixed(2)}</td>
                 </tr>`;
         next_item();
     });
-    console.log("in fun items", items);
-    return items;
+    let finalSubTotal = subTotal + FinalPrice;
+    return {
+        items: items, finalSubTotal: finalSubTotal
+    }
 }
-
 
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
@@ -165,17 +162,20 @@ exports.booking = async (req, res) => {
                                         select: 'name email address'
                                     }).lean();
                                     let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId) }).lean();
+                                    let subTotal = 0;
                                     let ePrice = 0;
                                     let eType = '';
                                     if (bookedEvent.aboutplace) {
                                         if (bookedEvent.aboutplace.place_price != '') {
                                             ePrice = bookedEvent.aboutplace.place_price;
                                             eType = bookedEvent.aboutplace.price_type;
+                                            subTotal += ePrice;
                                         }
                                     } else if (bookedEvent.personaldetail) {
                                         if (bookedEvent.personaldetail.price != '') {
                                             ePrice = bookedEvent.personaldetail.price;
                                             eType = bookedEvent.personaldetail.price_type;
+                                            subTotal += ePrice;
                                         }
                                     }
                                     let d = new Date(lastCreatedbooking.createdAt);
@@ -184,26 +184,31 @@ exports.booking = async (req, res) => {
                                     let year = d.getFullYear();
                                     const allmonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                                     let finalDate = day + ' ' + allmonth[month] + ' ' + year;
-                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
-                                    console.log("delta", delta);
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems.length > 0) {
-                                        console.log("in if ", lastCreatedbooking.selectedItems);
-                                        items += itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp);
+                                        let getItems = itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp, subTotal);
+                                        items += getItems.items;
+                                        subTotal += getItems.finalSubTotal;
+                                        // items += itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp, subTotal);
                                     }
                                     if (lastCreatedbooking.selectedEquipments.length > 0) {
-                                        console.log("in if ", lastCreatedbooking.selectedEquipments);
-                                        items += itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp);
+                                        let getItems = itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp, subTotal);
+                                        items += getItems.items;
+                                        subTotal += getItems.finalSubTotal;
+                                        // items += itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp, subTotal);
                                     }
                                     if (lastCreatedbooking.selectedServices.length > 0) {
-                                        console.log("in if ", lastCreatedbooking.selectedServices);
-                                        items += itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp);
+                                        let getItems = itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp, subTotal);
+                                        items += getItems.items;
+                                        subTotal += getItems.finalSubTotal;
+                                        // items += itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp, subTotal);
                                     }
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
                                         args: ["--no-sandbox"]
                                     });
                                     const page = await browser.newPage();
+                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                     let pTime = '';
                                     let eTotalPrice = 0;
                                     if (price_type == 'per_hour') {
@@ -224,144 +229,144 @@ exports.booking = async (req, res) => {
                                         eTotalPrice = ePrice;
                                     }
                                     const html = `<!DOCTYPE html>
-                                    <html lang="en">
-                                    <head>
-                                      <meta charset="UTF-8">
-                                      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                                      <meta name="viewport" content="width=s, initial-scale=1.0">
-                                      <title>Invoice</title>
-                                      <style>
-                                         @media screen {
-                                             p.bodyText {font-family:verdana, arial, sans-serif;}
-                                          }
-                                          @media print {
-                                             p.bodyText {font-family:georgia, times, serif;}
-                                          }
-                                          @media screen, print {
-                                             p.bodyText {font-size:10pt}
-                                          }
-                                      </style>
-                                    </head>
-                                    <body>
-                                      <div style="width:100%; max-width: 1000px; margin: 0 auto; padding: 15px; background-color: #fcfcfc;">
-                                        <form action="#">
-                                          <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
-                                            <div style="width: 80%;">
-                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">EVENTO PACKAGE</h3>
-                                              <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
-                                                <div style="display: flex; align-items: center;">
-                                                  <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                  <span style="display: block; margin-bottom: 3px;">CIN :</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">054054054056</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                  <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">000022221111</span>
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                  <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">help@eventopackage.com</span>
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div style="width: 20%;">
-                                              <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
-                                              <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
-                                                <span style="display: block; margin-bottom: 3px;">INVOICE NO. # ${lastCreatedbooking.invoice_no}</span>
-                                                <span style="display: block; margin-bottom: 3px;">INVOICE DATE : ${finalDate}</span>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div style="width: 100%; margin-top: 50px; color: #ED7D59;">
-                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">CLIENT DETAILS : <span style="display: inline-block; margin-left: 10px; color: #363636;">5212265</span></h3>
-                                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
-                                              <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">Name :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.name}</span>
-                                              </div>
-                                              <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.address}</span>
-                                              </div>
-                                              <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">2512365489321</span>
-                                              </div>
-                                              <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">DATE & TIME :</span>
-                                                <div style="display: flex; align-items: baseline;">
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">02/02/2023</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636; margin:0px 5px; font-size: 15px;">|</span>
-                                                  <span style="display: block; margin-bottom: 3px; color: #363636;">10:55AM</span>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div style="width: 700px; margin: 0 auto; margin-top: 50px; ">
-                                            <table style="width: 100%; height: auto; border-collapse: collapse;">
-                                              <thead>
-                                                <tr style="text-align: left;">
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
-                                                  <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
-                                                </tr>
-                                              </thead>
-                                              <tbody>  
-                                                <tr style="text-align: left;">
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${ePrice} ${eType.trim().replace('_', ' ')}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${pTime}</td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
-                                                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${eTotalPrice} </td>
-                                                </tr>
-                                              ${items} 
-                                              </tbody>
-                                            </table>
-                                            <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
-                                              <tbody>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                                </tr>
-                                                <tr style="text-align: left;">
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
-                                                  <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                                </tr>
-                                              </tbody>
-                                            </table>
-                                          </div>
-                                          <div style="margin-top: 50px;">
+                                <html lang="en">
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                                    <meta name="viewport" content="width=s, initial-scale=1.0">
+                                    <title>Invoice</title>
+                                    <style>
+                                        @media screen {
+                                            p.bodyText {font-family:verdana, arial, sans-serif;}
+                                        }
+                                        @media print {
+                                            p.bodyText {font-family:georgia, times, serif;}
+                                        }
+                                        @media screen, print {
+                                            p.bodyText {font-size:10pt}
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div style="width:100%; max-width: 1000px; margin: 0 auto; padding: 15px; background-color: #fcfcfc;">
+                                    <form action="#">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
+                                        <div style="width: 80%;">
+                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">EVENTO PACKAGE</h3>
+                                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
                                             <div style="display: flex; align-items: center;">
-                                              <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
-                                              <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                                <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
                                             </div>
-                                            <div style="display: flex; align-items: center; margin-top: 50px;">
-                                              <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
-                                              <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                            <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">CIN :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">054054054056</span>
                                             </div>
-                                          </div>
-                                          <h2 style="margin-top: 100px;">THANK YOU</h2>
-                                        </form>
-                                      </div>
-                                    </body>
-                                    </html>`;
+                                            <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">000022221111</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center;">
+                                                <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">help@eventopackage.com</span>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        <div style="width: 20%;">
+                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
+                                            <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
+                                            <span style="display: block; margin-bottom: 3px;">INVOICE NO. # ${lastCreatedbooking.invoice_no}</span>
+                                            <span style="display: block; margin-bottom: 3px;">INVOICE DATE : ${finalDate}</span>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div style="width: 100%; margin-top: 50px; color: #ED7D59;">
+                                        <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">CLIENT DETAILS : <span style="display: inline-block; margin-left: 10px; color: #363636;">5212265</span></h3>
+                                        <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
+                                            <div style="display: flex; align-items: center;">
+                                            <span style="display: block; margin-bottom: 3px;">Name :</span>
+                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.name}</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center;">
+                                            <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.address}</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center;">
+                                            <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">2512365489321</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center;">
+                                            <span style="display: block; margin-bottom: 3px;">DATE & TIME :</span>
+                                            <div style="display: flex; align-items: baseline;">
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">02/02/2023</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin:0px 5px; font-size: 15px;">|</span>
+                                                <span style="display: block; margin-bottom: 3px; color: #363636;">10:55AM</span>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div style="width: 700px; margin: 0 auto; margin-top: 50px; ">
+                                        <table style="width: 100%; height: auto; border-collapse: collapse;">
+                                            <thead>
+                                            <tr style="text-align: left;">
+                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
+                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
+                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
+                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
+                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>  
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
+                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(ePrice).toFixed(2)} ${eType.trim().replace('_', ' ')}</td>
+                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${pTime}</td>
+                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
+                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(eTotalPrice).toFixed(2)} </td>
+                                            </tr>
+                                            ${items} 
+                                            </tbody>
+                                        </table>
+                                        <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
+                                            <tbody>
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(subTotal).toFixed(2)}</td>
+                                            </tr>
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                            </tr>
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                            </tr>
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                            </tr>
+                                            <tr style="text-align: left;">
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
+                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        </div>
+                                        <div style="margin-top: 50px;">
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
+                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; margin-top: 50px;">
+                                            <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
+                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
+                                        </div>
+                                        </div>
+                                        <h2 style="margin-top: 100px;">THANK YOU</h2>
+                                    </form>
+                                    </div>
+                                </body>
+                                </html>`;
                                     await page.setContent(html, { waitUntil: 'domcontentloaded' });
                                     await page.emulateMediaType('screen');
                                     const ext = 'pdf';
