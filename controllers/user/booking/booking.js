@@ -85,6 +85,7 @@ function itemsDetails(services, items){
                 </tr>`;
         next_item();
     });
+    console.log("in fun items", items);
     return items;
 }
 
@@ -186,13 +187,16 @@ exports.booking = async (req, res) => {
                                     console.log("delta", delta);
                                     let items = '';
                                     if (lastCreatedbooking.selectedItems.length > 0) {
-                                        items = itemsDetails(lastCreatedbooking.selectedItems, items);
+                                        console.log("in if ", lastCreatedbooking.selectedItems);
+                                        items += itemsDetails(lastCreatedbooking.selectedItems, items);
                                     }
                                     if (lastCreatedbooking.selectedEquipments.length > 0) {
-                                        items = itemsDetails(lastCreatedbooking.selectedEquipments, items);
+                                        console.log("in if ", lastCreatedbooking.selectedEquipments);
+                                        items += itemsDetails(lastCreatedbooking.selectedEquipments, items);
                                     }
                                     if (lastCreatedbooking.selectedServices.length > 0) {
-                                        items = itemsDetails(lastCreatedbooking.selectedEquipments, items);
+                                        console.log("in if ", lastCreatedbooking.selectedServices);
+                                        items += itemsDetails(lastCreatedbooking.selectedServices, items);
                                     }
                                     const browser = await puppeteer.launch({
                                         executablePath: '/usr/bin/chromium-browser',
