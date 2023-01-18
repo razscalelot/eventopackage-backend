@@ -53,9 +53,9 @@ function timeDiffCalc(dateFuture, dateNow) {
 }
 function itemsDetails(services, items, startTimestamp, endTimestamp, subTotal) {
     let delta = timeDiffCalc(startTimestamp, endTimestamp);
+    let FinalPrice = 0;
+    let time = '';
     async.forEachSeries(services, (service, next_item) => {
-        let FinalPrice = 0;
-        let time = '';
         if (service.price_type == 'per_hour') {
             time = delta.onlyhours + ' hours';
             FinalPrice = service.price * delta.onlyhours * service.itemCount;
