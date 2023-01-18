@@ -140,10 +140,8 @@ async function saveToS3withFileName(buffer, parentfolder, contentType, filename)
             };
             s3.upload(putParams, (err, data) => {
                 if (err) {
-                    console.log('aws err', err);
                     reject(new Error({msg: 'An error occurred while completing the upload'}));
                 }else{
-                    console.log('aws data', data);
                     resolve({msg: 'file uploaded successfully', data: data});
                 }
             });

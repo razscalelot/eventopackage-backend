@@ -229,15 +229,18 @@ exports.booking = async (req, res) => {
                                         pTime = "--";
                                         eTotalPrice = ePrice;
                                     }
-                                    if (bookedEvent.discounts.discounttype === "discount_on_total_bill") {
+                                    async.forEach(bookedEvent.discounts, (discount, next_discount) => {
+                                    if (discount.discounttype === "discount_on_total_bill") {
                                         if (bookedEvent.aboutplace) {
-                                            let getPrice = (parseInt(bookedEvent.aboutplace.place_price) * parseInt(bookedEvent.discounts.discount) / 100) - parseInt(bookedEvent.aboutplace.place_price);
-                                            console.log("getPrice", getPrice); 
+                                            let getPrice = (parseInt(bookedEvent.aboutplace.place_price) * parseInt(discount.discount) / 100) - parseInt(bookedEvent.aboutplace.place_price);
+                                            console.log("getPrice", getPrice);
                                         } else if (bookedEvent.personaldetail) {
-                                            let getPrice = (parseInt(bookedEvent.personaldetail.price) * parseInt(bookedEvent.discounts.discount) / 100) - parseInt(bookedEvent.personaldetail.price);
+                                            let getPrice =(parseInt(bookedEvent.personaldetail.price) * parseInt(discount.discount) / 100) -  parseInt(bookedEvent.personaldetail.price);
                                             console.log("getPrice", getPrice);
                                         }
                                     }
+                                    next_discount();
+                                });
                                     subTotal += eTotalPrice;
                                     const html = `<!DOCTYPE html>
                                 <html lang="en">
