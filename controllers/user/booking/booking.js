@@ -6,6 +6,9 @@ const userModel = require('../../../models/users.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
 const eventModel = require('../../../models/events.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
+const serviceModel = require('../../../models/service.model');
+const itemModel = require('../../../models/items.model');
+const equipmentModel = require('../../../models/equipments.model');
 const awsCloud = require('../../../utilities/aws');
 const async = require("async");
 const mongoose = require('mongoose');
@@ -192,16 +195,20 @@ exports.booking = async (req, res) => {
                                                     ePrice = bookedEvent.personaldetail.price;
                                                     let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                                     if (eType == 'per_hour') {
+                                                        eTime = delta.onlyhours + ' hours';
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
                                                     if (eType == 'per_day') {
                                                         if (delta.hour >= 1) {
+                                                            eTime = (delta.day + 1) + ' days'
                                                             eTotalPrice = ePrice * (delta.day + 1);
                                                         } else {
+                                                            eTime = delta.day + ' days';
                                                             eTotalPrice = ePrice * delta.day;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
+                                                        eTime = "--";
                                                         eTotalPrice = ePrice;
                                                     }
                                                 }
@@ -477,7 +484,11 @@ exports.checkavailability = async (req, res) => {
                     let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime() + 19800000;
                     let newStartTimestamp = '';
                     let newEndTimestamp = '';
-                    let event = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(eventId) }).sort({ start_timestamp: 1 }).lean();
+                    let event = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(eventId) }).populate([
+                        { path: "services", model: primary.model(constants.MODELS.services, serviceModel) },
+                        { path: "items", model: primary.model(constants.MODELS.items, itemModel) },
+                        { path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
+                    ]).sort({ start_timestamp: 1 }).lean();
                     if (event.event_type == 'have_you_places') {
                         newStartTimestamp = minusHours(startTimestamp, parseInt(event.aboutplace.clearing_time));
                         newEndTimestamp = addHours(endTimestamp, parseInt(event.aboutplace.clearing_time));
@@ -510,6 +521,69 @@ exports.checkavailability = async (req, res) => {
                     } else {
                         let delta = timeDiffCalc(startTimestamp, endTimestamp);
                         let FinalPrice = 0;
+                        async.forEachSeries(event.services, (service, next_service) => {
+                            let itemFinalPrice = 0;
+                            if (service.price_type == 'per_day') {
+                                if (delta.hour >= 1) {
+                                    itemFinalPrice = service.place_price * (delta.day + 1);
+                                } else {
+                                    itemFinalPrice = service.place_price * delta.day;
+                                }
+                            }
+                            if (service.price_type == 'per_person' || service.price_type == 'per_event') {
+                                itemFinalPrice = service.place_price;
+                            }                            
+                            service.itemFinalPrice = itemFinalPrice
+                            next_service();
+                        }, () => {
+                            async.forEachSeries(event.items, (item, next_item) => {
+                                let itemFinalPrice = 0;
+                                if (item.price_type == 'per_day') {
+                                    if (delta.hour >= 1) {
+                                        itemFinalPrice = item.place_price * (delta.day + 1);
+                                    } else {
+                                        itemFinalPrice = item.place_price * delta.day;
+                                    }
+                                }
+                                if (item.price_type == 'per_person' || item.price_type == 'per_event') {
+                                    itemFinalPrice = item.place_price;
+                                }                                
+                                item.itemFinalPrice = itemFinalPrice
+                                next_item();
+                            }, () => {
+                                async.forEachSeries(event.equipments, (equipment, next_item) => {
+                                    let itemFinalPrice = 0;
+                                    if (equipment.price_type == 'per_day') {
+                                        if (delta.hour >= 1) {
+                                            itemFinalPrice = equipment.place_price * (delta.day + 1);
+                                        } else {
+                                            itemFinalPrice = equipment.place_price * delta.day;
+                                        }
+                                    }
+                                    if (equipment.price_type == 'per_person' || equipment.price_type == 'per_event') {
+                                        itemFinalPrice = equipment.place_price;
+                                    }
+                                    equipment.itemFinalPrice = itemFinalPrice
+                                    next_item();
+                                })
+                            });
+                        }).catch((error) => {
+                            return responseManager.onError(error, res);
+                        });
+
+                        if (event.aboutplace.price_type == 'per_day') {
+                            if (delta.hour >= 1) {
+                                itemFinalPrice = event.aboutplace.place_price * (delta.day + 1);
+                            } else {
+                                itemFinalPrice = event.aboutplace.place_price * delta.day;
+                            }
+                        }
+                        if (event.services.price_type == 'per_person') {
+                            itemFinalPrice = event.aboutplace.place_price * delta.hour;
+                        }
+                        if (event.aboutplace.price_type == 'per_event') {
+                            itemFinalPrice = event.aboutplace.place_price;
+                        }
                         if (event.aboutplace) {
                             if (event.aboutplace.price_type == 'per_hour') {
                                 FinalPrice = event.aboutplace.place_price * delta.hour;
