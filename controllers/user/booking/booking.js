@@ -525,87 +525,85 @@ exports.checkavailability = async (req, res) => {
                             let itemFinalPrice = 0;
                             if (service.price_type == 'per_day') {
                                 if (delta.hour >= 1) {
-                                    itemFinalPrice = service.place_price * (delta.day + 1);
+                                    itemFinalPrice += parseInt(service.place_price) * (delta.day + 1);
                                 } else {
-                                    itemFinalPrice = service.place_price * delta.day;
+                                    itemFinalPrice += parseInt(service.place_price) * delta.day;
                                 }
                             }
                             if (service.price_type == 'per_person' || service.price_type == 'per_event') {
-                                itemFinalPrice = service.place_price;
-                            }                            
-                            service.itemFinalPrice = itemFinalPrice
+                                itemFinalPrice += parseInt(service.place_price);
+                            }
+                            service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                             next_service();
                         }, () => {
                             async.forEachSeries(event.items, (item, next_item) => {
                                 let itemFinalPrice = 0;
                                 if (item.price_type == 'per_day') {
                                     if (delta.hour >= 1) {
-                                        itemFinalPrice = item.place_price * (delta.day + 1);
+                                        itemFinalPrice += parseInt(item.price) * (delta.day + 1);
                                     } else {
-                                        itemFinalPrice = item.place_price * delta.day;
+                                        itemFinalPrice += parseInt(item.price) * delta.day;
                                     }
                                 }
                                 if (item.price_type == 'per_person' || item.price_type == 'per_event') {
-                                    itemFinalPrice = item.place_price;
-                                }                                
-                                item.itemFinalPrice = itemFinalPrice
+                                    itemFinalPrice += parseInt(item.price)
+                                }
+                                item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                 next_item();
                             }, () => {
                                 async.forEachSeries(event.equipments, (equipment, next_item) => {
                                     let itemFinalPrice = 0;
                                     if (equipment.price_type == 'per_day') {
                                         if (delta.hour >= 1) {
-                                            itemFinalPrice = equipment.place_price * (delta.day + 1);
+                                            itemFinalPrice += parseInt(equipment.price) * (delta.day + 1);
                                         } else {
-                                            itemFinalPrice = equipment.place_price * delta.day;
+                                            itemFinalPrice += parseInt(equipment.price) * delta.day;
                                         }
                                     }
                                     if (equipment.price_type == 'per_person' || equipment.price_type == 'per_event') {
-                                        itemFinalPrice = equipment.place_price;
+                                        itemFinalPrice += parseInt(equipment.price);
                                     }
-                                    equipment.itemFinalPrice = itemFinalPrice
+                                    equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                     next_item();
-                                })
-                            }, () => {
-                                (async () => {
-                                    console.log("event", event);
-                                }).catch((error) => {
-                                    return responseManager.onError(error, res);
+                                }, () => {
+                                    (async () => {
+                                        if (event.aboutplace) {
+                                            if (event.aboutplace.price_type == 'per_hour') {
+                                                FinalPrice = event.aboutplace.place_price * delta.hour;
+                                            }
+                                            if (event.aboutplace.price_type == 'per_day') {
+                                                if (delta.hour >= 1) {
+                                                    FinalPrice = event.aboutplace.place_price * (delta.day + 1);
+                                                } else {
+                                                    FinalPrice = event.aboutplace.place_price * delta.day;
+                                                }
+                                            }
+                                            if (event.aboutplace.price_type == 'per_event') {
+                                                FinalPrice = event.aboutplace.place_price;
+                                            }
+                                        } else {
+                                            if (event.personaldetail.price_type == 'per_hour') {
+                                                FinalPrice = event.personaldetail.price * delta.hour;
+                                            }
+                                            if (event.personaldetail.price_type == 'per_day') {
+                                                if (delta.hour >= 1 && delta.day == 0) {
+                                                    FinalPrice = event.personaldetail.price * 1;
+                                                } else {
+                                                    FinalPrice = event.personaldetail.price * delta.day;
+                                                }
+                                            }
+                                            if (event.personaldetail.price_type == 'per_event') {
+                                                FinalPrice = event.personaldetail.price;
+                                            }
+                                        }
+                                        // event.FinalPrice = parseFloat(FinalPrice).toFixed(2)
+                                        return responseManager.onSuccess('Bookings available on the selected date and time.', {services: event.services, items: event.items, equipments: event.equipments, FinalPrice: FinalPrice}, res);
+                                    })().catch((error) => {
+                                        return responseManager.onError(error, res);
+                                    });
                                 });
                             });
-                        }).catch((error) => {
-                            return responseManager.onError(error, res);
                         });
-                        if (event.aboutplace) {
-                            if (event.aboutplace.price_type == 'per_hour') {
-                                FinalPrice = event.aboutplace.place_price * delta.hour;
-                            }
-                            if (event.aboutplace.price_type == 'per_day') {
-                                if (delta.hour >= 1) {
-                                    FinalPrice = event.aboutplace.place_price * (delta.day + 1);
-                                } else {
-                                    FinalPrice = event.aboutplace.place_price * delta.day;
-                                }
-                            }
-                            if (event.aboutplace.price_type == 'per_event') {
-                                FinalPrice = event.aboutplace.place_price;
-                            }
-                        } else {
-                            if (event.personaldetail.price_type == 'per_hour') {
-                                FinalPrice = event.personaldetail.price * delta.hour;
-                            }
-                            if (event.personaldetail.price_type == 'per_day') {
-                                if (delta.hour >= 1 && delta.day == 0) {
-                                    FinalPrice = event.personaldetail.price * 1;
-                                } else {
-                                    FinalPrice = event.personaldetail.price * delta.day;
-                                }
-                            }
-                            if (event.personaldetail.price_type == 'per_event') {
-                                FinalPrice = event.personaldetail.price;
-                            }
-                        }
-                        return responseManager.onSuccess('Bookings available on the selected date and time.', { FinalPrice: parseFloat(FinalPrice).toFixed(2) }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id to check event booking availability, please try again' }, res);
