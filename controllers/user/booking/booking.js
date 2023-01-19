@@ -362,7 +362,7 @@ exports.booking = async (req, res) => {
                                                         s3Url: process.env.AWS_BUCKET_URI,
                                                         invoice: result.data.Key
                                                     };
-                                                    body.invoice = obj.invoice;
+                                                    body.invoice_url = obj.invoice;
                                                     primary.model(constants.MODELS.eventbookings, eventbookingModel).create(body).then((addedEventBokking) => {
                                                         let currentuserreview = primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(addedEventBokking.eventId) }).sort({ _id: -1 }).lean();
                                                         addedEventBokking.isUserReview = (currentuserreview == null) ? false : true
