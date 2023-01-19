@@ -210,6 +210,10 @@ exports.booking = async (req, res) => {
                                                     <meta name="viewport" content="width=s, initial-scale=1.0">
                                                     <title>Invoice</title>
                                                     <style>
+                                                        ul{
+                                                            padding-left:0px;
+                                                            padding:0 10px;
+                                                        }
                                                         @media screen {
                                                             p.bodyText {font-family:verdana, arial, sans-serif;}
                                                         }
@@ -327,15 +331,15 @@ exports.booking = async (req, res) => {
                                                         </table>
                                                         </div>
                                                         <div style="margin-top: 50px;">
-                                                        <div style="display: flex; align-items: center;">
-                                                          <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
-                                                          <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">Festum Evento Pvt.Ltd</span>
+                                                            <div style="display: flex; align-items: center;">
+                                                                <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">Festum Evento Pvt.Ltd</span>
+                                                            </div>
+                                                            <div style="margin-top: 50px;">
+                                                                <span style="display: block; margin-bottom: 5px; font-size: 12px;">TERMS AND CONDITION :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px; font-size:12px !important;">${bookedEvent.tandc.t_and_c}</span>
+                                                            </div>
                                                         </div>
-                                                        <div style="display: flex; align-items: center; margin-top: 50px;">
-                                                          <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
-                                                          <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${bookedEvent.tandc.t_and_c}</span>
-                                                        </div>
-                                                      </div>
                                                         <h2 style="margin-top: 100px;">THANK YOU</h2>
                                                     </form>
                                                     </div>
