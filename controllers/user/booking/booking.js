@@ -168,16 +168,20 @@ exports.booking = async (req, res) => {
                                                     ePrice = bookedEvent.aboutplace.place_price;
                                                     let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                                     if (eType == 'per_hour') {
+                                                        eTime = delta.onlyhours + ' hours';
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
                                                     if (eType == 'per_day') {
                                                         if (delta.hour >= 1) {
+                                                            eTime = (delta.day + 1) + ' days'
                                                             eTotalPrice = ePrice * (delta.day + 1);
                                                         } else {
+                                                            eTime = delta.day + ' days';
                                                             eTotalPrice = ePrice * delta.day;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
+                                                        eTime = "--";
                                                         eTotalPrice = ePrice;
                                                     }
 
