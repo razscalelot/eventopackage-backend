@@ -166,7 +166,7 @@ exports.booking = async (req, res) => {
                                                 if (bookedEvent.aboutplace.place_price != '') {
                                                     eType = bookedEvent.aboutplace.price_type;
                                                     ePrice = bookedEvent.aboutplace.place_price;
-                                                    eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
+                                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                                     if (eType == 'per_hour') {
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
@@ -186,7 +186,7 @@ exports.booking = async (req, res) => {
                                                 if (bookedEvent.personaldetail.price != '') {
                                                     eType = bookedEvent.personaldetail.price_type;
                                                     ePrice = bookedEvent.personaldetail.price;
-                                                    eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
+                                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
                                                     if (eType == 'per_hour') {
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
