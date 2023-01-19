@@ -161,11 +161,25 @@ exports.booking = async (req, res) => {
                                             let ePrice = 0;
                                             let eTime = '';
                                             let eType = '';
+                                            let eTotalPrice = 0;
                                             if (bookedEvent.aboutplace) {
                                                 if (bookedEvent.aboutplace.place_price != '') {
                                                     eType = bookedEvent.aboutplace.price_type;
                                                     ePrice = bookedEvent.aboutplace.place_price;
                                                     eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
+                                                    if (eType == 'per_hour') {
+                                                        eTotalPrice = ePrice * delta.onlyhours;
+                                                    }
+                                                    if (eType == 'per_day') {
+                                                        if (delta.hour >= 1) {
+                                                            eTotalPrice = ePrice * (delta.day + 1);
+                                                        } else {
+                                                            eTotalPrice = ePrice * delta.day;
+                                                        }
+                                                    }
+                                                    if (eType == 'per_event') {
+                                                        eTotalPrice = ePrice;
+                                                    }
 
                                                 }
                                             } else if (bookedEvent.personaldetail) {
@@ -173,6 +187,19 @@ exports.booking = async (req, res) => {
                                                     eType = bookedEvent.personaldetail.price_type;
                                                     ePrice = bookedEvent.personaldetail.price;
                                                     eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
+                                                    if (eType == 'per_hour') {
+                                                        eTotalPrice = ePrice * delta.onlyhours;
+                                                    }
+                                                    if (eType == 'per_day') {
+                                                        if (delta.hour >= 1) {
+                                                            eTotalPrice = ePrice * (delta.day + 1);
+                                                        } else {
+                                                            eTotalPrice = ePrice * delta.day;
+                                                        }
+                                                    }
+                                                    if (eType == 'per_event') {
+                                                        eTotalPrice = ePrice;
+                                                    }
                                                 }
                                             }
                                             const html = `<!DOCTYPE html>
@@ -269,7 +296,7 @@ exports.booking = async (req, res) => {
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${ePrice} ${eType.trim().replace('_', ' ')}</td>
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${eTime}</td>
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
-                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(eTotalPrice).toFixed(2)} </td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${eTotalPrice} </td>
                                                             </tr>
                                                             ${items} 
                                                             </tbody>
