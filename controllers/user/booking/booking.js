@@ -144,10 +144,10 @@ exports.booking = async (req, res) => {
                                         let time = pHourpDaypEventCalc(item, startTimestamp, endTimestamp)
                                         items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_', ' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(item.price).toFixed(2)}  ${item.price_type.trim().replace('_', ' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price * item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(item.price * item.itemCount).toFixed(2)}</td>
                                                     </tr>`;
                                         next_item();
                                     }, () => {
@@ -301,10 +301,10 @@ exports.booking = async (req, res) => {
                                                             <tbody>  
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${body.name}</td>
-                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${ePrice} ${eType.trim().replace('_', ' ')}</td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(ePrice).toFixed(2)} ${eType.trim().replace('_', ' ')}</td>
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${eTime}</td>
                                                                 <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
-                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${eTotalPrice} </td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(eTotalPrice).toFixed(2)} </td>
                                                             </tr>
                                                             ${items} 
                                                             </tbody>
@@ -313,11 +313,11 @@ exports.booking = async (req, res) => {
                                                             <tbody>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.subTotal}</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.subTotal).toFixed(2)}</td>
                                                             </tr>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.discountOnTotalBill}</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.discountOnTotalBill).toFixed(2)}</td>
                                                             </tr>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
@@ -329,7 +329,7 @@ exports.booking = async (req, res) => {
                                                             </tr>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.totalPrice}</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.totalPrice).toFixed(2)}</td>
                                                             </tr>
                                                             </tbody>
                                                         </table>
