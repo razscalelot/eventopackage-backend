@@ -566,24 +566,16 @@ exports.checkavailability = async (req, res) => {
                                     equipment.itemFinalPrice = itemFinalPrice
                                     next_item();
                                 })
+                            }, () => {
+                                (async () => {
+                                    console.log("event", event);
+                                }).catch((error) => {
+                                    return responseManager.onError(error, res);
+                                });
                             });
                         }).catch((error) => {
                             return responseManager.onError(error, res);
                         });
-
-                        if (event.aboutplace.price_type == 'per_day') {
-                            if (delta.hour >= 1) {
-                                itemFinalPrice = event.aboutplace.place_price * (delta.day + 1);
-                            } else {
-                                itemFinalPrice = event.aboutplace.place_price * delta.day;
-                            }
-                        }
-                        if (event.services.price_type == 'per_person') {
-                            itemFinalPrice = event.aboutplace.place_price * delta.hour;
-                        }
-                        if (event.aboutplace.price_type == 'per_event') {
-                            itemFinalPrice = event.aboutplace.place_price;
-                        }
                         if (event.aboutplace) {
                             if (event.aboutplace.price_type == 'per_hour') {
                                 FinalPrice = event.aboutplace.place_price * delta.hour;
