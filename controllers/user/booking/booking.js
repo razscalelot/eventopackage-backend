@@ -51,373 +51,303 @@ function timeDiffCalc(dateFuture, dateNow) {
         onlyhours: onlyhours
     };
 }
-function itemsDetails(services, items, startTimestamp, endTimestamp, subTotal) {
-    let delta = timeDiffCalc(startTimestamp, endTimestamp);  
-    let fPrice = 0;
-    async.forEachSeries(services, (service, next_item) => {
-        let FinalPrice = 0;
-        let time = '';
-        if (service.price_type == 'per_hour') {
-            time = delta.onlyhours + ' hours';
-            FinalPrice = service.price * delta.onlyhours * service.itemCount;
-        }
-        if (service.price_type == 'per_day') {
-            if (delta.hour >= 1) {
-                time = (delta.day + 1) + ' days';
-                FinalPrice = service.price * (delta.day + 1) * service.itemCount;
-            } else {
-                time = delta.day + ' days';
-                FinalPrice = service.price * delta.day * service.itemCount;
-            }
-        }
-        if (service.price_type == 'per_event') {
-            time = "--";
-            FinalPrice = service.price;
-        }
-        items += `<tr style="text-align: left;">
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${service.name}</td>
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.price}  ${service.price_type.trim().replace('_', ' ')}</td>
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${service.itemCount}</td>
-                    <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(FinalPrice).toFixed(2)}</td>
-                </tr>`;
-        fPrice += FinalPrice; 
-        next_item();
-    });
-    let finalSubTotal = subTotal + fPrice;
-    return {
-        items: items, finalSubTotal: finalSubTotal
+function pHourpDaypEventCalc(service, startTimestamp, endTimestamp) {
+    let delta = timeDiffCalc(startTimestamp, endTimestamp);
+    let time = '';
+    if (service.price_type == 'per_hour') {
+        time = delta.onlyhours + ' hours';
     }
+    if (service.price_type == 'per_day') {
+        if (delta.hour >= 1) {
+            time = (delta.day + 1) + ' days';
+        } else {
+            time = delta.day + ' days';
+        }
+    }
+    if (service.price_type == 'per_event') {
+        time = "--";
+    }
+    return time;
 }
-
+function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+}
 exports.booking = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
-            const { user, eventId, trans_Id, price_type, name, event_type, url, category_name, address, payment_status, selectedItems, selectedEquipments, selectedServices, totalPrice, start_date, end_date, start_time, end_time } = req.body;
-            if (user && user != '' && mongoose.Types.ObjectId.isValid(user) && eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
-                if (start_date && end_date && start_time && end_time) {
+            let body = req.body;
+            if (body.user && body.user != '' && mongoose.Types.ObjectId.isValid(body.user) && body.eventId && body.eventId != '' && mongoose.Types.ObjectId.isValid(body.eventId)) {
+                if (body.start_date && body.end_date && body.start_time && body.end_time) {
                     let totalInvoice = parseInt(await primary.model(constants.MODELS.eventbookings, eventbookingModel).countDocuments({}));
                     let invoiceNo = helper.getInvoiceNo(totalInvoice);
+                    let allItems = [];
                     let finalItems = [];
                     let finalEquipments = [];
                     let finalServices = [];
-                    async.forEachSeries(selectedItems, (item, next_item) => {
+                    async.forEachSeries(body.selectedItems, (item, next_item) => {
                         if (item._id && item._id != '' && mongoose.Types.ObjectId.isValid(item._id)) {
                             item._id = mongoose.Types.ObjectId(item._id);
                             finalItems.push(item);
+                            allItems.push(item);
                         }
                         next_item();
                     }, () => {
-                        async.forEachSeries(selectedEquipments, (equipment, next_equipment) => {
+                        async.forEachSeries(body.selectedEquipments, (equipment, next_equipment) => {
                             if (equipment._id && equipment._id != '' && mongoose.Types.ObjectId.isValid(equipment._id)) {
                                 equipment._id = mongoose.Types.ObjectId(equipment._id);
                                 finalEquipments.push(equipment);
+                                allItems.push(equipment);
                             }
                             next_equipment();
                         }, () => {
-                            async.forEachSeries(selectedServices, (service, next_service) => {
+                            async.forEachSeries(body.selectedServices, (service, next_service) => {
                                 if (service._id && service._id != '' && mongoose.Types.ObjectId.isValid(service._id)) {
                                     service._id = mongoose.Types.ObjectId(service._id);
                                     finalServices.push(service);
+                                    allItems.push(service);
                                 }
                                 next_service();
                             }, () => {
                                 (async () => {
-                                    let xstart_date = start_date.split("-");
-                                    let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + start_time).getTime();
-                                    let yend_date = end_date.split("-");
-                                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + end_time).getTime();
-                                    let obj = {
-                                        userid: mongoose.Types.ObjectId(user),
-                                        eventId: mongoose.Types.ObjectId(eventId),
-                                        trans_Id: trans_Id,
-                                        price_type: price_type,
-                                        name: name,
-                                        event_type: event_type,
-                                        url: url,
-                                        invoice_no: invoiceNo,
-                                        category_name: category_name,
-                                        address: address,
-                                        payment_status: payment_status,
-                                        selectedItems: finalItems,
-                                        selectedEquipments: finalEquipments,
-                                        selectedServices: finalServices,
-                                        totalPrice: parseFloat(totalPrice),
-                                        start_date: start_date,
-                                        end_date: end_date,
-                                        start_time: start_time,
-                                        end_time: end_time,
-                                        isUserReview: false,
-                                        start_timestamp: startTimestamp,
-                                        end_timestamp: endTimestamp,
-                                        created_at: Date.now(),
-                                        updated_at: Date.now()
-                                    };
-                                    let output = await primary.model(constants.MODELS.eventbookings, eventbookingModel).create(obj);
-                                    let currentuserreview = await primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(output.eventId) }).sort({ _id: -1 }).lean();
-                                    output.isUserReview = (currentuserreview == null) ? false : true
-                                    let lastCreatedbooking = await primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).populate({
-                                        path: 'userid',
-                                        model: primary.model(constants.MODELS.users, userModel),
-                                        select: 'name email address'
-                                    }).lean();
-                                    let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(lastCreatedbooking.eventId) }).lean();
-                                    let subTotal = 0;
-                                    let iDiscount = 0;
-                                    let ePrice = 0;
-                                    let eType = '';
-                                    if (bookedEvent.aboutplace) {
-                                        if (bookedEvent.aboutplace.place_price != '') {
-                                            ePrice = bookedEvent.aboutplace.place_price;
-                                            eType = bookedEvent.aboutplace.price_type;
-                                        }
-                                    } else if (bookedEvent.personaldetail) {
-                                        if (bookedEvent.personaldetail.price != '') {
-                                            ePrice = bookedEvent.personaldetail.price;
-                                            eType = bookedEvent.personaldetail.price_type;
-                                        }
-                                    }
-                                    let d = new Date(lastCreatedbooking.createdAt);
+                                    let xstart_date = body.start_date.split("-");
+                                    let startTimestamp = new Date(xstart_date[1] + '-' + xstart_date[2] + '-' + xstart_date[0] + ' ' + body.start_time).getTime();
+                                    let yend_date = body.end_date.split("-");
+                                    let endTimestamp = new Date(yend_date[1] + '-' + yend_date[2] + '-' + yend_date[0] + ' ' + body.end_time).getTime();
+                                    body.userid = mongoose.Types.ObjectId(body.user);
+                                    body.eventId = mongoose.Types.ObjectId(body.eventId);
+                                    body.invoice_no = invoiceNo;
+                                    body.isUserReview = false;
+                                    body.created_at = Date.now();
+                                    body.selectedItems = finalItems;
+                                    body.selectedEquipments = finalEquipments;
+                                    body.selectedServices = finalServices;
+                                    body.start_timestamp = startTimestamp;
+                                    body.end_timestamp = endTimestamp;
+                                    let d = new Date();
+                                    let ttinampm = formatAMPM(d);
                                     let day = d.getDate();
                                     let month = d.getMonth();
                                     let year = d.getFullYear();
                                     const allmonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                                     let finalDate = day + ' ' + allmonth[month] + ' ' + year;
                                     let items = '';
-                                    if (lastCreatedbooking.selectedItems.length > 0) {
-                                        let getItems = itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp, subTotal);
-                                        items += getItems.items;
-                                        subTotal += getItems.finalSubTotal;
-                                        // items += itemsDetails(lastCreatedbooking.selectedItems, items, startTimestamp, endTimestamp, subTotal);
-                                    }
-                                    if (lastCreatedbooking.selectedEquipments.length > 0) {
-                                        let getItems = itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp, subTotal);
-                                        items += getItems.items;
-                                        subTotal += getItems.finalSubTotal;
-                                        // items += itemsDetails(lastCreatedbooking.selectedEquipments, items, startTimestamp, endTimestamp, subTotal);
-                                    }
-                                    if (lastCreatedbooking.selectedServices.length > 0) {
-                                        let getItems = itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp, subTotal);
-                                        items += getItems.items;
-                                        subTotal += getItems.finalSubTotal;
-                                        // items += itemsDetails(lastCreatedbooking.selectedServices, items, startTimestamp, endTimestamp, subTotal);
-                                    }
-                                    const browser = await puppeteer.launch({
-                                        executablePath: '/usr/bin/chromium-browser',
-                                        args: ["--no-sandbox"]
-                                    });
-                                    const page = await browser.newPage();
-                                    let delta = timeDiffCalc(startTimestamp, endTimestamp);
-                                    let pTime = '';
-                                    let eTotalPrice = 0;
-                                    if (price_type == 'per_hour') {
-                                        pTime = delta.onlyhours + ' hours';
-                                        eTotalPrice = ePrice * delta.onlyhours;
-                                    }
-                                    if (price_type == 'per_day') {
-                                        if (delta.hour >= 1) {
-                                            pTime = (delta.day + 1) + ' days';
-                                            eTotalPrice = ePrice * (delta.day + 1);
-                                        } else {
-                                            pTime = delta.day + ' days';
-                                            eTotalPrice = ePrice * delta.day;
-                                        }
-                                    }
-                                    if (price_type == 'per_event') {
-                                        pTime = "--";
-                                        eTotalPrice = ePrice;
-                                    }
-                                    async.forEach(bookedEvent.discounts, (discount, next_discount) => {
-                                    if (discount.discounttype === "discount_on_total_bill") {
-                                        if (bookedEvent.aboutplace) {
-                                            let getPrice = (parseInt(eTotalPrice) * parseInt(discount.discount)) / 100;
-                                            console.log("getPrice", getPrice);
-                                        } else if (bookedEvent.personaldetail) {
-                                            let getPrice = (parseInt(eTotalPrice) * parseInt(discount.discount)) / 100;
-                                            console.log("getPrice", getPrice);
-                                        }
-                                    }
-                                    next_discount();
-                                });
-                                    subTotal += eTotalPrice;
-                                    const html = `<!DOCTYPE html>
-                                <html lang="en">
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                                    <meta name="viewport" content="width=s, initial-scale=1.0">
-                                    <title>Invoice</title>
-                                    <style>
-                                        @media screen {
-                                            p.bodyText {font-family:verdana, arial, sans-serif;}
-                                        }
-                                        @media print {
-                                            p.bodyText {font-family:georgia, times, serif;}
-                                        }
-                                        @media screen, print {
-                                            p.bodyText {font-size:10pt}
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div style="width:100%; max-width: 1000px; margin: 0 auto; padding: 15px; background-color: #fcfcfc;">
-                                    <form action="#">
-                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
-                                        <div style="width: 80%;">
-                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">FESTUM EVENTO PRIVATE LIMITED</h3>
-                                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
-                                            <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">123, vishvas nagar, nagalend, russia</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">CIN :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">054054054056</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">000022221111</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                                <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">help@eventopackage.com</span>
-                                            </div>
-                                            </div>
-                                        </div>
-                                        <div style="width: 20%;">
-                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
-                                            <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
-                                            <span style="display: block; margin-bottom: 3px;">INVOICE NO. # ${lastCreatedbooking.invoice_no}</span>
-                                            <span style="display: block; margin-bottom: 3px;">INVOICE DATE : ${finalDate}</span>
-                                            </div>
-                                        </div>
-                                        </div>
-                                        <div style="width: 100%; margin-top: 50px; color: #ED7D59;">
-                                        <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">CLIENT DETAILS : <span style="display: inline-block; margin-left: 10px; color: #363636;">5212265</span></h3>
-                                        <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
-                                            <div style="display: flex; align-items: center;">
-                                            <span style="display: block; margin-bottom: 3px;">Name :</span>
-                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.name}</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                            <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${lastCreatedbooking.userid.address}</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                            <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
-                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">2512365489321</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center;">
-                                            <span style="display: block; margin-bottom: 3px;">DATE & TIME :</span>
-                                            <div style="display: flex; align-items: baseline;">
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">02/02/2023</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin:0px 5px; font-size: 15px;">|</span>
-                                                <span style="display: block; margin-bottom: 3px; color: #363636;">10:55AM</span>
-                                            </div>
-                                            </div>
-                                        </div>
-                                        </div>
-                                        <div style="width: 700px; margin: 0 auto; margin-top: 50px; ">
-                                        <table style="width: 100%; height: auto; border-collapse: collapse;">
-                                            <thead>
-                                            <tr style="text-align: left;">
-                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
-                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
-                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
-                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
-                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>  
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${name}</td>
-                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(ePrice).toFixed(2)} ${eType.trim().replace('_', ' ')}</td>
-                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${pTime}</td>
-                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
-                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(eTotalPrice).toFixed(2)} </td>
-                                            </tr>
-                                            ${items} 
-                                            </tbody>
-                                        </table>
-                                        <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
-                                            <tbody>
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(subTotal).toFixed(2)}</td>
-                                            </tr>
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                            </tr>
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                            </tr>
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                            </tr>
-                                            <tr style="text-align: left;">
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
-                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">125236</td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                        </div>
-                                        <div style="margin-top: 50px;">
-                                        <div style="display: flex; align-items: center;">
-                                            <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
-                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center; margin-top: 50px;">
-                                            <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
-                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">sagar khani pvt.ltd</span>
-                                        </div>
-                                        </div>
-                                        <h2 style="margin-top: 100px;">THANK YOU</h2>
-                                    </form>
-                                    </div>
-                                </body>
-                                </html>`;
-                                    await page.setContent(html, { waitUntil: 'domcontentloaded' });
-                                    await page.emulateMediaType('screen');
-                                    const ext = 'pdf';
-                                    const filename = 'invoice/DOC/' + req.token.userid + '/INV' + invoiceNo + '.' + ext;
-                                    const pdf = await page.pdf({
-                                        path: 'invoice.pdf',
-                                        // margin: { top: '100px', right: '50px', bottom: '100px', left: '50px' },
-                                        printBackground: true,
-                                        format: 'A4',
-                                    });
-                                    console.log("285", pdf);
-                                    let fileBuffre = fs.readFileSync('invoice.pdf');
-                                    awsCloud.saveToS3withFileName(fileBuffre, eventId, 'application/pdf', filename).then((result) => {
-                                        let obj = {
-                                            s3_url: process.env.AWS_BUCKET_URI,
-                                            url: result.data.Key
-                                        };
-                                        primary.model(constants.MODELS.eventbookings, eventbookingModel).findByIdAndUpdate(output._id, { invoice_url: result.data.Key }).then((updateResult) => {
-                                            primary.model(constants.MODELS.eventbookings, eventbookingModel).findById(output._id).then((resultx) => {
-                                                return responseManager.onSuccess('Booking successfully... Donwload the Invoice !', resultx, res);
-                                            }).catch((error) => {
-                                                return responseManager.onError(error, res);
+                                    async.forEachSeries(allItems, (item, next_item) => {
+                                        let time = pHourpDaypEventCalc(item, startTimestamp, endTimestamp)
+                                        items += `<tr style="text-align: left;">
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.price}  ${item.price_type.trim().replace('_', ' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${item.price * item.itemCount}</td>
+                                                    </tr>`;
+                                        next_item();
+                                    }, () => {
+                                        (async () => {
+                                            const browser = await puppeteer.launch({
+                                                executablePath: '/usr/bin/chromium-browser',
+                                                args: ["--no-sandbox"]
                                             });
+                                            const page = await browser.newPage();
+                                            let bookedEvent = await primary.model(constants.MODELS.events, eventModel).findOne({ _id: mongoose.Types.ObjectId(body.eventId) }).lean();
+                                            let ePrice = 0;
+                                            let eTime = '';
+                                            let eType = '';
+                                            if (bookedEvent.aboutplace) {
+                                                if (bookedEvent.aboutplace.place_price != '') {
+                                                    eType = bookedEvent.aboutplace.price_type;
+                                                    ePrice = bookedEvent.aboutplace.place_price;
+                                                    eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
 
-                                        }).catch((error) => {
-                                            console.log("293", error);
+                                                }
+                                            } else if (bookedEvent.personaldetail) {
+                                                if (bookedEvent.personaldetail.price != '') {
+                                                    eType = bookedEvent.personaldetail.price_type;
+                                                    ePrice = bookedEvent.personaldetail.price;
+                                                    eTime = pHourpDaypEventCalc(eType, startTimestamp, endTimestamp);
+                                                }
+                                            }
+                                            const html = `<!DOCTYPE html>
+                                                <html lang="en">
+                                                <head>
+                                                    <meta charset="UTF-8">
+                                                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                                                    <meta name="viewport" content="width=s, initial-scale=1.0">
+                                                    <title>Invoice</title>
+                                                    <style>
+                                                        @media screen {
+                                                            p.bodyText {font-family:verdana, arial, sans-serif;}
+                                                        }
+                                                        @media print {
+                                                            p.bodyText {font-family:georgia, times, serif;}
+                                                        }
+                                                        @media screen, print {
+                                                            p.bodyText {font-size:10pt}
+                                                        }
+                                                    </style>
+                                                </head>
+                                                <body>
+                                                    <div style="width:100%; max-width: 1000px; margin: 0 auto; padding: 15px; background-color: #fcfcfc;">
+                                                    <form action="#">
+                                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; color: #4472C4;">
+                                                        <div style="width: 80%;">
+                                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">FESTUM EVENTO PRIVATE LIMITED</h3>
+                                                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">593 South Marshall Drive Amarillo, TX 79106</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                                <span style="display: block; margin-bottom: 3px;">CIN :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">L17110MH1973PLC019786</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                                <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">29GGGGG1314R9Z6</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                                <span style="display: block; margin-bottom: 3px;">EMAIL :</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">help@eventopackage.com</span>
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                        <div style="width: 20%;">
+                                                            <h3 style="font-size: 12px; font-weight: 600; text-transform: uppercase;">INVOICE</h3>
+                                                            <div style="font-size: 9px; font-weight: 600; text-transform: uppercase;">
+                                                            <span style="display: block; margin-bottom: 3px;">INVOICE NO. # ${body.invoice_no}</span>
+                                                            <span style="display: block; margin-bottom: 3px;">INVOICE DATE : ${finalDate}</span>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                        <div style="width: 100%; margin-top: 50px; color: #ED7D59;">
+                                                        <h3 style="font-size: 12px; font-weight: 600; text-transform: capitalize;">CLIENT DETAILS <span style="display: inline-block; margin-left: 10px; color: #363636;"></span></h3>
+                                                        <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; padding-left: 20px;">
+                                                            <div style="display: flex; align-items: center;">
+                                                            <span style="display: block; margin-bottom: 3px;">Name :</span>
+                                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${userdata.name}</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                            <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
+                                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${userdata.city}, ${userdata.state}, ${userdata.country} - ${userdata.pincode}</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                            <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
+                                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">29GGGGG1314R9Z6</span>
+                                                            </div>
+                                                            <div style="display: flex; align-items: center;">
+                                                            <span style="display: block; margin-bottom: 3px;">DATE & TIME :</span>
+                                                            <div style="display: flex; align-items: baseline;">
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${finalDate}</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636; margin:0px 5px; font-size: 15px;">|</span>
+                                                                <span style="display: block; margin-bottom: 3px; color: #363636;">${ttinampm}</span>
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                        <div style="width: 700px; margin: 0 auto; margin-top: 50px; ">
+                                                        <table style="width: 100%; height: auto; border-collapse: collapse;">
+                                                            <thead>
+                                                            <tr style="text-align: left;">
+                                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 50%;">DESCRIPTION</th>
+                                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">RATE</th>
+                                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">TIME</th>
+                                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 10%;">QTY</th>
+                                                                <th style="padding: 10px; border: 1px solid #000; font-size: 12px; font-weight: 900; width: 20%;">GROSS AMOUNT</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>  
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${body.name}</td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${ePrice} ${eType.trim().replace('_', ' ')}</td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${eTime}</td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;"> 1 </td>
+                                                                <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(eTotalPrice).toFixed(2)} </td>
+                                                            </tr>
+                                                            ${items} 
+                                                            </tbody>
+                                                        </table>
+                                                        <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
+                                                            <tbody>
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.subTotal}</td>
+                                                            </tr>
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">DISCOUNT</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.discountOnTotalBill}</td>
+                                                            </tr>
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${(body.fcoin) ? parseFloat(body.fcoin).toFixed(2) : 0.00}</td>
+                                                            </tr>
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.gst ? parseFloat(body.gst).toFixed(2) : 0.00}</td>
+                                                            </tr>
+                                                            <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.totalPrice}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        </div>
+                                                        <div style="margin-top: 50px;">
+                                                        <div style="display: flex; align-items: center;">
+                                                          <span style="display: block; margin-bottom: 3px; font-size: 12px;">BANK DETAILS :</span>
+                                                          <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">Festum Evento Pvt.Ltd</span>
+                                                        </div>
+                                                        <div style="display: flex; align-items: center; margin-top: 50px;">
+                                                          <span style="display: block; margin-bottom: 3px; font-size: 12px;">TERMS AND CONDITION :</span>
+                                                          <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${bookedEvent.tandc.t_and_c}</span>
+                                                        </div>
+                                                      </div>
+                                                        <h2 style="margin-top: 100px;">THANK YOU</h2>
+                                                    </form>
+                                                    </div>
+                                                </body>
+                                                </html>`;
+                                            await page.setContent(html, { waitUntil: 'domcontentloaded' });
+                                            await page.emulateMediaType('screen');
+                                            const ext = 'pdf';
+                                            const filename = 'invoice/DOC/' + req.token.userid + '/INV' + body.invoice_no + '.' + ext;
+                                            const pdf = await page.pdf({
+                                                path: 'invoice.pdf',
+                                                printBackground: true,
+                                                format: 'A4',
+                                            });
+                                            await browser.close();
+                                            const pdffileBuffer = fs.readFileSync('invoice.pdf');
+                                            if (pdffileBuffer) {
+                                                awsCloud.saveToS3withFileName(pdffileBuffer, req.token.userid.toString(), 'application/pdf', filename).then((result) => {
+                                                    let obj = {
+                                                        s3Url: process.env.AWS_BUCKET_URI,
+                                                        invoice: result.data.Key
+                                                    };
+                                                    body.invoice = obj.invoice;
+                                                    primary.model(constants.MODELS.eventbookings, eventbookingModel).create(body).then((addedEventBokking) => {
+                                                        let currentuserreview = primary.model(constants.MODELS.eventreviews, eventreviewModel).findOne({ userid: mongoose.Types.ObjectId(req.token.userid), eventid: mongoose.Types.ObjectId(addedEventBokking.eventId) }).sort({ _id: -1 }).lean();
+                                                        addedEventBokking.isUserReview = (currentuserreview == null) ? false : true
+                                                        return responseManager.onSuccess("Event booked successfully...", addedEventBokking, res);
+                                                    }).catch((error) => {
+                                                        return responseManager.onError(error, res);
+                                                    });
+                                                }).catch((error) => {
+                                                    return responseManager.onError(error, res);
+                                                })
+                                            }
+                                        })().catch((error) => {
                                             return responseManager.onError(error, res);
                                         });
-                                    }).catch((error) => {
-                                        console.log("297", error);
-                                        return responseManager.onError(error, res);
                                     });
-                                    await browser.close();
-
-                                    // return responseManager.onSuccess('Event Book successfully!', output, res);
                                 })().catch((error) => {
-                                    console.log("333", error);
                                     return responseManager.onError(error, res);
                                 });
                             });
