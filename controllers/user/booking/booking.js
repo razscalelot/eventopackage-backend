@@ -525,9 +525,9 @@ exports.checkavailability = async (req, res) => {
                             let itemFinalPrice = 0;
                             if (service.price_type == 'per_day') {
                                 if (delta.hour >= 1) {
-                                    itemFinalPrice += parseInt(service.place_price) * (delta.day + 1);
+                                    itemFinalPrice += parseInt(service.price) * (delta.day + 1);
                                 } else {
-                                    itemFinalPrice += parseInt(service.place_price) * delta.day;
+                                    itemFinalPrice += parseInt(service.price) * delta.day;
                                 }
                             }
                             if (service.price_type == 'per_person' || service.price_type == 'per_event') {
