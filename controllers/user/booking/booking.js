@@ -526,7 +526,6 @@ exports.checkavailability = async (req, res) => {
                         return responseManager.onSuccess('This slot is not available.', 0, res)
                     } else {
                         let delta = timeDiffCalc(startTimestamp, endTimestamp);
-                        let FinalPrice = 0;
                         async.forEachSeries(event.services, (service, next_service) => {
                             async.forEachSeries(event.discounts, (discount, next_discount) => {
                                 let itemFinalPrice = 0;
@@ -541,7 +540,7 @@ exports.checkavailability = async (req, res) => {
                                     itemFinalPrice += parseInt(service.price);
                                 }
                                 service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
-                                if (discount.services.length > 0) {                                    
+                                if (discount.services.length > 0) {
                                     let itemDiscountPrice = 0;
                                     discount.services.forEach((element) => {
                                         if (element._id.toString() == service._id.toString()) {
@@ -557,7 +556,6 @@ exports.checkavailability = async (req, res) => {
                             async.forEachSeries(event.items, (item, next_item) => {
                                 async.forEachSeries(event.discounts, (discount, next_discount) => {
                                     let itemFinalPrice = 0;
-                                    let itemDiscountPrice = 0;
                                     if (item.price_type == 'per_day') {
                                         if (delta.hour >= 1) {
                                             itemFinalPrice += parseInt(item.price) * (delta.day + 1);
@@ -569,20 +567,22 @@ exports.checkavailability = async (req, res) => {
                                         itemFinalPrice += parseInt(item.price)
                                     }
                                     item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
-                                    discount.items.forEach((element) => {
-                                        if (element._id.toString() == item._id.toString()) {
-                                            itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
-                                        }
-                                    });
-                                    item.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                    next_discount();
+                                    if (discount.items.length > 0) {
+                                        let itemDiscountPrice = 0;
+                                        discount.items.forEach((element) => {
+                                            if (element._id.toString() == item._id.toString()) {
+                                                itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
+                                            }
+                                        });
+                                        item.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                        next_discount();
+                                    }
                                 });
                                 next_item();
                             }, () => {
                                 async.forEachSeries(event.equipments, (equipment, next_item) => {
                                     async.forEachSeries(event.discounts, (discount, next_discount) => {
                                         let itemFinalPrice = 0;
-                                        let itemDiscountPrice = 0;
                                         if (equipment.price_type == 'per_day') {
                                             if (delta.hour >= 1) {
                                                 itemFinalPrice += parseInt(equipment.price) * (delta.day + 1);
@@ -594,21 +594,28 @@ exports.checkavailability = async (req, res) => {
                                             itemFinalPrice += parseInt(equipment.price);
                                         }
                                         equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
-                                        discount.equipments.forEach((element) => {
-                                            if (element._id.toString() == equipment._id.toString()) {
-                                                itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
+                                        if (discount.equipments.length > 0) {
+                                            let itemDiscountPrice = 0;
+                                            discount.equipments.forEach((element) => {
+                                                if (element._id.toString() == equipment._id.toString()) {
+                                                    itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
 
-                                            }
-                                        });
-                                        equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                        next_discount();
+                                                }
+                                            });
+                                            equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                            next_discount();
+                                        }
                                     });
                                     next_item();
                                 }, () => {
                                     (async () => {
-                                        if (event.aboutplace) {
+                                        let FinalPrice = 0;
+                                        if (event.aboutplace.place_price != '') {
                                             if (event.aboutplace.price_type == 'per_hour') {
-                                                FinalPrice = event.aboutplace.place_price * delta.hour;
+
+                                                console.log("event.aboutplace.place_price", delta);
+                                                FinalPrice += event.aboutplace.place_price * delta.onlyhours;
+                                                console.log("FinalPrice", FinalPrice);
                                             }
                                             if (event.aboutplace.price_type == 'per_day') {
                                                 if (delta.hour >= 1) {
@@ -620,9 +627,9 @@ exports.checkavailability = async (req, res) => {
                                             if (event.aboutplace.price_type == 'per_event') {
                                                 FinalPrice = event.aboutplace.place_price;
                                             }
-                                        } else {
+                                        } else if (event.personaldetail.price != '') {
                                             if (event.personaldetail.price_type == 'per_hour') {
-                                                FinalPrice = event.personaldetail.price * delta.hour;
+                                                FinalPrice = event.personaldetail.price * delta.onlyhours;
                                             }
                                             if (event.personaldetail.price_type == 'per_day') {
                                                 if (delta.hour >= 1 && delta.day == 0) {
