@@ -488,6 +488,9 @@ exports.checkavailability = async (req, res) => {
                         { path: "services", model: primary.model(constants.MODELS.services, serviceModel) },
                         { path: "items", model: primary.model(constants.MODELS.items, itemModel) },
                         { path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
+                        { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
+                        { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
+                        { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
                     ]).sort({ start_timestamp: 1 }).lean();
                     if (event.event_type == 'have_you_places') {
                         newStartTimestamp = minusHours(startTimestamp, parseInt(event.aboutplace.clearing_time));
@@ -522,48 +525,79 @@ exports.checkavailability = async (req, res) => {
                         let delta = timeDiffCalc(startTimestamp, endTimestamp);
                         let FinalPrice = 0;
                         async.forEachSeries(event.services, (service, next_service) => {
-                            let itemFinalPrice = 0;
-                            if (service.price_type == 'per_day') {
-                                if (delta.hour >= 1) {
-                                    itemFinalPrice += parseInt(service.price) * (delta.day + 1);
-                                } else {
-                                    itemFinalPrice += parseInt(service.price) * delta.day;
+                            async.forEachSeries(event.discounts, (discount, next_discount) => {
+                                let itemFinalPrice = 0;
+                                let itemDiscountPrice = 0;
+                                if (service.price_type == 'per_day') {
+                                    if (delta.hour >= 1) {
+                                        itemFinalPrice += parseInt(service.price) * (delta.day + 1);
+                                    } else {
+                                        itemFinalPrice += parseInt(service.price) * delta.day;
+                                    }
                                 }
-                            }
-                            if (service.price_type == 'per_person' || service.price_type == 'per_event') {
-                                itemFinalPrice += parseInt(service.place_price);
-                            }
-                            service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                if (service.price_type == 'per_person' || service.price_type == 'per_event') {
+                                    itemFinalPrice += parseInt(service.place_price);
+                                }
+                                discount.services.forEach((element) => {
+                                    if (element._id.toString() == service._id.toString()) {
+                                        itemDiscountPrice += parseFloat(service.price) - (parseFloat(service.price) * parseFloat(discount.discount) / 100);
+                                    }
+                                });
+                                service.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                next_discount();
+                                service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                            });
                             next_service();
                         }, () => {
                             async.forEachSeries(event.items, (item, next_item) => {
-                                let itemFinalPrice = 0;
-                                if (item.price_type == 'per_day') {
-                                    if (delta.hour >= 1) {
-                                        itemFinalPrice += parseInt(item.price) * (delta.day + 1);
-                                    } else {
-                                        itemFinalPrice += parseInt(item.price) * delta.day;
+                                async.forEachSeries(event.discounts, (discount, next_discount) => {
+                                    let itemFinalPrice = 0;
+                                    let itemDiscountPrice = 0;
+                                    if (item.price_type == 'per_day') {
+                                        if (delta.hour >= 1) {
+                                            itemFinalPrice += parseInt(item.price) * (delta.day + 1);
+                                        } else {
+                                            itemFinalPrice += parseInt(item.price) * delta.day;
+                                        }
                                     }
-                                }
-                                if (item.price_type == 'per_person' || item.price_type == 'per_event') {
-                                    itemFinalPrice += parseInt(item.price)
-                                }
-                                item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                    if (item.price_type == 'per_person' || item.price_type == 'per_event') {
+                                        itemFinalPrice += parseInt(item.price)
+                                    }
+                                    discount.items.forEach((element) => {
+                                        if (element._id.toString() == item._id.toString()) {
+                                            itemDiscountPrice += parseFloat(item.price) - (parseFloat(item.price) * parseFloat(discount.discount) / 100);
+                                        }
+                                    });
+                                    item.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                    next_discount();
+                                    item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                });
                                 next_item();
                             }, () => {
                                 async.forEachSeries(event.equipments, (equipment, next_item) => {
-                                    let itemFinalPrice = 0;
-                                    if (equipment.price_type == 'per_day') {
-                                        if (delta.hour >= 1) {
-                                            itemFinalPrice += parseInt(equipment.price) * (delta.day + 1);
-                                        } else {
-                                            itemFinalPrice += parseInt(equipment.price) * delta.day;
+                                    async.forEachSeries(event.discounts, (discount, next_discount) => {
+                                        let itemFinalPrice = 0;
+                                        let itemDiscountPrice = 0;
+                                        if (equipment.price_type == 'per_day') {
+                                            if (delta.hour >= 1) {
+                                                itemFinalPrice += parseInt(equipment.price) * (delta.day + 1);
+                                            } else {
+                                                itemFinalPrice += parseInt(equipment.price) * delta.day;
+                                            }
                                         }
-                                    }
-                                    if (equipment.price_type == 'per_person' || equipment.price_type == 'per_event') {
-                                        itemFinalPrice += parseInt(equipment.price);
-                                    }
-                                    equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                        if (equipment.price_type == 'per_person' || equipment.price_type == 'per_event') {
+                                            itemFinalPrice += parseInt(equipment.price);
+                                        }
+                                        discount.equipments.forEach((element) => {
+                                            if (element._id.toString() == equipment._id.toString()) {
+                                                itemDiscountPrice += parseFloat(equipment.price) - (parseFloat(equipment.price) * parseFloat(discount.discount) / 100);
+                                                
+                                            }
+                                        });
+                                        equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                        next_discount();
+                                        equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                    });
                                     next_item();
                                 }, () => {
                                     (async () => {
@@ -597,7 +631,7 @@ exports.checkavailability = async (req, res) => {
                                             }
                                         }
                                         // event.FinalPrice = parseFloat(FinalPrice).toFixed(2)
-                                        return responseManager.onSuccess('Bookings available on the selected date and time.', {services: event.services, items: event.items, equipments: event.equipments, FinalPrice: FinalPrice}, res);
+                                        return responseManager.onSuccess('Bookings available on the selected date and time.', { services: event.services, items: event.items, equipments: event.equipments, FinalPrice: FinalPrice }, res);
                                     })().catch((error) => {
                                         return responseManager.onError(error, res);
                                     });
