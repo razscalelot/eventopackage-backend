@@ -538,14 +538,14 @@ exports.checkavailability = async (req, res) => {
                                 if (service.price_type == 'per_person' || service.price_type == 'per_event') {
                                     itemFinalPrice += parseInt(service.place_price);
                                 }
+                                service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                 discount.services.forEach((element) => {
                                     if (element._id.toString() == service._id.toString()) {
-                                        itemDiscountPrice += parseFloat(service.price) - (parseFloat(service.price) * parseFloat(discount.discount) / 100);
+                                        itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
                                     }
                                 });
                                 service.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
                                 next_discount();
-                                service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                             });
                             next_service();
                         }, () => {
@@ -563,14 +563,14 @@ exports.checkavailability = async (req, res) => {
                                     if (item.price_type == 'per_person' || item.price_type == 'per_event') {
                                         itemFinalPrice += parseInt(item.price)
                                     }
+                                    item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                     discount.items.forEach((element) => {
                                         if (element._id.toString() == item._id.toString()) {
-                                            itemDiscountPrice += parseFloat(item.price) - (parseFloat(item.price) * parseFloat(discount.discount) / 100);
+                                            itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
                                         }
                                     });
                                     item.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
                                     next_discount();
-                                    item.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                 });
                                 next_item();
                             }, () => {
@@ -588,15 +588,15 @@ exports.checkavailability = async (req, res) => {
                                         if (equipment.price_type == 'per_person' || equipment.price_type == 'per_event') {
                                             itemFinalPrice += parseInt(equipment.price);
                                         }
+                                        equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                         discount.equipments.forEach((element) => {
                                             if (element._id.toString() == equipment._id.toString()) {
-                                                itemDiscountPrice += parseFloat(equipment.price) - (parseFloat(equipment.price) * parseFloat(discount.discount) / 100);
+                                                itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
                                                 
                                             }
                                         });
                                         equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
                                         next_discount();
-                                        equipment.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
                                     });
                                     next_item();
                                 }, () => {
