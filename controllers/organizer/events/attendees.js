@@ -138,13 +138,14 @@ exports.export = async (req, res) => {
                             width: 100
                         }
                     ];
+                    console.log("eventData", eventData);
                     async.forEachSeries(attendeelist, (attendee, next_attendee) => {
                         let totalseats = 0;
                         let seatsdetails = "";
                         let obj = {
                             invoice_no : attendee.invoice_no,
                             attendee_name : attendee.userid.name,
-                            event_name : eventData.name,
+                            event_name : eventData.display_name,
                             payment_id : attendee.payment_id,
                             status : attendee.status,
                             subTotal : attendee.subTotal,
@@ -153,7 +154,7 @@ exports.export = async (req, res) => {
                             discountOnTotalBill : attendee.discountOnTotalBill,
                             amount : attendee.amount,
                             timestamp : new Date(attendee.timestamp),
-                            invoice_url : process.env.AWS_BUCKET_URI+attendee.invoice,
+                            invoice_url : process.env.AWS_BUCKET_URI+attendee.invoice_url,
                             totalseats : totalseats,
                             seatsdetails : seatsdetails
                         };
