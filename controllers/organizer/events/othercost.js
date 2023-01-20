@@ -12,10 +12,15 @@ exports.othercost = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, othercost } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), othercost: othercost });
-                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
-                return responseManager.onSuccess('Organizer event othercost data updated successfully!', eventData, res);
+                let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                if (maineventData && maineventData.iseditable == true) {
+                    let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+                    await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), othercost: othercost });
+                    let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                    return responseManager.onSuccess('Organizer event othercost data updated successfully!', eventData, res);
+                } else {
+                    return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
+                }
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id to add event othercost data, please try again' }, res);
             }

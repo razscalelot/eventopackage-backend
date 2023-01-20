@@ -12,26 +12,31 @@ exports.companydetail = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                let obj = {
-                    name: (req.body.name) ? req.body.name : '',
-                    gst: (req.body.gst) ? req.body.gst : '',
-                    country_code: (req.body.country_code) ? req.body.country_code : '',
-                    mobile: (req.body.mobile) ? req.body.mobile : '',
-                    email: (req.body.email) ? req.body.email : '',
-                    about: (req.body.about) ? req.body.about : '',
-                    flat_no: (req.body.flat_no) ? req.body.flat_no : '',
-                    street: (req.body.street) ? req.body.street : '',
-                    area: (req.body.area) ? req.body.area : '',
-                    city: (req.body.city) ? req.body.city : '',
-                    state: (req.body.state) ? req.body.state : '',
-                    pincode: (req.body.pincode) ? req.body.pincode : '',
-                    photos : req.body.photos,
-                    videos : req.body.videos
-                };
-                let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), companydetail: obj });
-                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
-                return responseManager.onSuccess('Organizer event company data updated successfully!', eventData, res);
+                let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                if (maineventData && maineventData.iseditable == true) {
+                    let obj = {
+                        name: (req.body.name) ? req.body.name : '',
+                        gst: (req.body.gst) ? req.body.gst : '',
+                        country_code: (req.body.country_code) ? req.body.country_code : '',
+                        mobile: (req.body.mobile) ? req.body.mobile : '',
+                        email: (req.body.email) ? req.body.email : '',
+                        about: (req.body.about) ? req.body.about : '',
+                        flat_no: (req.body.flat_no) ? req.body.flat_no : '',
+                        street: (req.body.street) ? req.body.street : '',
+                        area: (req.body.area) ? req.body.area : '',
+                        city: (req.body.city) ? req.body.city : '',
+                        state: (req.body.state) ? req.body.state : '',
+                        pincode: (req.body.pincode) ? req.body.pincode : '',
+                        photos: req.body.photos,
+                        videos: req.body.videos
+                    };
+                    let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+                    await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), companydetail: obj });
+                    let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                    return responseManager.onSuccess('Organizer event company data updated successfully!', eventData, res);
+                } else {
+                    return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
+                }
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id to add event company data, please try again' }, res);
             }

@@ -65,53 +65,58 @@ exports.discount = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, discounts } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                let finalDiscount = [];
-                if (discounts && discounts.length > 0) {
-                    async.forEachSeries(discounts, (discount, next_discount) => {
-                        if (discount.services && discount.services.length > 0) {
-                            let serviceArray = [];
-                            discount.services.forEach(element => {
-                                serviceArray.push(mongoose.Types.ObjectId(element));
-                            });
-                            let xdiscount = { ...discount };
-                            xdiscount.services = serviceArray;
-                            finalDiscount.push(xdiscount);
-                        } else {
-                            finalDiscount.push(discount);
-                        }
-                        next_discount();
-                    }, () => {
-                        (async () => {
-                            if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
-                                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                                    { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
-                                    { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
-                                    { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
-                                    // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
-                                ]).lean();
-                                return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                if (maineventData && maineventData.iseditable == true) {
+                    let finalDiscount = [];
+                    if (discounts && discounts.length > 0) {
+                        async.forEachSeries(discounts, (discount, next_discount) => {
+                            if (discount.services && discount.services.length > 0) {
+                                let serviceArray = [];
+                                discount.services.forEach(element => {
+                                    serviceArray.push(mongoose.Types.ObjectId(element));
+                                });
+                                let xdiscount = { ...discount };
+                                xdiscount.services = serviceArray;
+                                finalDiscount.push(xdiscount);
                             } else {
-                                return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
+                                finalDiscount.push(discount);
                             }
-                        })().catch((error) => {
-                            return responseManager.onError(error, res);
+                            next_discount();
+                        }, () => {
+                            (async () => {
+                                if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                                    await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
+                                    let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
+                                        { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
+                                        { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
+                                        { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
+                                        // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                                    ]).lean();
+                                    return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                                } else {
+                                    return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
+                                }
+                            })().catch((error) => {
+                                return responseManager.onError(error, res);
+                            });
                         });
-                    });
-                } else {
-                    finalDiscount.push(discounts);
-                    if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
-                        let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
-                            { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
-                            { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
-                            { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
-                            // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
-                        ]).lean();
-                        return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
                     } else {
-                        return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
+                        finalDiscount.push(discounts);
+                        if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                            await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), discounts: finalDiscount });
+                            let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).populate([
+                                { path: "discounts.services", model: primary.model(constants.MODELS.services, serviceModel) },
+                                { path: "discounts.items", model: primary.model(constants.MODELS.items, itemModel) },
+                                { path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel) },
+                                // select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'
+                            ]).lean();
+                            return responseManager.onSuccess('Organizer event discounts data updated successfully!', { _id: eventData._id, discounts: eventData.discounts }, res);
+                        } else {
+                            return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);
+                        }
                     }
+                } else {
+                    return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
                 }
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id to add event discounts data, please try again' }, res);

@@ -612,10 +612,7 @@ exports.checkavailability = async (req, res) => {
                                         let FinalPrice = 0;
                                         if (event.aboutplace.place_price != '') {
                                             if (event.aboutplace.price_type == 'per_hour') {
-
-                                                console.log("event.aboutplace.place_price", delta);
                                                 FinalPrice += event.aboutplace.place_price * delta.onlyhours;
-                                                console.log("FinalPrice", FinalPrice);
                                             }
                                             if (event.aboutplace.price_type == 'per_day') {
                                                 if (delta.hour >= 1) {

@@ -12,38 +12,43 @@ exports.aboutplace = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, banner, place_price, price_type, max_day, clearing_time, details } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                if (place_price && place_price != '' && price_type && price_type != '' && clearing_time && clearing_time != '') {
-                    if (price_type == 'per_event') {
-                        if (max_day && max_day != '') {
+                let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                if (maineventData && maineventData.iseditable == true) {
+                    if (place_price && place_price != '' && price_type && price_type != '' && clearing_time && clearing_time != '') {
+                        if (price_type == 'per_event') {
+                            if (max_day && max_day != '') {
+                                let obj = {
+                                    banner: banner,
+                                    place_price: place_price,
+                                    price_type: price_type,
+                                    max_day: max_day,
+                                    clearing_time: clearing_time,
+                                    details: details
+                                };
+                                await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
+                                let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                                return responseManager.onSuccess('Organizer event about data updated successfully!', eventData, res);
+                            } else {
+                                return responseManager.badrequest({ message: 'Invalid about place details max day can not be empty, please try again' }, res);
+                            }
+                        } else {
                             let obj = {
                                 banner: banner,
                                 place_price: place_price,
                                 price_type: price_type,
-                                max_day: max_day,
+                                max_day: null,
                                 clearing_time: clearing_time,
                                 details: details
                             };
                             await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
                             let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                             return responseManager.onSuccess('Organizer event about data updated successfully!', eventData, res);
-                        }else{
-                            return responseManager.badrequest({ message: 'Invalid about place details max day can not be empty, please try again' }, res);
                         }
-                    }else{
-                        let obj = {
-                            banner: banner,
-                            place_price: place_price,
-                            price_type: price_type,
-                            max_day: null,
-                            clearing_time: clearing_time,
-                            details: details
-                        };
-                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
-                        let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
-                        return responseManager.onSuccess('Organizer event about data updated successfully!', eventData, res);
+                    } else {
+                        return responseManager.badrequest({ message: 'Invalid event id to add event about place data, please try again' }, res);
                     }
                 } else {
-                    return responseManager.badrequest({ message: 'Invalid event id to add event about place data, please try again' }, res);
+                    return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
                 }
             } else {
                 return responseManager.badrequest({ message: 'Invalid event id to add event about place data, please try again' }, res);

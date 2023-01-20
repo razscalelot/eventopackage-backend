@@ -10,14 +10,19 @@ exports.removeevent = async (req, res) => {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if(organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true){
+        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                await primary.model(constants.MODELS.events, eventModel).findByIdAndRemove(eventid);
-                return responseManager.onSuccess('Organizer event removed successfully!', 1, res);
+                let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                if (maineventData && maineventData.iseditable == true) {
+                    await primary.model(constants.MODELS.events, eventModel).findByIdAndRemove(eventid);
+                    return responseManager.onSuccess('Organizer event removed successfully!', 1, res);
+                } else {
+                    return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
+                }
             } else {
                 return responseManager.badrequest({ message: 'Invalid eventid to remove event, please try again' }, res);
             }
-        }else{
+        } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to remove event, please try again' }, res);
         }
     } else {

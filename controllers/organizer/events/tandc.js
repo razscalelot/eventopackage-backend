@@ -11,27 +11,32 @@ exports.tandc = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { eventid, status } = req.body;
-            if (status && status == true) {
-                if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                    let obj = {
-                        t_and_c: (req.body.t_and_c) ? req.body.t_and_c : '',
-                        facebook: (req.body.facebook) ? req.body.facebook : '',
-                        twitter: (req.body.twitter) ? req.body.twitter : '',
-                        youtube: (req.body.youtube) ? req.body.youtube : '',
-                        pinterest: (req.body.pinterest) ? req.body.pinterest : '',
-                        instagram: (req.body.instagram) ? req.body.instagram : '',
-                        linkedin: (req.body.linkedin) ? req.body.linkedin : '',
-                        status: (req.body.status) ? req.body.status : false,
-                    };
-                    let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-                    await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), tandc: obj });
-                    let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
-                    return responseManager.onSuccess('Organizer event personal data updated successfully!', eventData, res);
+            let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+            if (maineventData && maineventData.iseditable == true) {
+                if (status && status == true) {
+                    if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
+                        let obj = {
+                            t_and_c: (req.body.t_and_c) ? req.body.t_and_c : '',
+                            facebook: (req.body.facebook) ? req.body.facebook : '',
+                            twitter: (req.body.twitter) ? req.body.twitter : '',
+                            youtube: (req.body.youtube) ? req.body.youtube : '',
+                            pinterest: (req.body.pinterest) ? req.body.pinterest : '',
+                            instagram: (req.body.instagram) ? req.body.instagram : '',
+                            linkedin: (req.body.linkedin) ? req.body.linkedin : '',
+                            status: (req.body.status) ? req.body.status : false,
+                        };
+                        let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), tandc: obj });
+                        let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                        return responseManager.onSuccess('Organizer event personal data updated successfully!', eventData, res);
+                    } else {
+                        return responseManager.badrequest({ message: 'Invalid event id to add event terms and conditions data, please try again' }, res);
+                    }
                 } else {
-                    return responseManager.badrequest({ message: 'Invalid event id to add event terms and conditions data, please try again' }, res);
+                    return responseManager.badrequest({ message: 'Please accept terms and condition to update tandc data for event, please try again' }, res);
                 }
             } else {
-                return responseManager.badrequest({ message: 'Please accept terms and condition to update tandc data for event, please try again' }, res);
+                return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
             }
         } else {
             return responseManager.badrequest({ message: 'Invalid organizerid to update event data, please try again' }, res);
