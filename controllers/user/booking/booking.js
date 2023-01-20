@@ -70,6 +70,9 @@ function pHourpDaypEventCalc(service, startTimestamp, endTimestamp) {
     if (service.price_type == 'per_event') {
         time = "--";
     }
+    if (service.price_type == 'per_person') {
+        time = "--";
+    }
     return time;
 }
 function formatAMPM(date) {
@@ -527,7 +530,6 @@ exports.checkavailability = async (req, res) => {
                         async.forEachSeries(event.services, (service, next_service) => {
                             async.forEachSeries(event.discounts, (discount, next_discount) => {
                                 let itemFinalPrice = 0;
-                                let itemDiscountPrice = 0;
                                 if (service.price_type == 'per_day') {
                                     if (delta.hour >= 1) {
                                         itemFinalPrice += parseInt(service.price) * (delta.day + 1);
@@ -536,16 +538,19 @@ exports.checkavailability = async (req, res) => {
                                     }
                                 }
                                 if (service.price_type == 'per_person' || service.price_type == 'per_event') {
-                                    itemFinalPrice += parseInt(service.place_price);
+                                    itemFinalPrice += parseInt(service.price);
                                 }
                                 service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
-                                discount.services.forEach((element) => {
-                                    if (element._id.toString() == service._id.toString()) {
-                                        itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
-                                    }
-                                });
-                                service.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                next_discount();
+                                if (discount.services.length > 0) {                                    
+                                    let itemDiscountPrice = 0;
+                                    discount.services.forEach((element) => {
+                                        if (element._id.toString() == service._id.toString()) {
+                                            itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
+                                        }
+                                    });
+                                    service.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
+                                    next_discount();
+                                }
                             });
                             next_service();
                         }, () => {
@@ -592,7 +597,7 @@ exports.checkavailability = async (req, res) => {
                                         discount.equipments.forEach((element) => {
                                             if (element._id.toString() == equipment._id.toString()) {
                                                 itemDiscountPrice += parseFloat(itemFinalPrice) - (parseFloat(itemFinalPrice) * parseFloat(discount.discount) / 100);
-                                                
+
                                             }
                                         });
                                         equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
