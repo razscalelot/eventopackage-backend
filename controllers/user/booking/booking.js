@@ -281,7 +281,7 @@ exports.booking = async (req, res) => {
                                                             </div>
                                                             <div style="display: flex; align-items: center;">
                                                             <span style="display: block; margin-bottom: 3px;">ADDRESS :</span>
-                                                            // <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">${userdata.city}, ${userdata.state}, ${userdata.country} - ${userdata.pincode}</span>
+                                                            <span style="display: block; margin-bottom: 3px; color: #363636; margin-left: 10px;">656 South Marshall Drive Amarillo, TX 79106</span>
                                                             </div>
                                                             <div style="display: flex; align-items: center;">
                                                             <span style="display: block; margin-bottom: 3px;">GSTIN :</span>
