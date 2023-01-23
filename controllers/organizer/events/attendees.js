@@ -127,21 +127,9 @@ exports.export = async (req, res) => {
                             key: 'invoice_url',
                             width: 80
                         },
-                        {
-                            header: 'Total Seat Booked',
-                            key: 'totalseats',
-                            width: 30
-                        },
-                        {
-                            header: 'Seat Details',
-                            key: 'seatsdetails',
-                            width: 100
-                        }
                     ];
                     console.log("eventData", eventData);
                     async.forEachSeries(attendeelist, (attendee, next_attendee) => {
-                        let totalseats = 0;
-                        let seatsdetails = "";
                         let obj = {
                             invoice_no: attendee.invoice_no,
                             attendee_name: attendee.userid.name,
