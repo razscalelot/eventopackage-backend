@@ -117,8 +117,14 @@ exports.export = async (req, res) => {
                             width: 40
                         },
                         {
-                            header: 'Date Time',
-                            key: 'timestamp',
+                            header: 'Start Date Time',
+                            key: 'start_timestamp',
+                            style: { numFmt: 'dd/mm/yyyy h:mm:ss' },
+                            width: 50
+                        },
+                        {
+                            header: 'End Date Time',
+                            key: 'end_timestamp',
                             style: { numFmt: 'dd/mm/yyyy h:mm:ss' },
                             width: 50
                         },
@@ -141,7 +147,8 @@ exports.export = async (req, res) => {
                             finalTotal: attendee.totalPrice,
                             discountOnTotalBill: attendee.discountOnTotalBill,
                             amount: attendee.amount,
-                            timestamp: new Date(attendee.timestamp),
+                            start_timestamp: new Date(attendee.start_timestamp),
+                            end_timestamp: new Date(attendee.end_timestamp),
                             invoice_url: process.env.AWS_BUCKET_URI + attendee.invoice_url,
                         };
                         sheet1.addRow(obj);
