@@ -18,12 +18,14 @@ router.get('/', helper.authenticateToken, async (req, res) => {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: {$ne: mongoose.Types.ObjectId(req.token.organizerid)} }).populate([
                 { path: "event_category", model: primary.model(constants.MODELS.categories, categorieModel), select: "category_name" },
-                { path: "createdBy", model: primary.model(constants.MODELS.users, userModel), select: "name profile_pic about" },
+                { path: "createdBy", model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic about" },
             ]).select("-__v -othercost -services -equipments -updatedBy -discounts -capcity -companydetail -tandc").lean();
             let allEventsImageVideo = [];
             async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
+                console.log("imagevideo", imagevideo);
                 if (imagevideo.photos && imagevideo.photos != '' || imagevideo.videos && imagevideo.videos != '') {
                     async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
+                        console.log("photo", photo);
                         photo._id = imagevideo._id;
                         photo.event_category = imagevideo.event_category;
                         photo.createdBy = imagevideo.createdBy;
