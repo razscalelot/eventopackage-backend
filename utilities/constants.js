@@ -23,7 +23,8 @@ let constants = {
         notificationcoupons : 'notificationcoupons',
         eventbookingcoupons: 'eventbookingcoupons',
         eventbookings: 'eventbookings',
-        getintouches : 'getintouches'
+        getintouches : 'getintouches',
+        entertainmentcomments : 'entertainmentcomments'
     }
 };
 module.exports = constants;
