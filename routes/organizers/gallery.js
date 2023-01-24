@@ -7,6 +7,7 @@ const helper = require('../../utilities/helper');
 const categorieModel = require('../../models/categories.model');
 const organizerModel = require('../../models/organizers.model');
 const eventModel = require('../../models/events.model');
+const userModel = require('../../models/users.model');
 const async = require('async');
 const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
@@ -15,8 +16,9 @@ router.get('/', helper.authenticateToken, async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: mongoose.Types.ObjectId(req.token.organizerid) }).populate([
+            let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: {$ne: mongoose.Types.ObjectId(req.token.organizerid)} }).populate([
                 { path: "event_category", model: primary.model(constants.MODELS.categories, categorieModel), select: "category_name" },
+                { path: "createdBy", model: primary.model(constants.MODELS.users, userModel), select: "category_name" },
             ]).select("-__v -othercost -services -equipments -updatedBy -discounts -capcity -companydetail -tandc").lean();
             let allEventsImageVideo = [];
             async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
