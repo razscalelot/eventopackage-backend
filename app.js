@@ -35,7 +35,8 @@ mongoose.connection.once('open', () => {
 });
 app.use('/', indexRouter);
 const landingpaths = [
-  { pathUrl: '/getintouch', routeFile: 'getintouch'}
+  { pathUrl: '/getintouch', routeFile: 'getintouch'},
+  { pathUrl: '/events', routeFile: 'event'},
 ];
 const adminpaths = [
   { pathUrl: '/', routeFile: 'index'}
