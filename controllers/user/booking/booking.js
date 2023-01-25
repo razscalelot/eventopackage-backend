@@ -452,9 +452,23 @@ exports.calendar = async (req, res) => {
                                     $and: [{ end_timestamp: { $gte: start } }, { end_timestamp: { $lte: end } }]
                                 }
                             ]
-                        }).select("name start_time end_time start_date end_date").sort({ start_timestamp: 1 }).lean();
+                        }).select("name start_time end_time start_date end_date start_timestamp end_timestamp").sort({ start_timestamp: 1 }).lean();
                         if (bookings && bookings.length > 0) {
-                            finalBookings[day.day] = bookings;
+                            let innerfinalBookings = [];
+                            async.forEachSeries(bookings, (booking, next_booking) => {
+                                if(start > booking.start_timestamp){
+                                    booking.start_time = '00:00';
+                                }
+                                if(end < booking.end_timestamp){
+                                    booking.end_time = '23:59';
+                                }
+                                delete booking.start_timestamp;
+                                delete booking.end_timestamp;
+                                innerfinalBookings.push(booking);
+                                next_booking();
+                            }, () => {
+                                finalBookings[day.day] = innerfinalBookings;
+                            });
                         } else {
                             finalBookings[day.day] = [];
                         }
