@@ -135,7 +135,6 @@ exports.export = async (req, res) => {
                         },
                     ];
                     async.forEachSeries(attendeelist, (attendee, next_attendee) => {
-                        console.log("new Date(attendee.start_timestamp)", new Date(attendee.start_timestamp));
                         let obj = {
                             invoice_no: attendee.invoice_no,
                             attendee_name: attendee.userid.name,

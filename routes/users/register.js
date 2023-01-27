@@ -85,7 +85,6 @@ router.post('/forgotpassword', async (req, res) => {
         if(checkExisting){
             const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
             let otpSend = await axios.get(url,config);
-            console.log("otpSend", otpSend);
             if(otpSend.data.Details){
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});
                 return responseManager.onSuccess('User mobile identified and otp sent successfully!', {key : otpSend.data.Details}, res);

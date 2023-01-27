@@ -31,7 +31,6 @@ exports.forbiddenRequest = (res) => {
 	});
 };
 exports.badrequest = (error, res) => {
-	console.log(error.message);
 	res.status(400).json({
 		Message: error.message,
 		Data: 0,

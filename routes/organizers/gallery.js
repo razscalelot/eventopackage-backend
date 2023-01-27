@@ -23,10 +23,8 @@ router.get('/', helper.authenticateToken, async (req, res) => {
             ]).select("-__v -othercost -services -equipments -updatedBy -discounts -capcity -companydetail -tandc").lean();
             let allEventsImageVideo = [];
             async.forEachSeries(imagesvideos, (imagevideo, next_imagevideo) => {
-                console.log("imagevideo", imagevideo);
                 if (imagevideo.photos && imagevideo.photos != '' || imagevideo.videos && imagevideo.videos != '') {
                     async.forEachSeries(imagevideo.photos, (photo, next_photo) => {
-                        console.log("photo", photo);
                         photo._id = imagevideo._id;
                         photo.event_category = imagevideo.event_category;
                         photo.createdBy = imagevideo.createdBy;
