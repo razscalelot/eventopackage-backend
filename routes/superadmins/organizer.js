@@ -9,6 +9,7 @@ const superadminModel = require('../../models/superadmins.model');
 const eventModel = require('../../models/events.model');
 const { default: mongoose } = require("mongoose");
 router.post('/', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { page, limit, search, sortfield, sortoption } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -45,6 +46,7 @@ router.post('/', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/approve', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { organizerid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -53,9 +55,10 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
             if(organizerid && organizerid != '' && mongoose.Types.ObjectId.isValid(organizerid)){
                 let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
                 if(organizerData && organizerData.mobileverified == true){
-                    if(organizerData.status == false){
+                    if(organizerData.is_approved == false){
                         await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {is_approved : true});
-                        return responseManager.onSuccess('Organizer approved sucecssfully!', 1, res);
+                        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
+                        return responseManager.onSuccess('Organizer approved sucecssfully!', organizerData, res);
                     }else{
                         return responseManager.badrequest({ message: 'Organizer is already approved' }, res);
                     }
@@ -73,6 +76,7 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/disapprove', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { organizerid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -81,9 +85,10 @@ router.post('/disapprove', helper.authenticateToken, async (req, res) => {
             if(organizerid && organizerid != '' && mongoose.Types.ObjectId.isValid(organizerid)){
                 let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
                 if(organizerData && organizerData.mobileverified == true){
-                    if(organizerData.status == true){
+                    if(organizerData.is_approved == true){
                         await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerid, {is_approved : false});
-                        return responseManager.onSuccess('Organizer disapproved sucecssfully!', 1, res);
+                        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(organizerid).lean();
+                        return responseManager.onSuccess('Organizer disapproved sucecssfully!', organizerData, res);
                     }else{
                         return responseManager.badrequest({ message: 'Organizer is already disapproved' }, res);
                     }
@@ -101,6 +106,7 @@ router.post('/disapprove', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/remove', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { organizerid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -109,7 +115,7 @@ router.post('/remove', helper.authenticateToken, async (req, res) => {
             if(organizerid && organizerid != '' && mongoose.Types.ObjectId.isValid(organizerid)){
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndRemove(organizerid);
                 await primary.model(constants.MODELS.events, eventModel).deleteMany({createdBy : mongoose.Types.ObjectId(organizerid)});
-                return responseManager.onSuccess('Organizer removed successsfully!', 1, res);
+                return responseManager.onSuccess('Organizer removed sucecssfully!', 1, res);
             }else{
                 return responseManager.badrequest({ message: 'Invalid organizer id to remove organizer, please try again' }, res);
             }
@@ -121,6 +127,7 @@ router.post('/remove', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/getone', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { organizerid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

@@ -8,6 +8,7 @@ const superadminModel = require('../../models/superadmins.model');
 const eventModel = require('../../models/events.model');
 const { default: mongoose } = require("mongoose");
 router.post('/', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { organizerid, event_category, page, limit, search, sortfield, sortoption, status } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -47,6 +48,7 @@ router.post('/', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/approve', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -55,9 +57,10 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
             if(eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)){
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 if(eventData){
-                    if(eventData.status == false){
+                    if(eventData.is_approved == false){
                         await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, {is_approved : true});
-                        return responseManager.onSuccess('Event approved sucecssfully!', 1, res);
+                        let updatedData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                        return responseManager.onSuccess('Event approved sucecssfully!', updatedData, res);
                     }else{
                         return responseManager.badrequest({ message: 'Event is already approved' }, res);
                     }
@@ -75,6 +78,7 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/disapprove', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -83,9 +87,10 @@ router.post('/disapprove', helper.authenticateToken, async (req, res) => {
             if(eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)){
                 let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 if(eventData){
-                    if(eventData.status == true){
+                    if(eventData.is_approved == true){
                         await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, {is_approved : false});
-                        return responseManager.onSuccess('Event disapproved sucecssfully!', 1, res);
+                        let updatedData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
+                        return responseManager.onSuccess('Event disapproved sucecssfully!', updatedData, res);
                     }else{
                         return responseManager.badrequest({ message: 'Event is already disapproved' }, res);
                     }
@@ -103,6 +108,7 @@ router.post('/disapprove', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/remove', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -122,6 +128,7 @@ router.post('/remove', helper.authenticateToken, async (req, res) => {
     }
 });
 router.post('/getone', helper.authenticateToken, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.superadminid && mongoose.Types.ObjectId.isValid(req.token.superadminid)) {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

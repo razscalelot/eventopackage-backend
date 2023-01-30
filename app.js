@@ -71,6 +71,7 @@ const superadminpaths = [
   { pathUrl: '/subadmin', routeFile: 'subadmin' },
   { pathUrl: '/executive', routeFile: 'executive' },
   { pathUrl: '/ourproduct', routeFile: 'ourproduct' },
+  { pathUrl: '/media', routeFile: 'media'},
   { pathUrl: '/promotionplans', routeFile: 'promotionplans'},
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
