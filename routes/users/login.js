@@ -6,6 +6,8 @@ const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const userModel = require('../../models/users.model');
 const organizerModel = require('../../models/organizers.model');
+const fcointransactionModel = require('../../models/fcointransactions.model');
+const mongoose = require('mongoose');
 const axios = require('axios');
 const config = {
     headers: {
@@ -22,28 +24,80 @@ router.post('/', async (req, res, next) => {
         if (userData && userData != null && userData.mobileverified == true) {
             let decPassword = await helper.passwordDecryptor(userData.password);
             if (decPassword == password) {
-                if((userData.lastloginAt == undefined || userData.lastloginAt == null || userData.lastloginAt == 0) && (userData.first_login_at == undefined)){
-                    if(userData.refer_code && userData.refer_code != '' && userData.refer_code != null && userData.refer_code != 0){
-                        let referbyuser = await  primary.model(constants.MODELS.users, userModel).findOne({my_refer_code : userData.refer_code}).lean();
-                        if(referbyuser) {
-                            await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(referbyuser._id, {f_coin : (referbyuser.f_coin) ? parseFloat(referbyuser.f_coin + 10) : parseFloat(10)});
-                            await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {f_coin : parseFloat(10), first_login_at : Date.now()});
-                        }else{
-                            let referbyOrganiser = await primary.model(constants.MODELS.organizers, organizerModel).findOne({my_refer_code : userData.refer_code}).lean();
-                            if(referbyOrganiser){
-                                await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(referbyOrganiser._id, {f_coin : (referbyOrganiser.f_coin) ? parseFloat(referbyOrganiser.f_coin + 10) : parseFloat(10)});
-                                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {f_coin : parseFloat(10), first_login_at : Date.now()});
+                if ((userData.lastloginAt == undefined || userData.lastloginAt == null || userData.lastloginAt == 0) && (userData.first_login_at == undefined)) {
+                    if (userData.refer_code && userData.refer_code != '' && userData.refer_code != null && userData.refer_code != 0) {
+                        let referbyuser = await primary.model(constants.MODELS.users, userModel).findOne({ my_refer_code: userData.refer_code }).lean();
+                        if (referbyuser) {
+                            await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(referbyuser._id, { f_coin: (referbyuser.f_coin) ? parseFloat(referbyuser.f_coin + 10) : parseFloat(10) });
+                            await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { f_coin: parseFloat(10), first_login_at: Date.now() });
+                            let objmain = {
+                                receiver_id: mongoose.Types.ObjectId(userData._id),
+                                sender_id: null,
+                                transaction_type: 'refer',
+                                transaction_icon: 'global/tricons/refer.png',
+                                f_coins: parseFloat(10),
+                                refer_data: {
+                                    from_refer: mongoose.Types.ObjectId(referbyuser._id),
+                                    to_refer: mongoose.Types.ObjectId(userData._id),
+                                },
+                                timestamp: Date.now()
+                            };
+                            await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                            let objrefer = {
+                                receiver_id: mongoose.Types.ObjectId(referbyuser._id),
+                                sender_id: null,
+                                transaction_type: 'refer',
+                                transaction_icon: 'global/tricons/refer.png',
+                                f_coins: parseFloat(10),
+                                refer_data: {
+                                    from_refer: mongoose.Types.ObjectId(referbyuser._id),
+                                    to_refer: mongoose.Types.ObjectId(userData._id),
+                                },
+                                timestamp: Date.now()
+                            };
+                            await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
+                        } else {
+                            let referbyOrganiser = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ my_refer_code: userData.refer_code }).lean();
+                            if (referbyOrganiser) {
+                                await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(referbyOrganiser._id, { f_coin: (referbyOrganiser.f_coin) ? parseFloat(referbyOrganiser.f_coin + 10) : parseFloat(10) });
+                                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { f_coin: parseFloat(10), first_login_at: Date.now() });
+                                let objmain = {
+                                    receiver_id: mongoose.Types.ObjectId(userData._id),
+                                    sender_id: null,
+                                    transaction_type: 'refer',
+                                    transaction_icon: 'global/tricons/refer.png',
+                                    f_coins: parseFloat(10),
+                                    refer_data: {
+                                        from_refer: mongoose.Types.ObjectId(referbyOrganiser._id),
+                                        to_refer: mongoose.Types.ObjectId(userData._id),
+                                    },
+                                    timestamp: Date.now()
+                                };
+                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                                let objrefer = {
+                                    receiver_id: mongoose.Types.ObjectId(referbyOrganiser._id),
+                                    sender_id: null,
+                                    transaction_type: 'refer',
+                                    transaction_icon: 'global/tricons/refer.png',
+                                    f_coins: parseFloat(10),
+                                    refer_data: {
+                                        from_refer: mongoose.Types.ObjectId(referbyOrganiser._id),
+                                        to_refer: mongoose.Types.ObjectId(userData._id),
+                                    },
+                                    timestamp: Date.now()
+                                };
+                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
                             }
                         }
                     }
                 }
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, {fcm_token : (fcm_token) ? fcm_token : '', lastloginAt : Date.now()});
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: (fcm_token) ? fcm_token : '', lastloginAt: Date.now() });
                 let accessToken = await helper.generateAccessToken({ userid: userData._id.toString() });
                 return responseManager.onSuccess('User login successfully!', { token: accessToken }, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid password, please try again' }, res);
             }
-        }else if (userData && userData != null && userData.mobileverified == false) {
+        } else if (userData && userData != null && userData.mobileverified == false) {
             const url = process.env.FACTOR_URL + userData.mobile + "/AUTOGEN";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
