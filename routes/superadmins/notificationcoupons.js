@@ -64,7 +64,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                     updatedBy : mongoose.Types.ObjectId(req.token.superadminid)
                                 };
                                 await primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).findByIdAndUpdate(notificationcouponid, obj);
-                                return responseManager.onSuccess('Notification coupon updated sucecssfully!', 1, res);
+                                let updatedData = await  primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).findById(notificationcouponid).lean();
+                                return responseManager.onSuccess('Notification coupon updated sucecssfully!', updatedData, res);
                             }else{
                                 return responseManager.badrequest({ message: 'Notification coupon code can not be identical, please try again' }, res);
                             }
@@ -89,8 +90,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                     createdBy : mongoose.Types.ObjectId(req.token.superadminid),
                                     updatedBy : mongoose.Types.ObjectId(req.token.superadminid)
                                 };
-                                await primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).create(obj);
-                                return responseManager.onSuccess('Notification coupon created sucecssfully!', 1, res);
+                                let insertedData = await primary.model(constants.MODELS.notificationcoupons, notificationcouponModel).create(obj);
+                                return responseManager.onSuccess('Notification coupon created sucecssfully!', insertedData, res);
                             }else{
                                 return responseManager.badrequest({ message: 'Notification coupon code can not be identical, please try again' }, res);
                             }

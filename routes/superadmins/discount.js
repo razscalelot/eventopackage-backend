@@ -62,7 +62,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                         updatedBy : mongoose.Types.ObjectId(req.token.superadminid)
                     };
                     await primary.model(constants.MODELS.discounts, discountModel).findByIdAndUpdate(discountid, obj);
-                    return responseManager.onSuccess('Discount updated sucecssfully!', 1, res);
+                    let updatedData = await  primary.model(constants.MODELS.discounts, discountModel).findById(discountid).lean();
+                    return responseManager.onSuccess('Discount updated sucecssfully!', updatedData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Discount name can not be identical, please try again' }, res);
                 }
@@ -80,8 +81,8 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                         createdBy : mongoose.Types.ObjectId(req.token.superadminid),
                         updatedBy : mongoose.Types.ObjectId(req.token.superadminid)
                     };
-                    await primary.model(constants.MODELS.discounts, discountModel).create(obj);
-                    return responseManager.onSuccess('Discount created sucecssfully!', 1, res);
+                    let insertedData =await primary.model(constants.MODELS.discounts, discountModel).create(obj);
+                    return responseManager.onSuccess('Discount created sucecssfully!', insertedData, res);
                 }else{
                     return responseManager.badrequest({ message: 'Discount name can not be identical, please try again' }, res);
                 }
