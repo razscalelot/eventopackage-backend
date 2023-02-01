@@ -22,7 +22,7 @@ exports.createevent = async (req, res) => {
                                 display_name: display_name,
                                 event_type: event_type,
                                 is_live: false,
-                                is_approved: true,
+                                is_approved: false,
                                 event_category: mongoose.Types.ObjectId(event_category),
                                 updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                             };
@@ -56,7 +56,7 @@ exports.createevent = async (req, res) => {
                             createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                             updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                             timestamp: Date.now(),
-                            is_approved: true,
+                            is_approved: false,
                             is_live: false,
                             status: true,
                             iseditable: true
