@@ -13,7 +13,8 @@ router.get('/history', helper.authenticateToken, async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
-        if (userData && userData.status == true && userData.mobileverified == true && userData.is_approved == true) {
+        console.log("userData", userData);
+        if (userData && userData.status == true && userData.mobileverified == true) {
             let history = await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).find({
                 $or: [
                     { receiver_id: mongoose.Types.ObjectId(req.token.userid) },
