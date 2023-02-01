@@ -13,6 +13,7 @@ const eventModel = require('../../models/events.model');
 const userModel = require('../../models/users.model');
 const eventreviewModel = require('../../models/eventreviews.model');
 const eventbookingModel = require('../../models/eventbookings.model');
+const organizerModel = require('../../models/organizers.model');
 const async = require('async');
 const { default: mongoose } = require("mongoose");
 router.post('/', helper.authenticateToken, async (req, res) => {
@@ -49,7 +50,8 @@ router.post('/', helper.authenticateToken, async (req, res) => {
                     {path: "discounts.equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
                     {path: "services", model: primary.model(constants.MODELS.services, serviceModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
                     {path: "items", model: primary.model(constants.MODELS.items, itemModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
-                    {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'}
+                    {path: "equipments", model: primary.model(constants.MODELS.equipments, equipmentModel), select: '-createdAt -updatedAt -__v -createdBy -updatedBy -status'},
+                    {path: "createdBy", model: primary.model(constants.MODELS.organizers, organizerModel), select: 'name email mobile country_code profile_pic'}
                 ],
                 lean: true
             }).then((eventsList) => {
