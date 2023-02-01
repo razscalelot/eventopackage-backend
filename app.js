@@ -57,6 +57,7 @@ const organizerpaths = [
   { pathUrl: '/promotionplan', routeFile: 'promotionplan'},
   { pathUrl: '/notification', routeFile: 'notification'},
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
+  // { pathUrl: '/redeem', routeFile: 'redeem' }
 ];
 const subadminpaths = [
   { pathUrl: '/', routeFile: 'index'}
