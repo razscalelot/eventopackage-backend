@@ -86,6 +86,7 @@ const userpaths = [
   { pathUrl: '/invoice', routeFile: 'invoice'},
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
+  { pathUrl: '/redeem', routeFile: 'redeem' }
 ];
 landingpaths.forEach((path) => {
 	app.use('/landing'+path.pathUrl, require('./routes/landing/' + path.routeFile));

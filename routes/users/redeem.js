@@ -10,14 +10,14 @@ const fcointransactionModel = require('../../models/fcointransactions.model');
 const mongoose = require('mongoose');
 const async = require('async');
 router.get('/history', helper.authenticateToken, async (req, res) => {
-    if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
+    if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
-        if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
+        let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
+        if (userData && userData.status == true && userData.mobileverified == true && userData.is_approved == true) {
             let history = await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).find({
                 $or: [
-                    { receiver_id: mongoose.Types.ObjectId(req.token.organizerid) },
-                    { sender_id: mongoose.Types.ObjectId(req.token.organizerid) }
+                    { receiver_id: mongoose.Types.ObjectId(req.token.userid) },
+                    { sender_id: mongoose.Types.ObjectId(req.token.userid) }
                 ]
             }).sort({_id : -1}).lean();
             if(history && history.length > 0){
@@ -40,7 +40,7 @@ router.get('/history', helper.authenticateToken, async (req, res) => {
                             if(senderorganiser){
                                 redeem.sender_id = senderorganiser;
                             }else{
-                                let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profile_pic').lean();
+                                let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profilepic').lean();
                                 if(senderuser){
                                     redeem.sender_id = senderuser;
                                 }
@@ -82,7 +82,7 @@ router.get('/history', helper.authenticateToken, async (req, res) => {
                 return responseManager.onSuccess("Redeem history...", [], res);
             }
         }else{
-            return responseManager.badrequest({ message: 'Invalid organizerid to get redeem history, please try again' }, res);
+            return responseManager.badrequest({ message: 'Invalid userid to get redeem history, please try again' }, res);
         }
     }else{
         return responseManager.unauthorisedRequest(res);
