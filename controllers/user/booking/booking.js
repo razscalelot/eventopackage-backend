@@ -624,7 +624,8 @@ exports.checkavailability = async (req, res) => {
                                 }, () => {
                                     (async () => {
                                         let FinalPrice = 0;
-                                        if (event.aboutplace.place_price != '') {
+                                        if (event.aboutplace
+                                            ) {
                                             if (event.aboutplace.price_type == 'per_hour') {
                                                 FinalPrice += event.aboutplace.place_price * delta.onlyhours;
                                             }
