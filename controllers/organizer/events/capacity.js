@@ -14,17 +14,19 @@ exports.capacity = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
-            const { eventid, facilities, person_capacity, parking_capacity, address, location } = req.body;
+            const { eventid, flat_no, street_name, area_name, city, state, pincode, location } = req.body;
             let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
             if (maineventData && maineventData.iseditable == true) {
                 if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
-                    if (facilities && facilities.trim() != '' && person_capacity && person_capacity.trim() != '' && parking_capacity && parking_capacity != '') {
+                    if (city && city.trim() != '' && state && state.trim() != '' && pincode && pincode != '' && location) {
                         // if (latitude && latitude != '' && longitude && longitude != '' && validateLatLng(parseFloat(latitude), parseFloat(longitude))) {
                         let obj = {
-                            facilities: facilities,
-                            person_capacity: person_capacity,
-                            parking_capacity: parking_capacity,
-                            address: address,
+                            flat_no: flat_no,
+                            street_name: street_name,
+                            area_name: area_name,
+                            city: city,
+                            state: state,
+                            pincode: pincode,
                             location: location
                         };
                         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

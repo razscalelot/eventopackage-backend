@@ -10,7 +10,7 @@ exports.aboutplace = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
-            const { eventid, banner, place_price, price_type, max_day, clearing_time, details } = req.body;
+            const { eventid, banner, place_price, price_type, max_day, clearing_time, facilities, person_capacity, parking_capacity, details } = req.body;
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 if (maineventData && maineventData.iseditable == true) {
@@ -23,6 +23,9 @@ exports.aboutplace = async (req, res) => {
                                     price_type: price_type,
                                     max_day: max_day,
                                     clearing_time: clearing_time,
+                                    facilities: facilities,
+                                    person_capacity: person_capacity,
+                                    parking_capacity: parking_capacity,
                                     details: details
                                 };
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });

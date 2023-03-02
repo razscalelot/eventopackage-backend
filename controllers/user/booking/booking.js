@@ -456,10 +456,10 @@ exports.calendar = async (req, res) => {
                         if (bookings && bookings.length > 0) {
                             let innerfinalBookings = [];
                             async.forEachSeries(bookings, (booking, next_booking) => {
-                                if(start > booking.start_timestamp){
+                                if (start > booking.start_timestamp) {
                                     booking.start_time = '00:00';
                                 }
-                                if(end < booking.end_timestamp){
+                                if (end < booking.end_timestamp) {
                                     booking.end_time = '23:59';
                                 }
                                 delete booking.start_timestamp;
@@ -566,6 +566,7 @@ exports.checkavailability = async (req, res) => {
                                 }
                             });
                             next_service();
+
                         }, () => {
                             async.forEachSeries(event.items, (item, next_item) => {
                                 async.forEachSeries(event.discounts, (discount, next_discount) => {
@@ -624,7 +625,7 @@ exports.checkavailability = async (req, res) => {
                                 }, () => {
                                     (async () => {
                                         let FinalPrice = 0;
-                                        if (event.aboutplace.place_price != '') {
+                                        if (event.aboutplace) {
                                             if (event.aboutplace.price_type == 'per_hour') {
                                                 FinalPrice += event.aboutplace.place_price * delta.onlyhours;
                                             }
