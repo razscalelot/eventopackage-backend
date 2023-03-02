@@ -69,6 +69,7 @@ const superadminpaths = [
   { pathUrl: '/event', routeFile: 'event' },
   { pathUrl: '/service', routeFile: 'service' },
   { pathUrl: '/item', routeFile: 'item' },
+  { pathUrl: '/equipment', routeFile: 'equipment' },
   { pathUrl: '/eventcategories', routeFile: 'eventcategories' },
   { pathUrl: '/admin', routeFile: 'admin' },
   { pathUrl: '/subadmin', routeFile: 'subadmin' },
