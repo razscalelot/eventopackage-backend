@@ -24,6 +24,7 @@ exports.additem = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
                         isAdded: false,
+                        is_approved: false,
                         itemCount: 1,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
                     };
@@ -44,6 +45,7 @@ exports.additem = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         description: (req.body.description) ? req.body.description : '',
                         isAdded: false,
+                        is_approved: false,
                         itemCount: 1,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)

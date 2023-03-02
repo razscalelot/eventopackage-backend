@@ -25,6 +25,7 @@ exports.addequipment = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         videos: (req.body.videos) ? req.body.videos : [],
                         isAdded: false,
+                        is_approved: false,
                         itemCount: 1,
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid),
                     };
@@ -46,6 +47,7 @@ exports.addequipment = async (req, res) => {
                         photos: (req.body.photos) ? req.body.photos : [],
                         videos: (req.body.videos) ? req.body.videos : [],
                         isAdded: false,
+                        is_approved: false,
                         itemCount: 1,
                         createdBy: mongoose.Types.ObjectId(req.token.organizerid),
                         updatedBy: mongoose.Types.ObjectId(req.token.organizerid)

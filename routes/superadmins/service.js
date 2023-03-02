@@ -17,6 +17,7 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
         if(superadmin){
             if(serviceid && serviceid != '' && mongoose.Types.ObjectId.isValid(serviceid)){
                 let serviceData = await primary.model(constants.MODELS.services, serviceModel).findById(serviceid).lean();
+                console.log("serviceData", serviceData);
                 if(serviceData){
                     if(serviceData.is_approved == false){
                         await primary.model(constants.MODELS.services, serviceModel).findByIdAndUpdate(serviceid, {is_approved : true});
