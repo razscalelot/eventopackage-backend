@@ -1,7 +1,7 @@
 let mongoose = require("mongoose");
 let mongoosePaginate = require("mongoose-paginate-v2");
 let schema = new mongoose.Schema({
-	name : {
+	name: {
 		type: String,
 		require: true
 	},
@@ -26,25 +26,25 @@ let schema = new mongoose.Schema({
 		default: ''
 	},
 	profile_pic: {
-        type: String,
+		type: String,
 		default: ''
-    },
-    refer_code:{
-        type: String,
+	},
+	refer_code: {
+		type: String,
 		default: ''
-    },
-    my_refer_code:{
-        type: String,
+	},
+	my_refer_code: {
+		type: String,
 		default: ''
-    },
-    fcm_token: {
-        type: String,
+	},
+	fcm_token: {
+		type: String,
 		default: ''
-    },
-    status: {
-        type: Boolean,
+	},
+	status: {
+		type: Boolean,
 		default: false
-    },
+	},
 	createdBy: {
 		type: mongoose.Types.ObjectId,
 		default: null
