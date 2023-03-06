@@ -25,7 +25,8 @@ let constants = {
         eventbookings: 'eventbookings',
         getintouches : 'getintouches',
         entertainmentcomments : 'entertainmentcomments',
-        fcointransactions : 'fcointransactions'
+        fcointransactions : 'fcointransactions',
+        agents : 'agents'
     }
 };
 module.exports = constants;

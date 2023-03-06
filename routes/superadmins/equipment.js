@@ -16,7 +16,7 @@ router.post('/approve', helper.authenticateToken, async (req, res) => {
         let superadmin = await primary.model(constants.MODELS.superadmins, superadminModel).findById(req.token.superadminid).lean();
         if(superadmin){
             if(equipmentid && equipmentid != '' && mongoose.Types.ObjectId.isValid(equipmentid)){
-                let equipmentData = await primary.model(constants.MODELS.equipments, equipmentModel).findById(equipmentid).lean();
+                let equipmentData = await primary.model(constants.MODELS.equipments, equipmentModel).findById(equipmentid).lean();7
                 if(equipmentData){
                     if(equipmentData.is_approved == false){
                         await primary.model(constants.MODELS.equipments, equipmentModel).findByIdAndUpdate(equipmentid, {is_approved : true});

@@ -91,6 +91,13 @@ const userpaths = [
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
   { pathUrl: '/redeem', routeFile: 'redeem' }
 ];
+const agentpaths = [
+  { pathUrl: '/', routeFile: 'index'},
+  { pathUrl: '/login', routeFile: 'login'},
+  { pathUrl: '/register', routeFile: 'register'},
+  { pathUrl: '/profile', routeFile: 'profile'},
+  { pathUrl: '/organisers', routeFile: 'organisers'},
+];
 landingpaths.forEach((path) => {
 	app.use('/landing'+path.pathUrl, require('./routes/landing/' + path.routeFile));
 });
@@ -111,6 +118,9 @@ superadminpaths.forEach((path) => {
 });
 userpaths.forEach((path) => {
 	app.use('/user'+path.pathUrl, require('./routes/users/' + path.routeFile));
+});
+agentpaths.forEach((path) => {
+	app.use('/agent'+path.pathUrl, require('./routes/agent/' + path.routeFile));
 });
 // app.get("/encrypet", async (req,res) => {
 //   let str = '123456789';
