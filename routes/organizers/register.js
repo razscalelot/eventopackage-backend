@@ -31,9 +31,8 @@ router.post('/', async (req, res, next) => {
                 my_refer_code : my_referCode,
                 f_coin: 0,
                 fcm_token : fcm_token,
-                is_approved : true,
+                is_approved : false,
                 status : true,
-                is_approved : true,
                 mobileverified : false,
                 businessProfile : {},
                 agentid : (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null                
