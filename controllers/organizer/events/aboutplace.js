@@ -41,6 +41,8 @@ exports.aboutplace = async (req, res) => {
                                 price_type: price_type,
                                 max_day: null,
                                 clearing_time: clearing_time,
+                                person_capacity: person_capacity,
+                                parking_capacity: parking_capacity,
                                 details: details
                             };
                             await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), aboutplace: obj });
