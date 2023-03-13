@@ -12,7 +12,7 @@ const async = require("async");
 const mongoose = require('mongoose');
 router.post('/list', helper.authenticateToken, async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
-        const { date, time, event_type, search } = req.body;
+        const { page, limit, date, time, event_type, search } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
@@ -37,7 +37,7 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                 next_event();
             }, () => {
                 (async () => {
-                    let bookedEvenets = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({
+                    await primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate({
                         $or: [
                             { name: { '$regex': new RegExp(search, "i") } },
                             { start_date: { '$regex': new RegExp(search, "i") } },
@@ -46,8 +46,18 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                         ],
                         eventId: { $in: eventIds },
                         ...bookingquery
-                    }).populate([{ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profilepic' }]).sort({ _id: -1 }).lean();
-                    return responseManager.onSuccess("event booked list...", bookedEvenets, res);
+                    }, {
+                        page,
+                        limit: parseInt(limit),
+                        sort: { _id: -1 },
+                        populate: { path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profilepic' },
+                        // select: 'display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail discounts is_live is_approved',
+                        lean: true
+                    }).then((bookedEvenets) => {
+                        return responseManager.onSuccess("event booked list...", bookedEvenets, res);
+                    }).catch((error) => {
+                        return responseManager.onError(error, res);
+                    });      //.populate([{ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profilepic' }]).sort({ _id: -1 }).lean();
                 })().catch((error) => {
                     return responseManager.onError(error, res);
                 });
