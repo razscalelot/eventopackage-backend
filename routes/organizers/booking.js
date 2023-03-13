@@ -29,10 +29,10 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
             primary.model(constants.MODELS.eventbookings, eventbookingModel).paginate({
                 eventId: { $in: allEventsId }, 
                 $or: [
-                    { date: { '$regex': new RegExp(date, "i") } },
+                    { start_date: { '$regex': new RegExp(date, "i") } },
                 ],
                 $or: [
-                    { time: { '$regex': new RegExp(time, "i") } },
+                    { start_time: { '$regex': new RegExp(time, "i") } },
                 ],
                 $or: [
                     { event_type: { '$regex': new RegExp(event_type, "i") } },
