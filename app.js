@@ -123,12 +123,12 @@ userpaths.forEach((path) => {
 agentpaths.forEach((path) => {
 	app.use('/agent'+path.pathUrl, require('./routes/agent/' + path.routeFile));
 });
-// app.get("/encrypet", async (req,res) => {
-//   let str = '123456789';
-//   let encPass = await helper.passwordEncryptor(str);
-//   console.log('encPass', encPass);
-//   res.json({encPass : encPass});
-// });
+app.get("/encrypet", async (req,res) => {
+  let str = '123456789';
+  let encPass = await helper.passwordEncryptor(str);
+  console.log('encPass', encPass);
+  res.json({encPass : encPass});
+});
 app.use(function(req, res, next) {
   next(createError(404));
 });
