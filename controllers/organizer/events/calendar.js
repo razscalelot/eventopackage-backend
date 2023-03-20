@@ -12,7 +12,7 @@ exports.calendar = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventId } = req.body;
+            const { eventId, start_date, end_date, start_time, end_time, month, year } = req.body;
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 let today = new Date();
                 let i = 1;

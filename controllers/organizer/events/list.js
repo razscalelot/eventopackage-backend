@@ -106,36 +106,3 @@ exports.list = async (req, res) => {
         return responseManager.badrequest({ message: 'Invalid token to get event list, please try again' }, res);
     }
 };
-
-
-// async function getPermission(roleID, modelName, permissionType, secondaryDB) {
-//     let results = await secondaryDB.model(constants.MODELS.permissions, permissionModel).find({ roleId: roleID }).lean();
-//     if (results.length == 1) {
-//         let permisions = _.filter(results[0].permission, { 'collectionName': modelName });
-//         if (permisions.length == 1) {
-//             if (permissionType == "view") {
-//                 if (permisions[0].view == true)
-//                     return true;
-//                 else
-//                     return false;
-//             }
-
-//             if (permissionType == "insertUpdate") {
-//                 if (permisions[0].insertUpdate == true)
-//                     return true;
-//                 else
-//                     return false;
-//             }
-
-//             if (permissionType == "delete") {
-//                 if (permisions[0].delete == true)
-//                     return true;
-//                 else
-//                     return false;
-//             }
-//             return false;
-//         } else
-//             return false;
-//     } else
-//         return false;
-// };
