@@ -81,7 +81,6 @@ router.post('/', helper.authenticateToken, async (req, res) => {
                                 }
                             }
                             event.totalPrice = parseFloat(totalPrice).toFixed(2);
-                            console.log("event", event);
                             (async () => {
                                 if (noofreview > 0) {
                                     let totalReviewsCountObj = await primary.model(constants.MODELS.eventreviews, eventreviewModel).aggregate([{ $match: { eventid: mongoose.Types.ObjectId(event._id) } }, { $group: { _id: null, sum: { $sum: "$ratings" } } }]);
