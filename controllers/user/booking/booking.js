@@ -430,6 +430,7 @@ exports.calendar = async (req, res) => {
                 }
                 let finalBookings = {};
                 async.forEachSeries(finalObj, (day, next_day) => {
+                    console.log("day", day);
                     (async () => {
                         let start = new Date(day.day + ' 00:00:00').getTime() + 19800000;
                         let end = new Date(day.day + ' 23:59:00').getTime() + 19800000;
