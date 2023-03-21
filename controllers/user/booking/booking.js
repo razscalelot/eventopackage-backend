@@ -455,6 +455,7 @@ exports.calendar = async (req, res) => {
                                 }
                             ]
                         }).select("name start_time end_time start_date end_date start_timestamp end_timestamp").sort({ start_timestamp: 1 }).lean();
+                        console.log("bookings", bookings);
                         if (bookings && bookings.length > 0) {
                             let innerfinalBookings = [];
                             async.forEachSeries(bookings, (booking, next_booking) => {
@@ -477,6 +478,7 @@ exports.calendar = async (req, res) => {
                         next_day();
                     })().catch((error) => { });
                 }, () => {
+                    console.log("finalBookings", finalBookings);
                     return responseManager.onSuccess('all bookings', finalBookings, res);
                 });
             } else {
