@@ -6,6 +6,7 @@ const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const organizerModel = require('../../models/organizers.model');
 const axios = require('axios');
+const mongoose = require('mongoose');
 const config = {
     headers : {
         'content-type': 'application/x-www-form-urlencoded'
