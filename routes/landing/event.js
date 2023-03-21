@@ -22,7 +22,7 @@ router.get('/list', async (req, res) => {
         select: "category_name description event_type"
     }).select('display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail discounts is_live is_approved').lean().then((events) => {
         let allEvents = [];
-        async.forEachSeries(events.docs, (event, next_event) => {
+        async.forEachSeries(events, (event, next_event) => {
             let totalPrice = 0;
             (async () => {
                 let noofreview = parseInt(await primary.model(constants.MODELS.eventreviews, eventreviewModel).countDocuments({ eventid: mongoose.Types.ObjectId(event._id) }));
@@ -67,7 +67,7 @@ router.get('/list', async (req, res) => {
 
             })().catch((error) => { })
         }, () => {
-            return responseManager.onSuccess("event List", events, res);
+            return responseManager.onSuccess("event List", allEvents, res);
         });
     }).catch((error) => {
         return responseManager.onError(error, res);
