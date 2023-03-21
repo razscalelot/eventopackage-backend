@@ -417,6 +417,7 @@ exports.calendar = async (req, res) => {
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { eventId } = req.body;
+            console.log("eventId", eventId);
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 let today = new Date();
                 let i = 1;
