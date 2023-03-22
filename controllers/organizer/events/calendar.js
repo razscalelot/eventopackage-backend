@@ -17,7 +17,7 @@ exports.calendar = async (req, res) => {
                 let today = new Date();
                 let i = 1;
                 let finalObj = [];
-                for (i = 1; i <= 365; i++) {
+                for (i = 1; i <= 182; i++) {
                     finalObj.push({
                         index : i,
                         day : today.getFullYear() + '-' + ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1)  + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate()
