@@ -322,6 +322,10 @@ exports.booking = async (req, res) => {
                                                         <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
                                                             <tbody>
                                                             <tr style="text-align: left;">
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.gst ? parseFloat(body.gst).toFixed(2) : 0.00}</td>
+                                                            </tr>
+                                                            <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.subTotal).toFixed(2)}</td>
                                                             </tr>
@@ -332,10 +336,6 @@ exports.booking = async (req, res) => {
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${(body.fcoin) ? parseFloat(body.fcoin).toFixed(2) : 0.00}</td>
-                                                            </tr>
-                                                            <tr style="text-align: left;">
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.gst ? parseFloat(body.gst).toFixed(2) : 0.00}</td>
                                                             </tr>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
@@ -413,8 +413,10 @@ exports.booking = async (req, res) => {
 };
 exports.calendar = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
+        console.log("req.token.userid", req.token.userid);
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
+        console.log("userdata", userdata);
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { eventId } = req.body;
             console.log("eventId", eventId);
@@ -422,7 +424,7 @@ exports.calendar = async (req, res) => {
                 let today = new Date();
                 let i = 1;
                 let finalObj = [];
-                for (i = 1; i <= 182; i++) {
+                for (i = 1; i <= 365; i++) {
                     finalObj.push({
                         index: i,
                         day: today.getFullYear() + '-' + ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1) + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate()
