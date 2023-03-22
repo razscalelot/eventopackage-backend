@@ -323,7 +323,7 @@ exports.booking = async (req, res) => {
                                                             <tbody>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.gst ? parseFloat(body.gst).toFixed(2) : 0.00}</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.GST ? parseFloat(body.GST).toFixed(2) : 0.00}</td>
                                                             </tr>
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
