@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
                 status : true,
                 mobileverified : false
             };
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
             let otpSend = await axios.get(url,config);
             if(otpSend.data.Details){
                 obj.otpVerifyKey = otpSend.data.Details;
@@ -55,7 +55,7 @@ router.post('/verifyotp', async (req, res) => {
     if(key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && mobile && mobile.length == 10){
         let agentData = await primary.model(constants.MODELS.agents, agentModel).findOne({mobile : mobile, otpVerifyKey : key}).lean();
         if(agentData){
-            const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
+            const url = process.env.FACTOR_URL + "VERIFY3/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url ,config);
             if(verifiedOTP.data.Status == 'Success'){
                 await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(agentData._id, {mobileverified : true});
@@ -78,7 +78,7 @@ router.post('/forgotpassword', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.agents, agentModel).findOne({mobile: mobile}).lean();
         if(checkExisting){
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
             let otpSend = await axios.get(url,config);
             if(otpSend.data.Details){
                 await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});
@@ -119,7 +119,7 @@ router.post('/resendotp', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.agents, agentModel).findOne({mobile: mobile}).lean();
         if(checkExisting){
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
             let otpSend = await axios.get(url,config);
             if(otpSend.data.Details){
                 await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details});

@@ -39,7 +39,7 @@ router.post('/', async (req, res, next) => {
                     businessProfile: {},
                     agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                 };
-                const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+                const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
                 let otpSend = await axios.get(url, config);
                 if (otpSend.data.Details) {
                     obj.otpVerifyKey = otpSend.data.Details;
@@ -87,7 +87,7 @@ router.post('/forgotpassword', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile }).lean();
         if (checkExisting) {
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN3";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, { otpVerifyKey: otpSend.data.Details });
@@ -131,7 +131,7 @@ router.post('/resendotp', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile }).lean();
         if (checkExisting) {
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, { otpVerifyKey: otpSend.data.Details });
