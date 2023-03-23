@@ -7,19 +7,21 @@ const eventbookingModel = require('../../../models/eventbookings.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const async = require("async");
 const mongoose = require('mongoose');
+const getDays = (year, month) => {
+    return new Date(year, month, 0).getDate();
+};
 exports.calendar = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
-            const { eventId, start_date, end_date, start_time, end_time, month, year } = req.body;
+            const { eventId, month, year } = req.body;
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
-                console.log("month", month);
-                console.log("year", year);
-                let today = new Date();
+                let today = new Date(month + '/01/' + year);
                 let i = 1;
                 let finalObj = [];
-                for (i = 1; i <= 365; i++) {
+                const daysInMonth = getDays(parseInt(year), parseInt(month));
+                for (i = 1; i <= daysInMonth; i++) {
                     finalObj.push({
                         index : i,
                         day : today.getFullYear() + '-' + ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1)  + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate()
