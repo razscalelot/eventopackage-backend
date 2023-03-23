@@ -14,6 +14,8 @@ exports.calendar = async (req, res) => {
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true) {
             const { eventId, start_date, end_date, start_time, end_time, month, year } = req.body;
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
+                console.log("month", month);
+                console.log("year", year);
                 let today = new Date();
                 let i = 1;
                 let finalObj = [];

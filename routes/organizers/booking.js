@@ -24,9 +24,11 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                     bookingquery.created_at = { "$gte": starttimestamp };
                 } else {
                     let starttimestamp = new Date(date + ' 00:00').getTime()  + 19800000;
+                    console.log("starttimestamp", starttimestamp);
                     bookingquery.created_at = { "$gte": starttimestamp };
                 }
             }
+            console.log("bookingquery", bookingquery);
             if (event_type && event_type != '') {
                 eventquery.event_type = event_type;
             }
