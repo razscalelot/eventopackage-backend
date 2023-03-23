@@ -65,7 +65,7 @@ router.post('/verifyotp', async (req, res, next) => {
     if (key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && mobile && mobile.length == 10) {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile, otpVerifyKey: key }).lean();
         if (organizerData) {
-            const url = process.env.FACTOR_URL + "VERIFY3/" + key + "/" + otp;
+            const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url, config);
             if (verifiedOTP.data.Status == 'Success') {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, { mobileverified: true });
