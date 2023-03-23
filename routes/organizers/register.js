@@ -65,7 +65,7 @@ router.post('/verifyotp', async (req, res, next) => {
     if (key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && mobile && mobile.length == 10) {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile, otpVerifyKey: key }).lean();
         if (organizerData) {
-            const url = process.env.FACTOR_URL + "VERIFY/" + key + "/" + otp;
+            const url = process.env.FACTOR_URL + "VERIFY3/" + key + "/" + otp;
             let verifiedOTP = await axios.get(url, config);
             if (verifiedOTP.data.Status == 'Success') {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, { mobileverified: true });
@@ -87,7 +87,7 @@ router.post('/forgotpassword', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile }).lean();
         if (checkExisting) {
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN";
+            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN3";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, { otpVerifyKey: otpSend.data.Details });
