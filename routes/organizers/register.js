@@ -13,6 +13,7 @@ const config = {
     }
 };
 router.post('/', async (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { name, email, mobile, country_code, password, refer_code, fcm_token, agentid } = req.body;
     if (name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && mobile && mobile.length == 10 && country_code && country_code.trim() != '' && password) {
@@ -59,6 +60,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 router.post('/verifyotp', async (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     const { key, otp, mobile } = req.body;
@@ -81,6 +83,7 @@ router.post('/verifyotp', async (req, res, next) => {
     }
 });
 router.post('/forgotpassword', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { mobile } = req.body;
     if (mobile && mobile != '' && mobile.length == 10) {
@@ -103,6 +106,7 @@ router.post('/forgotpassword', async (req, res) => {
     }
 });
 router.post('/changepassword', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
     const { password, mobile } = req.body;
