@@ -53,7 +53,7 @@ router.post('/', async (req, res, next) => {
                 return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
             }
         } else {
-            return responseManager.badrequest({ message: 'Make sure your password is of 8 characters, 5 alphabets, 2 number and 1 symbol, please try again' }, res);
+            return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long and must contain, 1 Upper case, 1 Lower case 1 Special character, please try again' }, res);
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid data to register organizer, please try again' }, res);
@@ -121,7 +121,7 @@ router.post('/changepassword', async (req, res) => {
                 return responseManager.badrequest({ message: 'Invalid organizer mobile number, please try again' }, res);
             }
         } else {
-            return responseManager.badrequest({ message: 'Make sure your password is of 8 characters, 5 alphabets, 2 number and 1 symbol, please try again' }, res);
+            return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long and must contain, 1 Upper case, 1 Lower case 1 Special character, please try again' }, res);
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid data to change organizer password, please try again' }, res);
