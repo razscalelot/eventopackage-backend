@@ -177,7 +177,7 @@ exports.booking = async (req, res) => {
                                                         eTime = delta.onlyhours + ' hours';
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
-                                                    if (eType == 'per_day') {
+                                                    if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
                                                             eTotalPrice = ePrice * (delta.day + 1);
@@ -201,7 +201,7 @@ exports.booking = async (req, res) => {
                                                         eTime = delta.onlyhours + ' hours';
                                                         eTotalPrice = ePrice * delta.onlyhours;
                                                     }
-                                                    if (eType == 'per_day') {
+                                                    if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
                                                             eTotalPrice = ePrice * (delta.day + 1);
