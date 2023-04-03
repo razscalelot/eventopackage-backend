@@ -67,11 +67,12 @@ function pHourpDaypEventCalc(service, startTimestamp, endTimestamp) {
             time = delta.day + ' days';
         }
     }
-    if (service.price_type == 'per_event') {
-        time = "--";
-    }
-    if (service.price_type == 'per_person') {
-        time = "--";
+    if (service.price_type == 'per_event' || service.price_type == 'per_person') {
+        if (delta.hour >= 1) {
+            time = (delta.day + 1) + ' days';
+        } else {
+            time = delta.day + ' days';
+        }
     }
     return time;
 }
@@ -180,10 +181,10 @@ exports.booking = async (req, res) => {
                                                     if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
-                                                            eTotalPrice = ePrice * (delta.day + 1);
+                                                            eTotalPrice = ePrice * (delta.day + 1) * item.itemCount;
                                                         } else {
                                                             eTime = delta.day + ' days';
-                                                            eTotalPrice = ePrice * delta.day;
+                                                            eTotalPrice = ePrice * delta.day * item.itemCount;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
@@ -204,10 +205,10 @@ exports.booking = async (req, res) => {
                                                     if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
-                                                            eTotalPrice = ePrice * (delta.day + 1);
+                                                            eTotalPrice = ePrice * (delta.day + 1) * item.itemCount;
                                                         } else {
                                                             eTime = delta.day + ' days';
-                                                            eTotalPrice = ePrice * delta.day;
+                                                            eTotalPrice = ePrice * delta.day * item.itemCount;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
