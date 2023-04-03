@@ -414,13 +414,10 @@ exports.booking = async (req, res) => {
 };
 exports.calendar = async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
-        console.log("req.token.userid", req.token.userid);
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
-        console.log("userdata", userdata);
         if (userdata && userdata.status == true && userdata.mobileverified == true) {
             const { eventId } = req.body;
-            console.log("eventId", eventId);
             if (eventId && eventId != '' && mongoose.Types.ObjectId.isValid(eventId)) {
                 let today = new Date();
                 let i = 1;
@@ -434,7 +431,6 @@ exports.calendar = async (req, res) => {
                 }
                 let finalBookings = {};
                 async.forEachSeries(finalObj, (day, next_day) => {
-                    console.log("day", day);
                     (async () => {
                         let start = new Date(day.day + ' 00:00:00').getTime() + 19800000;
                         let end = new Date(day.day + ' 23:59:00').getTime() + 19800000;
@@ -458,7 +454,6 @@ exports.calendar = async (req, res) => {
                                 }
                             ]
                         }).select("name start_time end_time start_date end_date start_timestamp end_timestamp").sort({ start_timestamp: 1 }).lean();
-                        console.log("bookings", bookings);
                         if (bookings && bookings.length > 0) {
                             let innerfinalBookings = [];
                             async.forEachSeries(bookings, (booking, next_booking) => {
@@ -481,7 +476,6 @@ exports.calendar = async (req, res) => {
                         next_day();
                     })().catch((error) => { });
                 }, () => {
-                    console.log("finalBookings", finalBookings);
                     return responseManager.onSuccess('all bookings', finalBookings, res);
                 });
             } else {
