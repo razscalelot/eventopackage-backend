@@ -151,7 +151,7 @@ exports.booking = async (req, res) => {
                                         let time = pHourpDaypEventCalc(item, startTimestamp, endTimestamp)
                                         items += `<tr style="text-align: left;">
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 50%;">${item.name}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(item.itemDiscountPrice ? item.itemDiscountPrice : item.price).toFixed(2)}  ${item.price_type.trim().replace('_', ' ')}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(item.itemDiscountPrice ? item.itemDiscountPrice : item.itemFinalPrice).toFixed(2)}  ${item.price_type.trim().replace('_', ' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(item.itemDiscountPrice ? item.itemDiscountPrice * item.itemCount : item.itemFinalPrice * item.itemCount).toFixed(2)}</td>
