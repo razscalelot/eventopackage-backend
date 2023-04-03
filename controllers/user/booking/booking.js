@@ -154,7 +154,7 @@ exports.booking = async (req, res) => {
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${parseFloat(item.price).toFixed(2)}  ${item.price_type.trim().replace('_', ' ')}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${time}</td>
                                                         <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 10%;">${item.itemCount}</td>
-                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(item.itemDiscountPrice ? item.itemDiscountPrice * item.itemCount : item.itemFinalPrice).toFixed(2)}</td>
+                                                        <td style="padding: 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 20%;">${parseFloat(item.itemDiscountPrice ? item.itemFinalPrice * item.itemCount : item.itemFinalPrice).toFixed(2)}</td>
                                                     </tr>`;
                                         next_item();
                                     }, () => {
@@ -555,7 +555,7 @@ exports.checkavailability = async (req, res) => {
                                 if (service.price_type == 'per_person' || service.price_type == 'per_event') {
                                     itemFinalPrice += parseInt(service.price);
                                 }
-                                service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);
+                                service.itemFinalPrice = parseFloat(itemFinalPrice).toFixed(2);                                
                                 if (discount.services.length > 0) {
                                     let itemDiscountPrice = 0;
                                     discount.services.forEach((element) => {
@@ -564,8 +564,8 @@ exports.checkavailability = async (req, res) => {
                                         }
                                     });
                                     service.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                    next_discount();
                                 }
+                                next_discount();
                             });
                             next_service();
 
@@ -592,8 +592,8 @@ exports.checkavailability = async (req, res) => {
                                             }
                                         });
                                         item.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                        next_discount();
                                     }
+                                    next_discount();
                                 });
                                 next_item();
                             }, () => {
@@ -620,8 +620,8 @@ exports.checkavailability = async (req, res) => {
                                                 }
                                             });
                                             equipment.itemDiscountPrice = parseFloat(itemDiscountPrice).toFixed(2);
-                                            next_discount();
                                         }
+                                        next_discount();
                                     });
                                     next_item();
                                 }, () => {
