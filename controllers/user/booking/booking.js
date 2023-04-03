@@ -181,10 +181,10 @@ exports.booking = async (req, res) => {
                                                     if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
-                                                            eTotalPrice = ePrice * (delta.day + 1) * item.itemCount;
+                                                            eTotalPrice = ePrice * (delta.day + 1);
                                                         } else {
                                                             eTime = delta.day + ' days';
-                                                            eTotalPrice = ePrice * delta.day * item.itemCount;
+                                                            eTotalPrice = ePrice * delta.day;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
@@ -205,10 +205,10 @@ exports.booking = async (req, res) => {
                                                     if (eType == 'per_day' || eType == 'per_person') {
                                                         if (delta.hour >= 1) {
                                                             eTime = (delta.day + 1) + ' days'
-                                                            eTotalPrice = ePrice * (delta.day + 1) * item.itemCount;
+                                                            eTotalPrice = ePrice * (delta.day + 1);
                                                         } else {
                                                             eTime = delta.day + ' days';
-                                                            eTotalPrice = ePrice * delta.day * item.itemCount;
+                                                            eTotalPrice = ePrice * delta.day;
                                                         }
                                                     }
                                                     if (eType == 'per_event') {
