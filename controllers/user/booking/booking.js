@@ -322,10 +322,6 @@ exports.booking = async (req, res) => {
                                                         <table style="width: 100%; max-width: 300px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
                                                             <tbody>
                                                             <tr style="text-align: left;">
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.GST ? parseFloat(body.GST).toFixed(2) : 0.00}</td>
-                                                            </tr>
-                                                            <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">SUB TOTAL</td>
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.subTotal).toFixed(2)}</td>
                                                             </tr>
@@ -334,9 +330,10 @@ exports.booking = async (req, res) => {
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.discountOnTotalBill).toFixed(2)}</td>
                                                             </tr>
                                                             <tr style="text-align: left;">
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
-                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${(body.fcoin) ? parseFloat(body.fcoin).toFixed(2) : 0.00}</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">GST AMOUNT</td>
+                                                                <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${body.GST ? parseFloat(body.GST).toFixed(2) : 0.00}</td>
                                                             </tr>
+                                                            
                                                             <tr style="text-align: left;">
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">NET AMOUNT</td>
                                                                 <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${parseFloat(body.totalPrice).toFixed(2)}</td>
@@ -359,6 +356,10 @@ exports.booking = async (req, res) => {
                                                     </div>
                                                 </body>
                                                 </html>`;
+                                                // <tr style="text-align: left;">
+                                                //     <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #000; font-weight: 900; width: 45%;">F-COIN</td>
+                                                //     <td style="padding: 5px 10px; border: 1px solid #363636; font-size: 12px; color: #363636; font-weight: 900; width: 55%;">${(body.fcoin) ? parseFloat(body.fcoin).toFixed(2) : 0.00}</td>
+                                                // </tr>
                                             await page.setContent(html, { waitUntil: 'domcontentloaded' });
                                             await page.emulateMediaType('screen');
                                             const ext = 'pdf';
