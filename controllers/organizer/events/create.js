@@ -57,7 +57,8 @@ exports.createevent = async (req, res) => {
                             is_approved: false,
                             is_live: false,
                             status: true,
-                            iseditable: true
+                            iseditable: true,
+                            isFormSubmitted: false
                         };
                         let createdEvent = await primary.model(constants.MODELS.events, eventModel).create(obj);
                         let eventData = await primary.model(constants.MODELS.events, eventModel).findById(createdEvent._id).populate({

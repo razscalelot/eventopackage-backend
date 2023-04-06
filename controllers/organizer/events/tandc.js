@@ -26,7 +26,7 @@ exports.tandc = async (req, res) => {
                             status: (req.body.status) ? req.body.status : false,
                         };
                         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), tandc: obj });
+                        await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), tandc: obj,  isFormSubmitted: true });
                         let eventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                         return responseManager.onSuccess('Organizer event personal data updated successfully!', eventData, res);
                     } else {
