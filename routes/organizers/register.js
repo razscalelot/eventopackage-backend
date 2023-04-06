@@ -22,6 +22,7 @@ router.post('/', async (req, res, next) => {
             let my_referCode = await helper.makeid(6);
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let checkExisting = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ $or: [{ mobile: mobile }, { email: email }] }).lean();
+            console.log("checkExisting", checkExisting);
             if (checkExisting == null) {
                 let obj = {
                     name: name,
@@ -50,6 +51,7 @@ router.post('/', async (req, res, next) => {
                     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
                 }
             } else {
+                console.log("else");
                 return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
             }
         } else {
