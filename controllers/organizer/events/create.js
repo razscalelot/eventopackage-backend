@@ -100,7 +100,7 @@ exports.getevent = async (req, res) => {
                     select: '-createdAt -updatedAt -__v -createdBy -updatedBy'
                 }).lean();
                 if (eventData && eventData != null) {
-                    return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, display_name: eventData.display_name, event_type: eventData.event_type, event_category: eventData.event_category }, res);
+                    return responseManager.onSuccess('Organizer event data!', { _id: eventData._id, display_name: eventData.display_name, event_type: eventData.event_type, event_category: eventData.event_category, isFormSubmitted: eventData.isFormSubmitted }, res);
                 } else {
                     return responseManager.badrequest({ message: 'Invalid event id get event data, please try again' }, res);
                 }
