@@ -34,7 +34,7 @@ router.post('/', async (req, res, next) => {
                     my_refer_code: my_referCode,
                     f_coin: 0,
                     fcm_token: fcm_token,
-                    is_approved: false,
+                    is_approved: true,
                     status: true,
                     mobileverified: false,
                     businessProfile: {},
