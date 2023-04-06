@@ -5,6 +5,7 @@ const responseManager = require('../../utilities/response.manager');
 const constants = require('../../utilities/constants');
 const helper = require('../../utilities/helper');
 const organizerModel = require('../../models/organizers.model');
+const agentModel = require('../../models/agents.model');
 const superadminModel = require('../../models/superadmins.model');
 const eventModel = require('../../models/events.model');
 const { default: mongoose } = require("mongoose");
@@ -32,6 +33,11 @@ router.post('/', helper.authenticateToken, async (req, res) => {
                 page,
                 limit: parseInt(limit),
                 sort: { [sortfield] : [sortoption] },
+                populate: ({
+                    path: 'agentid',
+                    model: primary.model(constants.MODELS.agents, agentModel),
+                    select: 'name email mobile country_code'
+                }),
                 lean: true
             }).then((organizersList) => {
                 return responseManager.onSuccess('organizers list!', organizersList, res);

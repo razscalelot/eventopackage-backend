@@ -80,6 +80,7 @@ const superadminpaths = [
   { pathUrl: '/promotionplans', routeFile: 'promotionplans'},
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
+  { pathUrl: '/agent', routeFile: 'agent'},
 ];
 const userpaths = [
   { pathUrl: '/', routeFile: 'index'},
