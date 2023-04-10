@@ -97,8 +97,8 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 3.1) {            
+                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                    if (filesizeinMb <= 3) {            
                         AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                             let obj = {
                                 s3_url: process.env.AWS_BUCKET_URI,
