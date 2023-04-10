@@ -14,7 +14,7 @@ exports.removeevent = async (req, res) => {
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 if (maineventData && maineventData.iseditable == true) {
-                    await primary.model(constants.MODELS.events, eventModel).findByIdAndRemove(eventid);
+                    await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, {status : false, is_approved : false, is_live : false});
                     return responseManager.onSuccess('Organizer event removed successfully!', 1, res);
                 } else {
                     return responseManager.badrequest({ message: 'Event data can not be updated as event booking started..., Please contact admin to update event data' }, res);
