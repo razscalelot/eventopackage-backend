@@ -110,7 +110,8 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
                         }).catch((error) => {
                             return responseManager.onError(error, res);
                         });
-                    } else {
+                    } else {           
+                        console.log("if", filesizeinMb);
                         return responseManager.badrequest({ message: 'Image file must be <= 3 MB, please try again' }, res);
                     }
                 } else {
