@@ -98,9 +98,7 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
                     let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    console.log("req.file.size", req.file.size)
-                    console.log("filesizeinMb", filesizeinMb)
-                    if (filesizeinMb <= 3) {
+                    if (filesizeinMb <= 4) {
                         AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                             let obj = {
                                 s3_url: process.env.AWS_BUCKET_URI,
