@@ -56,13 +56,10 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             PartNumber: String(partNum),
                             UploadId: multipart.UploadId
                         };
-                        console.log("partParams", partParams);
                         s3.uploadPart(partParams, function (multiErr, mData) {
                             if (multiErr) {
-                                console.log("multiErr", multiErr);
                                 reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
                             }
-                            console.log("mData", mData);
                             multipartMap.Parts[this.request.params.PartNumber - 1] = {
                                 ETag: mData.ETag,
                                 PartNumber: Number(this.request.params.PartNumber)
@@ -70,9 +67,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             --numPartsLeft;
                             next_ele();
                         }); 
-                    })().catch((error) => {
-                        console.log("catch error", error);
-                    });
+                    })().catch((error) => { });
                 }, async () => {
                     if (numPartsLeft == 0){    
                         var doneParams = {
@@ -83,7 +78,6 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                         };
                         s3.completeMultipartUpload(doneParams, function (err, data) {
                             if (err) {
-                                console.log("err",err)
                                 reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
                             } else {
                                 resolve({msg: 'file uploaded successfully', data: data});
@@ -115,7 +109,6 @@ async function saveToS3(buffer, parentfolder, contentType, sendorreceive){
             };
             s3.upload(putParams, (err, data) => {
                 if (err) {
-                    console.log('err', err);
                     reject(new Error({msg: 'An error occurred while completing the upload'}));
                 }else{
                     resolve({msg: 'file uploaded successfully', data: data});
