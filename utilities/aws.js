@@ -55,7 +55,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             Key: blobName,
                             PartNumber: String(partNum),
                             UploadId: multipart.UploadId,
-                            ACL: {ACL : 'public-read'}
+                            ACL : 'bucket-owner-full-control'
                         };
                         console.log("partParams", partParams);
                         s3.uploadPart(partParams, function (multiErr, mData) {
@@ -81,7 +81,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             Key: blobName,
                             MultipartUpload: multipartMap,
                             UploadId: multipart.UploadId,
-                            ExtraArgs: {ACL : 'public-read'}
+                            ACL : 'bucket-owner-full-control'
                         };
                         s3.completeMultipartUpload(doneParams, function (err, data) {
                             if (err) {
