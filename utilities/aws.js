@@ -55,7 +55,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             Key: blobName,
                             PartNumber: String(partNum),
                             UploadId: multipart.UploadId,
-                            ACL : acl
+                            // ACL : acl
                         };
                         console.log("partParams", partParams);
                         s3.uploadPart(partParams, function (multiErr, mData) {
