@@ -45,6 +45,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                     };
                     j.push(obj);
                 }
+                console.log("j", j)
                 async.forEachSeries(j, (ele, next_ele) => {
                     ( async () => {
                         partNum++;
