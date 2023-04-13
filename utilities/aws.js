@@ -61,6 +61,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             if (multiErr) {
                                 reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
                             }
+                            console.log("mData", mData);
                             multipartMap.Parts[this.request.params.PartNumber - 1] = {
                                 ETag: mData.ETag,
                                 PartNumber: Number(this.request.params.PartNumber)
