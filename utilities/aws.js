@@ -68,7 +68,9 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             --numPartsLeft;
                             next_ele();
                         }); 
-                    })().catch((error) => {});
+                    })().catch((error) => {
+                        console.log("catch error", error);
+                    });
                 }, async () => {
                     if (numPartsLeft == 0){    
                         var doneParams = {
