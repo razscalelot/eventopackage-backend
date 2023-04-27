@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 router.get('/', helper.authenticateToken, async (req, res) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true }).sort({_id: -1}).populate([
+        let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ status : true, is_live: true }).sort({_id: -1}).populate([
             {path : "event_category", model: primary.model(constants.MODELS.categories, categorieModel), select: "category_name"},
             {path : "createdBy", model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic"}            
         ]).select("-__v -othercost -services -equipments -discounts -createdAt -companydetail -tandc").lean();
