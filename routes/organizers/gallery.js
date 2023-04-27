@@ -17,7 +17,7 @@ router.get('/', helper.authenticateToken, async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
-            let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: { $ne: mongoose.Types.ObjectId(req.token.organizerid) } }).populate([
+            let imagesvideos = await primary.model(constants.MODELS.events, eventModel).find({ createdBy: { $ne: mongoose.Types.ObjectId(req.token.organizerid) }, is_live: true }).populate([
                 { path: "event_category", model: primary.model(constants.MODELS.categories, categorieModel), select: "category_name" },
                 { path: "createdBy", model: primary.model(constants.MODELS.organizers, organizerModel), select: "name profile_pic about" },
             ]).select("-__v -othercost -services -equipments -updatedBy -discounts -capcity -companydetail -tandc").lean();
