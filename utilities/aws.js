@@ -87,8 +87,12 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                         s3.completeMultipartUpload(doneParams, function (err, data) {
                             if (err) {
                                 console.log("err",err)
+                                numPartsLeft = 0;
+                                partNum = 0;
                                 reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
                             } else {
+                                numPartsLeft = 0;
+                                partNum = 0;
                                 resolve({msg: 'file uploaded successfully', data: data});
                             }
                         });
