@@ -8,9 +8,9 @@ const { error } = require('console');
 var multipartMap = {
     Parts: []
 };
-var partNum = 0;
+
 var partSize = 1024 * 1024 * 5;
-var numPartsLeft = 0;
+
 const acl = 'public-read';
 const getBlobName = (originalName) => {
     const identifier = Math.random().toString().replace(/0\./, '');
@@ -21,6 +21,8 @@ const setBlobName = (fName, extn) => {
     return `${fName}/${fName}-${identifier}.${extn}`;
 };
 async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceive) {
+    var partNum = 0;
+    var numPartsLeft = 0;
     let promise = new Promise(function(resolve, reject) {
         let newContentType = contentType.split(";");
         let blobName = "";
@@ -87,12 +89,9 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                         s3.completeMultipartUpload(doneParams, function (err, data) {
                             if (err) {
                                 console.log("err",err)
-                                numPartsLeft = 0;
-                                partNum = 0;
                                 reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
                             } else {
-                                numPartsLeft = 0;
-                                partNum = 0;
+                                
                                 resolve({msg: 'file uploaded successfully', data: data});
                             }
                         });
