@@ -48,6 +48,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                 async.forEachSeries(j, (ele, next_ele) => {
                     ( async () => {
                         partNum++;
+                        console.log("partNum", partNum);
                         var end = Math.min(ele.rangeStart + partSize, buffer.length),
                         partParams = {
                             Body: buffer.slice(ele.rangeStart, end),
@@ -68,6 +69,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                                 PartNumber: Number(this.request.params.PartNumber)
                             };
                             --numPartsLeft;
+                            console.log("numPartsLeft", numPartsLeft);
                             next_ele();
                         }); 
                     })().catch((error) => {
@@ -81,6 +83,7 @@ async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceiv
                             MultipartUpload: multipartMap,
                             UploadId: multipart.UploadId
                         };
+                        console.log("doneParams", doneParams)
                         s3.completeMultipartUpload(doneParams, function (err, data) {
                             if (err) {
                                 console.log("err",err)
