@@ -50,7 +50,38 @@ router.post('/', async (req, res, next) => {
                     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
                 }
             } else {
-                return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
+                if (checkExisting.mobileverified == false){
+                    let obj = {
+                        name: name,
+                        email: email,
+                        mobile: mobile,
+                        country_code: country_code,
+                        password: ecnPassword,
+                        profile_pic: "",
+                        refer_code: refer_code,
+                        my_refer_code: my_referCode,
+                        f_coin: 0,
+                        fcm_token: fcm_token,
+                        is_approved: true,
+                        status: true,
+                        mobileverified: false,
+                        businessProfile: {},
+                        agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
+                    };
+                    const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+                    let otpSend = await axios.get(url, config);
+                    if (otpSend.data.Details) {
+                        obj.otpVerifyKey = otpSend.data.Details;
+                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
+                        let finalorganiserData = await primary.model(constants.MODELS.organizers, organizerModel).findById(checkExisting._id).lean();
+                        await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(finalorganiserData._id, {channelID : finalorganiserData.mobile.toString() + '_' + finalorganiserData._id.toString()});
+                        return responseManager.onSuccess('Organizer register successfully!', {key : otpSend.data.Details, organizerid : finalorganiserData._id.toString()}, res);
+                    } else {
+                        return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                    }
+                }else{
+                    return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
+                }
             }
         } else {
             return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long and must contain, 1 Upper case, 1 Lower case 1 Special character, please try again' }, res);
