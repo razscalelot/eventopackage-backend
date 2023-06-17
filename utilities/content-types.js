@@ -58,4 +58,5 @@ const docarray = ['application/zip', 'text/plain', 'application/vnd.rar', 'appli
 	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 	'application/x-7z-compressed'
 ];
-module.exports = { allowedContentTypes, imagearray, docarray, audiovideoarray, videoarray };
+const imagedocarray = ['image/avif','image/webp', 'image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/vnd.microsoft.icon', 'image/tiff', 'image/svg+xml', 'application/pdf'];
+module.exports = { allowedContentTypes, imagearray, imagedocarray, docarray, audiovideoarray, videoarray };
