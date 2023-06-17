@@ -7,15 +7,15 @@ const helper = require('../../utilities/helper');
 const userModel = require('../../models/users.model');
 const organizerModel = require('../../models/organizers.model');
 const fcointransactionModel = require('../../models/fcointransactions.model');
-const mongoose = require('mongoose');
+const fcoinsModel = require('../../models/fcoins.model');
 const axios = require('axios');
 const config = {
     headers: {
         'content-type': 'application/x-www-form-urlencoded'
     }
 };
-
-router.post('/', async (req, res, next) => {
+router.post('/', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { mobile, password, fcm_token } = req.body;
     if (mobile && password && mobile.length == 10 && password.length >= 6) {
@@ -42,7 +42,12 @@ router.post('/', async (req, res, next) => {
                                 },
                                 timestamp: Date.now()
                             };
-                            await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                            let currentCoinsmain = await primary.model(constants.MODELS.fcoins, fcoinsModel).find({}).lean();
+                            if (currentCoinsmain && currentCoinsmain.length > 0) {
+                                let newCoin = parseFloat(parseFloat(currentCoinsmain[0].fcoins) - parseFloat(10));
+                                await primary.model(constants.MODELS.fcoins, fcoinsModel).findByIdAndUpdate(currentCoinsmain[0]._id, { fcoins: newCoin });
+                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                            }
                             let objrefer = {
                                 receiver_id: mongoose.Types.ObjectId(referbyuser._id),
                                 sender_id: null,
@@ -55,7 +60,12 @@ router.post('/', async (req, res, next) => {
                                 },
                                 timestamp: Date.now()
                             };
-                            await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
+                            let currentCoinsrefer = await primary.model(constants.MODELS.fcoins, fcoinsModel).find({}).lean();
+                            if (currentCoinsrefer && currentCoinsrefer.length > 0) {
+                                let newCoin = parseFloat(parseFloat(currentCoinsrefer[0].fcoins) - parseFloat(10));
+                                await primary.model(constants.MODELS.fcoins, fcoinsModel).findByIdAndUpdate(currentCoinsrefer[0]._id, { fcoins: newCoin });
+                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
+                            }
                         } else {
                             let referbyOrganiser = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ my_refer_code: userData.refer_code }).lean();
                             if (referbyOrganiser) {
@@ -73,7 +83,12 @@ router.post('/', async (req, res, next) => {
                                     },
                                     timestamp: Date.now()
                                 };
-                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                                let currentCoinsmain = await primary.model(constants.MODELS.fcoins, fcoinsModel).find({}).lean();
+                                if (currentCoinsmain && currentCoinsmain.length > 0) {
+                                    let newCoin = parseFloat(parseFloat(currentCoinsmain[0].fcoins) - parseFloat(10));
+                                    await primary.model(constants.MODELS.fcoins, fcoinsModel).findByIdAndUpdate(currentCoinsmain[0]._id, { fcoins: newCoin });
+                                    await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objmain);
+                                }
                                 let objrefer = {
                                     receiver_id: mongoose.Types.ObjectId(referbyOrganiser._id),
                                     sender_id: null,
@@ -86,14 +101,19 @@ router.post('/', async (req, res, next) => {
                                     },
                                     timestamp: Date.now()
                                 };
-                                await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
+                                let currentCoinsrefer = await primary.model(constants.MODELS.fcoins, fcoinsModel).find({}).lean();
+                                if (currentCoinsrefer && currentCoinsrefer.length > 0) {
+                                    let newCoin = parseFloat(parseFloat(currentCoinsrefer[0].fcoins) - parseFloat(10));
+                                    await primary.model(constants.MODELS.fcoins, fcoinsModel).findByIdAndUpdate(currentCoinsrefer[0]._id, { fcoins: newCoin });
+                                    await primary.model(constants.MODELS.fcointransactions, fcointransactionModel).create(objrefer);
+                                }
                             }
                         }
                     }
                 }
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: (fcm_token) ? fcm_token : '', lastloginAt: Date.now() });
                 let accessToken = await helper.generateAccessToken({ userid: userData._id.toString() });
-                return responseManager.onSuccess('User login successfully!', { token: accessToken }, res);
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { fcm_token: (fcm_token) ? fcm_token : '', lastloginAt: Date.now() });
+                return responseManager.onSuccess('User login successfully!', { token: accessToken, s3Url: process.env.AWS_BUCKET_URI }, res);
             } else {
                 return responseManager.badrequest({ message: 'Invalid password, please try again' }, res);
             }
@@ -101,13 +121,13 @@ router.post('/', async (req, res, next) => {
             const url = process.env.FACTOR_URL + userData.mobile + "/AUTOGEN";
             let otpSend = await axios.get(url, config);
             if (otpSend.data.Details) {
-                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData._id, { otpVerifyKey: otpSend.data.Details, mobileverified: true });
-                return responseManager.onSuccess('OTP send!', { key: otpSend.data.Details }, res);
+                let newkey = otpSend.data.Details;
+                await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(userData, { otpVerifyKey: newkey });
+                return responseManager.onSuccess('User otp sent for mobile verification!', { key: newkey }, res);
             } else {
                 return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
             }
-        }
-        else {
+        } else {
             return responseManager.badrequest({ message: 'Invalid mobile or password please try again' }, res);
         }
     } else {

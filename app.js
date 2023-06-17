@@ -81,6 +81,7 @@ const superadminpaths = [
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
   { pathUrl: '/eventbookingcoupons', routeFile: 'eventbookingcoupons'},
   { pathUrl: '/agent', routeFile: 'agent'},
+  { pathUrl: '/fcoin', routeFile: 'fcoin' }
 ];
 const userpaths = [
   { pathUrl: '/', routeFile: 'index'},
