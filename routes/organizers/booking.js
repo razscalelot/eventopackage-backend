@@ -52,14 +52,14 @@ router.post('/list', helper.authenticateToken, async (req, res) => {
                         page,
                         limit: parseInt(limit),
                         sort: { _id: -1 },
-                        populate: { path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profilepic' },
+                        populate: { path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profile_pic' },
                         // select: 'display_name event_type event_category timestamp status createdAt updatedAt capacity aboutplace personaldetail discounts is_live is_approved',
                         lean: true
                     }).then((bookedEvenets) => {
                         return responseManager.onSuccess("event booked list...", bookedEvenets, res);
                     }).catch((error) => {
                         return responseManager.onError(error, res);
-                    });      //.populate([{ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profilepic' }]).sort({ _id: -1 }).lean();
+                    });      //.populate([{ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profile_pic' }]).sort({ _id: -1 }).lean();
                 })().catch((error) => {
                     return responseManager.onError(error, res);
                 });

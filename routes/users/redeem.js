@@ -40,7 +40,7 @@ router.get('/history', helper.authenticateToken, async (req, res) => {
                             if(senderorganiser){
                                 redeem.sender_id = senderorganiser;
                             }else{
-                                let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profilepic').lean();
+                                let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profile_pic').lean();
                                 if(senderuser){
                                     redeem.sender_id = senderuser;
                                 }

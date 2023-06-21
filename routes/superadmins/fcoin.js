@@ -77,10 +77,10 @@ router.post('/coinsout', helper.authenticateToken, async (req, res) => {
                                 if(receiverorganiser){
                                     redeem.receiver_id = receiverorganiser;
                                 }else{
-                                    let receiveruser = await primary.model(constants.MODELS.users, userModel).findById(redeem.receiver_id).select('name email mobile profilepic').lean();
+                                    let receiveruser = await primary.model(constants.MODELS.users, userModel).findById(redeem.receiver_id).select('name email mobile profile_pic').lean();
                                     if(receiveruser){
-                                        receiveruser.profile_pic = receiveruser.profilepic;
-                                        delete receiveruser.profilepic;
+                                        receiveruser.profile_pic = receiveruser.profile_pic;
+                                        delete receiveruser.profile_pic;
                                         redeem.receiver_id = receiveruser;
                                     }
                                 }
@@ -90,10 +90,10 @@ router.post('/coinsout', helper.authenticateToken, async (req, res) => {
                                 if(senderorganiser){
                                     redeem.sender_id = senderorganiser;
                                 }else{
-                                    let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profilepic').lean();
+                                    let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.sender_id).select('name email mobile profile_pic').lean();
                                     if(senderuser){
-                                        senderuser.profile_pic = senderuser.profilepic;
-                                        delete senderuser.profilepic;
+                                        senderuser.profile_pic = senderuser.profile_pic;
+                                        delete senderuser.profile_pic;
                                         redeem.sender_id = senderuser;
                                     }
                                 }
@@ -105,10 +105,10 @@ router.post('/coinsout', helper.authenticateToken, async (req, res) => {
                                         if(receiverorganiser){
                                             redeem.refer_data.to_refer = receiverorganiser;
                                         }else{
-                                            let receiveruser = await primary.model(constants.MODELS.users, userModel).findById(redeem.refer_data.to_refer).select('name email mobile profilepic').lean();
+                                            let receiveruser = await primary.model(constants.MODELS.users, userModel).findById(redeem.refer_data.to_refer).select('name email mobile profile_pic').lean();
                                             if(receiveruser){
-                                                receiveruser.profile_pic = receiveruser.profilepic;
-                                                delete receiveruser.profilepic;
+                                                receiveruser.profile_pic = receiveruser.profile_pic;
+                                                delete receiveruser.profile_pic;
                                                 redeem.refer_data.to_refer = receiveruser;
                                             }
                                         }
@@ -118,10 +118,10 @@ router.post('/coinsout', helper.authenticateToken, async (req, res) => {
                                         if(senderorganiser){
                                             redeem.refer_data.from_refer = senderorganiser;
                                         }else{
-                                            let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.refer_data.from_refer).select('name email mobile profilepic').lean();
+                                            let senderuser = await primary.model(constants.MODELS.users, userModel).findById(redeem.refer_data.from_refer).select('name email mobile profile_pic').lean();
                                             if(senderuser){
-                                                senderuser.profile_pic = senderuser.profilepic;
-                                                delete senderuser.profilepic;
+                                                senderuser.profile_pic = senderuser.profile_pic;
+                                                delete senderuser.profile_pic;
                                                 redeem.refer_data.from_refer = senderuser;
                                             }
                                         }
