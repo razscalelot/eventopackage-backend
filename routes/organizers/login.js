@@ -15,6 +15,7 @@ const config = {
         'content-type': 'application/x-www-form-urlencoded'
     }
 };
+
 router.post('/', async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -116,6 +117,7 @@ router.post('/', async (req, res) => {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, {last_login_at : Date.now()});
                 return responseManager.onSuccess('Organizer login successfully!', {token : accessToken}, res);
             }else{
+                
                 return responseManager.badrequest({message : 'Invalid password, please try again'}, res);
             }
         }else if(organizerData && organizerData != null && organizerData.mobileverified == false){

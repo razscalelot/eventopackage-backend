@@ -2,7 +2,7 @@ let response = require('./response.manager');
 let jwt = require("jsonwebtoken");
 var CryptoJS = require("crypto-js");
 const allowedContentTypes = require("./content-types").allowedContentTypes;
-exports.makeid = (length) => {
+exports.makeid = async (length) => {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     var charactersLength = characters.length;

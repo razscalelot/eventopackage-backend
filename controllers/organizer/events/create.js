@@ -12,7 +12,6 @@ exports.createevent = async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
-            let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             if (eventid && eventid != '' && mongoose.Types.ObjectId.isValid(eventid)) {
                 let maineventData = await primary.model(constants.MODELS.events, eventModel).findById(eventid).lean();
                 if (maineventData && maineventData.iseditable == true) {
