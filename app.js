@@ -34,6 +34,8 @@ mongoose.connection.once('open', () => {
   console.log("Oops! database connection error:" + error);
 });
 app.use('/', indexRouter);
+app.use('/qrscan', require('./routes/qrscan'));
+app.use('/coin', require('./routes/qrscan'));
 const landingpaths = [
   { pathUrl: '/getintouch', routeFile: 'getintouch'},
   { pathUrl: '/events', routeFile: 'event'},
