@@ -19,6 +19,7 @@ router.post('/', async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { mobile, country_code, refer_code, fcm_token } = req.body;
+    console.log('mobile', mobile);
     if (mobile && mobile.length == 10 && country_code && country_code.trim() != '') {
         let my_referCode = await helper.makeid(6);
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -49,7 +50,18 @@ router.post('/', async (req, res) => {
                 return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
             }
         }else{
-            return responseManager.badrequest({ message: 'User already exist with same mobile, Please Login...' }, res);
+            if(checkExisting.mobileverified == false){
+                const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+                let otpSend = await axios.get(url, config);
+                if (otpSend.data.Details) {
+                    await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, {otpVerifyKey : otpSend.data.Details, channelID : checkExisting.mobile.toString() + '_' + checkExisting._id.toString()});
+                    return responseManager.onSuccess('User register successfully!', { key: otpSend.data.Details }, res);
+                } else {
+                    return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                }
+            }else{
+                return responseManager.badrequest({ message: 'User already exist with same mobile, Please Login...' }, res);
+            }
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid data to register user, please try again' }, res);
