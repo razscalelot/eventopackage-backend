@@ -15,6 +15,11 @@ router.get('/', helper.authenticateToken, async (req, res, next) => {
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
+        if(userData.name && userData.name.trim() != ''){
+            userData.isProfileUpdated = true;
+        }else{
+            userData.isProfileUpdated = false;
+        }
         userData.s3Url = process.env.AWS_BUCKET_URI;
         return responseManager.onSuccess('User profile!', userData, res);
     }else{
