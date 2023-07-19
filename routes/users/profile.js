@@ -29,11 +29,12 @@ router.get('/', helper.authenticateToken, async (req, res, next) => {
 router.post('/', helper.authenticateToken, async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, dob, city, pincode, state, country, about } = req.body;
+    const { name, email, dob, city, pincode, state, country, about } = req.body;
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let obj = {
             name : name,
+            email: email,
             dob : dob,
             city : city,
             pincode : pincode,
