@@ -44,6 +44,11 @@ router.post('/', helper.authenticateToken, async (req, res, next) => {
         };
         await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(req.token.userid, obj);
         let userData = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).select('-password').lean();
+        if(userData.name && userData.name.trim() != ''){
+            userData.isProfileUpdated = true;
+        }else{
+            userData.isProfileUpdated = false;
+        }
         userData.s3Url = process.env.AWS_BUCKET_URI;
         return responseManager.onSuccess('User profile updated successfully!', userData, res);
     }else{
