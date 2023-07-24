@@ -22,10 +22,10 @@ exports.import = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { notificationid } = req.body;
-            if (req.file && notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)) {
+            if(req.file && notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)){
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
-                if (notificationData && notificationData != null) {
-                    if (req.file.mimetype == 'text/csv') {
+                if(notificationData && notificationData != null){
+                    if(req.file.mimetype == 'text/csv'){
                         let list = await csv().fromString(req.file.buffer.toString());
                         let lengthOfList = parseInt(list.length);
                         let numberOfImports = parseInt(Math.ceil(lengthOfList / process.env.IMPORT_PARTITION_LIMIT));
@@ -44,14 +44,14 @@ exports.import = async (req, res) => {
                         let rejectedRecords = [];
                         async.forEachSeries(finalbatchArray, (batchArray, next_batchArray) => {
                             async.forEachSeries(batchArray.list, (customer, next_customer) => {
-                                (async () => {
-                                    if ((/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(customer["EmailId"]))) {
-                                        if (!isNaN(customer["MobileNumber"]) && customer["MobileNumber"].length > 10) {
-                                            if (checkForSpecialChar(customer["MobileNumber"])) {
+                                ( async () => {
+                                    if((/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(customer["EmailId"]))){
+                                        if(!isNaN(customer["MobileNumber"]) && customer["MobileNumber"].length > 10){
+                                            if(checkForSpecialChar(customer["MobileNumber"])){
                                                 rejectedCount++;
-                                                rejectedRecords.push({ message: 'Invalid Customer Mobile Number Special Chars not allowed', customer: customer });
+                                                rejectedRecords.push({message : 'Invalid Customer Mobile Number Special Chars not allowed', customer : customer});
                                                 next_customer();
-                                            } else {
+                                            }else{
                                                 customer.notificationid = mongoose.Types.ObjectId(notificationid);
                                                 customer.selected = false;
                                                 customer.createdBy = mongoose.Types.ObjectId(req.token.organizerid);
@@ -59,14 +59,14 @@ exports.import = async (req, res) => {
                                                 importCount++;
                                                 next_customer();
                                             }
-                                        } else {
+                                        }else{
                                             rejectedCount++;
-                                            rejectedRecords.push({ message: 'Invalid Customer Mobile Number', customer: customer });
+                                            rejectedRecords.push({message : 'Invalid Customer Mobile Number', customer : customer});
                                             next_customer();
                                         }
-                                    } else {
+                                    }else{
                                         rejectedCount++;
-                                        rejectedRecords.push({ message: 'Invalid Customer Email ID', customer: customer });
+                                        rejectedRecords.push({message : 'Invalid Customer Email ID', customer : customer});
                                         next_customer();
                                     }
                                 })().catch((error) => {
@@ -76,18 +76,16 @@ exports.import = async (req, res) => {
                                 next_batchArray();
                             });
                         }, () => {
-                            return responseManager.onSuccess('File uploaded successfully!', { importCount: importCount, rejectedCount: rejectedCount, rejectedRecords: rejectedRecords }, res);
+                            return responseManager.onSuccess('File uploaded successfully!', {importCount : importCount, rejectedCount : rejectedCount, rejectedRecords : rejectedRecords}, res);
                         });
-                    } else {
+                    }else{
                         return responseManager.badrequest({ message: 'Invalid file type to import users only CSV file allowed, please try again' }, res);
                     }
-                } else {
+                }else{
                     return responseManager.badrequest({ message: 'Invalid notificationid to import users, please try again' }, res);
                 }
-            } else {
-                return responseManager.badrequest({ message: 'Invalid notificationid to import users, please try again' }, res);
             }
-        } else {
+        }else {
             return responseManager.badrequest({ message: 'Invalid organizerid to set notification schedule, please try again' }, res);
         }
     } else {
