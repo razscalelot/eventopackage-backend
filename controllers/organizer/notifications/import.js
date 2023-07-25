@@ -22,7 +22,7 @@ exports.import = async (req, res) => {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findById(req.token.organizerid).select('-password').lean();
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             const { notificationid } = req.body;
-            if(req.file && notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)){
+            if(req.file && req.file != '' && notificationid && notificationid != '' && mongoose.Types.ObjectId.isValid(notificationid)){
                 let notificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                 if(notificationData && notificationData != null){
                     if(req.file.mimetype == 'text/csv'){
@@ -84,6 +84,8 @@ exports.import = async (req, res) => {
                 }else{
                     return responseManager.badrequest({ message: 'Invalid notificationid to import users, please try again' }, res);
                 }
+            }else{
+                return responseManager.badrequest({ message: 'Invalid notificationid or excel to import users, please try again' }, res);
             }
         }else {
             return responseManager.badrequest({ message: 'Invalid organizerid to set notification schedule, please try again' }, res);
