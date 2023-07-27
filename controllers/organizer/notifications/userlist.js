@@ -22,7 +22,7 @@ exports.userlist = async (req, res) => {
                 }, {
                     page,
                     limit: parseInt(limit),
-                    sort: { _id: -1 },
+                    // sort: { _id: -1 },
                     lean: true,
                     select : "-createdBy -__v -updatedAt -createdAt"
                 }).then((users) => {
