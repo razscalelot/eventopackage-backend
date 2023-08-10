@@ -58,6 +58,7 @@ const organizerpaths = [
   { pathUrl: '/gallery', routeFile: 'gallery' },
   { pathUrl: '/promotionplan', routeFile: 'promotionplan'},
   { pathUrl: '/notification', routeFile: 'notification'},
+  { pathUrl: '/promotion', routeFile: 'promotion'},
   { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
   { pathUrl: '/redeem', routeFile: 'redeem' },
   { pathUrl: '/search', routeFile: 'search'},
@@ -128,15 +129,13 @@ userpaths.forEach((path) => {
 agentpaths.forEach((path) => {
 	app.use('/agent'+path.pathUrl, require('./routes/agent/' + path.routeFile));
 });
-// app.get("/encrypet", async (req,res) => {
-//   let str = '123456789';
-//   let encPass = await helper.passwordEncryptor(str);
-//   console.log('encPass', encPass);
-//   res.json({encPass : encPass});
-// });
 app.use(function(req, res, next) {
   next(createError(404));
 });
+// let decPassword = helper.passwordDecryptor('U2FsdGVkX182jqIzsQtECJFnZ2x83wgBhRvIMEKrRBposc/+w0tDiXPNWN8sYGVHjBMPu5RfQMbtD5T2dJFcb3F29m8X1FoL3A6WjNKNEvqLMNBrYjz5yNNTnG0Mfolsm+hzF2EHZKwD8EMZf0BSJg==');
+// console.log("decPassword", decPassword);
+// let ecnPassword = helper.passwordEncryptor('Raj@1994');
+// console.log("ecnPassword", ecnPassword);
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

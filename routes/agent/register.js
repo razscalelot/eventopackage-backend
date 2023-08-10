@@ -36,13 +36,40 @@ router.post('/', async (req, res) => {
                 let otpSend = await axios.get(url, config);
                 if (otpSend.data.Details) {
                     obj.otpVerifyKey = otpSend.data.Details;
-                    await primary.model(constants.MODELS.agents, agentModel).create(obj);
+                    let agentData = await primary.model(constants.MODELS.agents, agentModel).create(obj);
+                    await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(agentData._id, {channelID : agentData.mobile.toString() + '_' + agentData._id.toString()});
                     return responseManager.onSuccess('Agent register successfully!', { key: otpSend.data.Details }, res);
                 } else {
                     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
                 }
             } else {
-                return responseManager.badrequest({ message: 'Agent already exist with same mobile or email, Please try again...' }, res);
+                if (checkExisting.mobileverified == false) {
+                    let obj = {
+                        name: (name) ? name.trim() : '',
+                        email: (email) ? email.trim() : '',
+                        mobile: (mobile) ? mobile.trim() : '',
+                        country_code: (country_code) ? country_code.trim() : '',
+                        country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
+                        password: ecnPassword,
+                        fcm_token: (fcm_token && fcm_token != '') ? fcm_token.trim() : '',
+                        is_approved: true,
+                        status: true,
+                        mobileverified: false
+                    };
+                    const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+                    let otpSend = await axios.get(url, config);
+                    if (otpSend.data.Details) {
+                        obj.otpVerifyKey = otpSend.data.Details;
+                        await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(checkExisting._id, obj);
+                        let finalagentData = await primary.model(constants.MODELS.agents, agentModel).findById(checkExisting._id).lean();
+                        await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(finalagentData._id, { channelID: finalagentData.mobile.toString() + '_' + finalagentData._id.toString() });
+                        return responseManager.onSuccess('Agent register successfully!', { key: otpSend.data.Details, agentid: finalagentData._id.toString() }, res);
+                    } else {
+                        return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                    }
+                } else {
+                    return responseManager.badrequest({ message: 'Agent already exist with same mobile or email, Please try again...' }, res);
+                }
             }
         } else {
             return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long and must contain, 1 Upper case, 1 Lower case 1 Special character, please try again' }, res);
