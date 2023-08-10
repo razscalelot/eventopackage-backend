@@ -73,7 +73,7 @@ router.post('/', async (req, res) => {
                 }
             }
         } else {
-            return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long and must contain, 1 Upper case, 1 Lower case 1 Special character, please try again' }, res);
+            return responseManager.badrequest({ message: 'Make sure your password is of at least 8 characters long, please try again' }, res);
         }
     } else {
         return responseManager.badrequest({ message: 'Invalid data to register agent, please try again' }, res);
