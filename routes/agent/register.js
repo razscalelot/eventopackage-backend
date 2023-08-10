@@ -14,9 +14,9 @@ const config = {
 router.post('/', async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, mobile, country_code, password, fcm_token } = req.body;
+    const { name, email, mobile, country_code, password, fcm_token, country_wise_contact } = req.body;
     if (name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && mobile && mobile.length == 10 && country_code && country_code.trim() != '' && password) {
-        if ((/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,100}$/.test(password))) {
+        if (password.length >= 8) {
             let ecnPassword = await helper.passwordEncryptor(password);
             let primary = mongoConnection.useDb(constants.DEFAULT_DB);
             let checkExisting = await primary.model(constants.MODELS.agents, agentModel).findOne({ $or: [{ mobile: mobile }, { email: email }] }).lean();
@@ -26,6 +26,7 @@ router.post('/', async (req, res) => {
                     email: email,
                     mobile: mobile,
                     country_code: country_code,
+                    country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                     password: ecnPassword,
                     fcm_token: (fcm_token && fcm_token != '') ? fcm_token : '',
                     is_approved: true,
