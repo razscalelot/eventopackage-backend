@@ -48,7 +48,7 @@ const allowedContentTypes = [
 ];
 const imagearray = ['image/webp', 'image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/vnd.microsoft.icon', 'image/tiff', 'image/svg+xml'];
 const audiovideoarray = ['audio/mpeg', 'audio/aac', 'audio/wav', 'audio/opus', 'audio/amr', 'audio/ogg', 'video/x-msvideo', 'video/mp4', 'video/webm', 'audio/webm', 'video/3gpp', 'audio/3gpp', 'video/3gpp2', 'audio/3gpp2'];
-const videoarray = ['video/x-f4v','video/x-matroska','video/x-msvideo', 'video/mp4', 'video/webm', 'audio/webm', 'video/3gpp', 'audio/3gpp', 'video/3gpp2', 'audio/3gpp2', 'video/x-ms-wmv', 'video/quicktime', 'video/MP2T', 'video/x-flv', 'video/MOV'];
+const videoarray = ['video/x-f4v','video/x-matroska','video/x-msvideo', 'video/mp4', 'video/webm', 'audio/webm', 'video/3gpp', 'audio/3gpp', 'video/3gpp2', 'audio/3gpp2', 'video/x-ms-wmv', 'video/quicktime', 'video/MP2T', 'video/x-flv', 'video/mov'];
 const docarray = ['application/zip', 'text/plain', 'application/vnd.rar', 'application/pdf', 'text/csv',
 	'application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint',
 	'application/x-tar', 'application/vnd.oasis.opendocument.presentation',
