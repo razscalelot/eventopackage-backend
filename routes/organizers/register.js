@@ -15,7 +15,7 @@ const config = {
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, mobile, country_code, password, refer_code, fcm_token, agentid } = req.body;
+    const { name, email, mobile, isocode, country_code, password, refer_code, fcm_token, agentid } = req.body;
     if (name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && mobile && mobile.length == 10 && country_code && country_code.trim() != '' && password) {
         if ((/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,100}$/.test(password))) {
             let ecnPassword = await helper.passwordEncryptor(password);
@@ -27,6 +27,7 @@ router.post('/', async (req, res, next) => {
                     name: name,
                     email: email,
                     mobile: mobile,
+                    isocode: (isocode) ? isocode.trim() : '',
                     country_code: country_code,
                     password: ecnPassword,
                     profile_pic: "",
@@ -55,6 +56,7 @@ router.post('/', async (req, res, next) => {
                         name: name,
                         email: email,
                         mobile: mobile,
+                        isocode: (isocode) ? isocode.trim() : '',
                         country_code: country_code,
                         password: ecnPassword,
                         profile_pic: "",
