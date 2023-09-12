@@ -124,7 +124,7 @@ router.post('/', helper.authenticateToken, async (req, res) => {
                     next_imagevideo();
                 }, () => {
                     let finalfinalArray = (type) ? allEventsImageVideo.filter((e) => e.type === type).slice((page - 1) * limit, page * limit) : allEventsImageVideo.slice((page - 1) * limit, page * limit);
-                    // let finalfinalArray = allEventsImageVideo.filter((e) => e.type === type).slice((page - 1) * limit, page * limit);
+                    // let finalfinalArray = allEventsImageVideo.slice((page - 1) * limit, page * limit);
                     return responseManager.onSuccess("Gallery List", finalfinalArray, res);
                 });
             } else {

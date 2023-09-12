@@ -5,7 +5,9 @@ const notificationModel = require("../../../models/notifications.model");
 const organizerModel = require('../../../models/organizers.model');
 const eventbookingModel = require('../../../models/eventbookings.model');
 const userModel = require('../../../models/users.model');
-const async = require('async');
+const customerimportsModel = require('../../../models/customerimports.model');
+const promotionexistingusersModel = require('../../../models/promotionexistingusers.model');
+const async = require('async'); 
 const mongoose = require('mongoose');
 exports.selectusertype = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
@@ -20,7 +22,7 @@ exports.selectusertype = async (req, res) => {
                         if (usertype == 'haveyouplace' || usertype == 'personalskillsbusiness' || usertype == 'groupskillsbusiness' || usertype == 'allusers' || usertype == 'existingusers') {
                             if (usertype == 'haveyouplace') {
                                 let haveyouplaceusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ event_type: 'have_you_places' }).select('userid').distinct('userid').lean();
-                                let totalhaveyouplaceusers = parseInt(haveyouplaceusers.length) + 5000;
+                                let totalhaveyouplaceusers = parseInt(haveyouplaceusers.length);
                                 return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalhaveyouplaceusers: totalhaveyouplaceusers }, res);
                             } else if (usertype == 'personalskillsbusiness') {
                                 let personalskillsbusinessusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ event_type: 'personal_skills_business' }).select('userid').distinct('userid').lean();
@@ -31,32 +33,56 @@ exports.selectusertype = async (req, res) => {
                                 let totalgroupskillsbusinessusers = parseInt(groupskillsbusinessusers.length) + 5000;
                                 return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalgroupskillsbusinessusers: totalgroupskillsbusinessusers }, res);
                             } else if (usertype == 'allusers') {
-                                let alleventbookingsusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({}).select('userid').distinct('userid').lean();
-                                let userids = [];
-                                async.forEachSeries(alleventbookingsusers, (bookingsusers, next_bookingsusers) => {
-                                    if (!(userids.includes(bookingsusers.toString()))) {
-                                        userids.push(bookingsusers.toString());
-                                    }
-                                    next_bookingsusers();
-                                }, () => {
-                                    return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalusers: parseInt(userids.length) }, res);
-                                });                                
+                                let totalOrganisers = await primary.model(constants.MODELS.organizers, organizerModel).find({"mobileverified" : true, "is_approved" : true}).select('_id name email mobile').lean();
+                                let totalUsers = await primary.model(constants.MODELS.users, userModel).find({"mobileverified" : true, "status" : true}).select('_id name email mobile').lean();
+                                let total = parseInt(parseInt(totalOrganisers.length) + parseInt(totalUsers.length));
+                                return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalusers: parseInt(total) }, res);                              
                             } else if (usertype == 'existingusers') {
-                                let alleventbookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({}).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profile_pic' }).lean();
-                                let userids = [];
-                                let userData = [];
-                                async.forEachOfSeries(alleventbookings, (eventuser, next_eventuser) => {
-                                    (async () => {
-                                        if (!(userids.includes(eventuser.toString()))) {
-                                            userids.push(eventuser.toString());
-                                            let userdata = await primary.model(constants.MODELS.users, userModel).findById(eventuser.toString()).lean();
-                                            userData.push(userdata);
+                                let alreadyImportedCustomers = await primary.model(constants.MODELS.customerimports, customerimportsModel).find({notificationid : mongoose.Types.ObjectId(notificationid)}).lean();
+                                let allOrganisers = await primary.model(constants.MODELS.organizers, organizerModel).find({"mobileverified" : true, "is_approved" : true}).select('_id name email country_code mobile profile_pic').lean();
+                                let allUsers = await primary.model(constants.MODELS.users, userModel).find({"mobileverified" : true, "status" : true}).select('_id name email country_code mobile profilepic').lean();
+                                let alreadyselectedusersandorg = await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findOne({notificationid : mongoose.Types.ObjectId(notificationid)}).lean();
+                                if(alreadyselectedusersandorg && alreadyselectedusersandorg != null && alreadyselectedusersandorg != undefined){
+                                    let finalOrganiser = [];
+                                    let finalUser = [];
+                                    async.forEachSeries(allOrganisers, (organizer, next_organizer) => {
+                                        if(alreadyselectedusersandorg && alreadyselectedusersandorg.organizers && alreadyselectedusersandorg.organizers.length > 0 && alreadyselectedusersandorg.organizers.includes(organizer._id.toString())){
+                                            organizer.selected = true;
+                                        }else{
+                                            organizer.selected = false;
                                         }
-                                        next_eventuser();
-                                    })().catch((error) => { });
-                                }, () => {
-                                    return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalexistingusers: userData }, res);
-                                });
+                                        finalOrganiser.push(organizer);
+                                        next_organizer();
+                                    }, () => {
+                                        async.forEachSeries(allUsers, (user, next_user) => {
+                                            if(alreadyselectedusersandorg && alreadyselectedusersandorg.users && alreadyselectedusersandorg.users.length > 0 && alreadyselectedusersandorg.users.includes(user._id.toString())){
+                                                user.selected = true;
+                                            }else{
+                                                user.selected = false;
+                                            }
+                                            finalUser.push(user);
+                                            next_user();
+                                        }, () => {
+                                            return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, exceluser : alreadyImportedCustomers, organizer : finalOrganiser, user : finalUser}, res);
+                                        });
+                                    });
+                                }else{
+                                    let finalOrganiser = [];
+                                    let finalUser = [];
+                                    async.forEachSeries(allOrganisers, (organizer, next_organizer) => {
+                                        organizer.selected = false;
+                                        finalOrganiser.push(organizer);
+                                        next_organizer();
+                                    }, () => {
+                                        async.forEachSeries(allUsers, (user, next_user) => {
+                                            user.selected = false;
+                                            finalUser.push(user);
+                                            next_user();
+                                        }, () => {
+                                            return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, exceluser : alreadyImportedCustomers, organizer : finalOrganiser, user : finalUser}, res);
+                                        });
+                                    });
+                                }
                             }
                         } else {
                             return responseManager.badrequest({ message: 'Invalid notification usertype allowed types are have you places, personal skills business, group skills business, alluser and existinguser, please try again' }, res);
@@ -67,43 +93,67 @@ exports.selectusertype = async (req, res) => {
                             let updatednotificationData = await primary.model(constants.MODELS.notifications, notificationModel).findById(notificationid).lean();
                             if (usertype == 'haveyouplace') {
                                 let haveyouplaceusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ event_type: 'have_you_places' }).select('userid').distinct('userid').lean();
-                                let totalhaveyouplaceusers = parseInt(haveyouplaceusers.length) + 5000;
+                                let totalhaveyouplaceusers = parseInt(haveyouplaceusers.length);
                                 return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: updatednotificationData, totalhaveyouplaceusers: totalhaveyouplaceusers }, res);
                             } else if (usertype == 'personalskillsbusiness') {
                                 let personalskillsbusinessusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ event_type: 'personal_skills_business' }).select('userid').distinct('userid').lean();
-                                let totalpersonalskillsbusinessusers = parseInt(personalskillsbusinessusers.length) + 5000;
+                                let totalpersonalskillsbusinessusers = parseInt(personalskillsbusinessusers.length);
                                 return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: updatednotificationData, totalpersonalskillsbusinessusers: totalpersonalskillsbusinessusers }, res);
                             } else if (usertype == 'groupskillsbusiness') {
                                 let groupskillsbusinessusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({ event_type: 'group_skills_business' }).select('userid').distinct('userid').lean();
-                                let totalgroupskillsbusinessusers = parseInt(groupskillsbusinessusers.length) + 5000;
+                                let totalgroupskillsbusinessusers = parseInt(groupskillsbusinessusers.length);
                                 return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: updatednotificationData, totalgroupskillsbusinessusers: totalgroupskillsbusinessusers }, res);
                             } else if (usertype == 'allusers') {
-                                let alleventbookingsusers = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({}).select('userid').distinct('userid').lean();
-                                let userids = [];
-                                async.forEachSeries(alleventbookingsusers, (bookingsusers, next_bookingsusers) => {
-                                    if (!(userids.includes(bookingsusers.toString()))) {
-                                        userids.push(bookingsusers.toString());
-                                    }
-                                    next_bookingsusers();
-                                }, () => {
-                                    return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, totalusers: parseInt(userids.length) }, res);
-                                });
+                                let totalOrganisers = await primary.model(constants.MODELS.organizers, organizerModel).find({"mobileverified" : true, "is_approved" : true}).select('_id name email mobile').lean();
+                                let totalUsers = await primary.model(constants.MODELS.users, userModel).find({"mobileverified" : true, "status" : true}).select('_id name email mobile').lean();
+                                let total = parseInt(parseInt(totalOrganisers.length) + parseInt(totalUsers.length));
+                                return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: updatednotificationData, totalusers: parseInt(total) }, res);
                             } else if (usertype == 'existingusers') {
-                                let alleventbookings = await primary.model(constants.MODELS.eventbookings, eventbookingModel).find({}).populate({ path: 'userid', model: primary.model(constants.MODELS.users, userModel), select: 'name email mobile country_code profile_pic' }).lean();
-                                let userids = [];
-                                let userData = [];
-                                async.forEachOfSeries(alleventbookings, (eventuser, next_eventuser) => {
-                                    (async () => {
-                                        if (!(userids.includes(eventuser._id.toString()))) {
-                                            userids.push(eventuser.toString());
-                                            let userdata = await primary.model(constants.MODELS.users, userModel).findById(eventuser.toString()).lean();
-                                            userData.push(userdata);
+                                let alreadyImportedCustomers = await primary.model(constants.MODELS.customerimports, customerimportsModel).find({notificationid : mongoose.Types.ObjectId(notificationid)}).lean();
+                                let allOrganisers = await primary.model(constants.MODELS.organizers, organizerModel).find({"mobileverified" : true, "is_approved" : true}).select('_id name email country_code mobile profile_pic').lean();
+                                let allUsers = await primary.model(constants.MODELS.users, userModel).find({"mobileverified" : true, "status" : true}).select('_id name email country_code mobile profilepic').lean();
+                                let alreadyselectedusersandorg = await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findOne({notificationid : mongoose.Types.ObjectId(notificationid)}).lean();
+                                if(alreadyselectedusersandorg && alreadyselectedusersandorg != null && alreadyselectedusersandorg != undefined){
+                                    let finalOrganiser = [];
+                                    let finalUser = [];
+                                    async.forEachSeries(allOrganisers, (organizer, next_organizer) => {
+                                        if(alreadyselectedusersandorg && alreadyselectedusersandorg.organizers && alreadyselectedusersandorg.organizers.length > 0 && alreadyselectedusersandorg.organizers.includes(organizer._id.toString())){
+                                            organizer.selected = true;
+                                        }else{
+                                            organizer.selected = false;
                                         }
-                                        next_eventuser();
-                                    })().catch((error) => { });
-                                }, () => {
-                                    return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: updatednotificationData, totalexistingusers: userData }, res);
-                                });
+                                        finalOrganiser.push(organizer);
+                                        next_organizer();
+                                    }, () => {
+                                        async.forEachSeries(allUsers, (user, next_user) => {
+                                            if(alreadyselectedusersandorg && alreadyselectedusersandorg.users && alreadyselectedusersandorg.users.length > 0 && alreadyselectedusersandorg.users.includes(user._id.toString())){
+                                                user.selected = true;
+                                            }else{
+                                                user.selected = false;
+                                            }
+                                            finalUser.push(user);
+                                            next_user();
+                                        }, () => {
+                                            return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, exceluser : alreadyImportedCustomers, organizer : finalOrganiser, user : finalUser}, res);
+                                        });
+                                    });
+                                }else{
+                                    let finalOrganiser = [];
+                                    let finalUser = [];
+                                    async.forEachSeries(allOrganisers, (organizer, next_organizer) => {
+                                        organizer.selected = false;
+                                        finalOrganiser.push(organizer);
+                                        next_organizer();
+                                    }, () => {
+                                        async.forEachSeries(allUsers, (user, next_user) => {
+                                            user.selected = false;
+                                            finalUser.push(user);
+                                            next_user();
+                                        }, () => {
+                                            return responseManager.onSuccess('Promotion user type set successfully', { notificationdata: notificationData, exceluser : alreadyImportedCustomers, organizer : finalOrganiser, user : finalUser}, res);
+                                        });
+                                    });
+                                }
                             }
                         } else {
                             return responseManager.badrequest({ message: 'Invalid notification usertype allowed types are have you places, personal skills business, group skills business, alluser and existinguser, please try again' }, res);

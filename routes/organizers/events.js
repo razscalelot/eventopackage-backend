@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var sizeOf = require('buffer-image-size');
 const helper = require('../../utilities/helper');
 const organizerModel = require('../../models/organizers.model');
 const eventModel = require('../../models/events.model');
@@ -97,19 +98,24 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
-                    if (filesizeinMb <= 3) {            
-                        AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
-                            let obj = {
-                                s3_url: process.env.AWS_BUCKET_URI,
-                                url: result.data.Key
-                            };
-                            return responseManager.onSuccess('File uploaded successfully!', obj, res);
-                        }).catch((error) => {
-                            return responseManager.onError(error, res);
-                        });
-                    } else {           
-                        return responseManager.badrequest({ message: 'Image file must be <= 3 MB, please try again' }, res);
+                    var dimensions = sizeOf(req.file.buffer);
+                    if ((dimensions.height >= parseInt(process.env.ALLOWED_IAMGE_HEIGHT)) && (dimensions.width >= parseInt(process.env.ALLOWED_IMAGE_WIDTH))) {
+                        let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                        if (filesizeinMb <= 3) {
+                            AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
+                                let obj = {
+                                    s3_url: process.env.AWS_BUCKET_URI,
+                                    url: result.data.Key
+                                };
+                                return responseManager.onSuccess('File uploaded successfully!', obj, res);
+                            }).catch((error) => {
+                                return responseManager.onError(error, res);
+                            });
+                        } else {
+                            return responseManager.badrequest({ message: 'Image file must be <= 3 MB, please try again' }, res);
+                        }
+                    } else {
+                        return responseManager.badrequest({ message: 'Image file must have Height >= ' + process.env.ALLOWED_IAMGE_HEIGHT + ' and Width >= ' + process.env.ALLOWED_IMAGE_WIDTH + ' , please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only image files allowed, please try again' }, res);
@@ -177,19 +183,24 @@ router.post('/banner', helper.authenticateToken, fileHelper.memoryUpload.single(
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 10) {
-                        AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
-                            let obj = {
-                                s3_url: process.env.AWS_BUCKET_URI,
-                                url: result.data.Key
-                            };
-                            return responseManager.onSuccess('File uploaded successfully!', obj, res);
-                        }).catch((error) => {
-                            return responseManager.onError(error, res);
-                        });
+                    var dimensions = sizeOf(req.file.buffer);
+                    if ((dimensions.height >= parseInt(process.env.ALLOWED_BANNER_HEIGHT)) && (dimensions.width >= parseInt(process.env.ALLOWED_BANNER_WIDTH))) {
+                        let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
+                        if (filesizeinMb <= 10) {
+                            AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
+                                let obj = {
+                                    s3_url: process.env.AWS_BUCKET_URI,
+                                    url: result.data.Key
+                                };
+                                return responseManager.onSuccess('File uploaded successfully!', obj, res);
+                            }).catch((error) => {
+                                return responseManager.onError(error, res);
+                            });
+                        } else {
+                            return responseManager.badrequest({ message: 'Banner file must be <= 10 MB, please try again' }, res);
+                        }
                     } else {
-                        return responseManager.badrequest({ message: 'Banner file must be <= 10 MB, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Banner file must have height >= ' + process.env.ALLOWED_BANNER_HEIGHT + ' and width >= ' + process.env.ALLOWED_BANNER_WIDTH + ' , please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only image files allowed, please try again' }, res);

@@ -28,7 +28,8 @@ let constants = {
         fcointransactions : 'fcointransactions',
         fcoinintransactions: 'fcoinintransactions',
         agents : 'agents',
-        fcoins : 'fcoins'
+        fcoins : 'fcoins',
+        promotionexistingusers : 'promotionexistingusers'
     }
 };
 module.exports = constants;

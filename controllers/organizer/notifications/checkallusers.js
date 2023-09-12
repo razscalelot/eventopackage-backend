@@ -4,6 +4,8 @@ const constants = require('../../../utilities/constants');
 const notificationModel = require("../../../models/notifications.model");
 const customerimportModel = require("../../../models/customerimports.model");
 const organizerModel = require('../../../models/organizers.model');
+const userModel = require('../../../models/users.model');
+const promotionexistingusersModel = require('../../../models/promotionexistingusers.model');
 const mongoose = require('mongoose');
 exports.checkalluser = async (req, res) => {
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
@@ -16,9 +18,40 @@ exports.checkalluser = async (req, res) => {
                 if (notificationData && notificationData.payment == false && notificationData.createdBy.toString() == req.token.organizerid.toString()) {
                     if(is_selected_all == true){
                         await primary.model(constants.MODELS.customerimports, customerimportModel).updateMany({notificationid : mongoose.Types.ObjectId(notificationid)}, {selected : true});
-                        return responseManager.onSuccess('Promotion all users selected successfully', 1, res);
+                        let finalOraganizer = [];
+                        let finalUser = [];
+                        let allOrganisers = await primary.model(constants.MODELS.organizers, organizerModel).find({"mobileverified" : true, "is_approved" : true}).select('_id').lean();
+                        let allUsers = await primary.model(constants.MODELS.users, userModel).find({"mobileverified" : true, "status" : true}).select('_id').lean();
+                        async.forEachSeries(allOrganisers, (organizer, next_organizer) => {
+                            finalOraganizer.push(organizer._id.toString());
+                            next_organizer();
+                        }, () => {
+                            async.forEachSeries(allUsers, (user, next_user) => {
+                                finalUser.push(user._id.toString());
+                                next_user();
+                            }, () => {
+                                ( async () => {
+                                    let existingpromotionexistingusers = await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findOne({"notificationid" : mongoose.Types.ObjectId(notificationid)}).lean();
+                                    if(existingpromotionexistingusers && existingpromotionexistingusers != null && existingpromotionexistingusers != undefined){
+                                        await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findByIdAndUpdate(existingpromotionexistingusers._id, {organizers : finalOraganizer, users : finalUser});
+                                    }else{
+                                        let obj = {
+                                            notificationid : new mongoose.Types.ObjectId(notificationid),
+                                            organizers : finalOraganizer,
+                                            users : finalUser
+                                        };
+                                        await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).create(obj);
+                                    }
+                                    return responseManager.onSuccess('Promotion all users selected successfully', 1, res);
+                                })().catch((error) => {});
+                            });
+                        });
                     }else if(is_selected_all == false){
                         await primary.model(constants.MODELS.customerimports, customerimportModel).updateMany({notificationid : mongoose.Types.ObjectId(notificationid)}, {selected : false});
+                        let existingpromotionexistingusers = await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findOne({"notificationid" : mongoose.Types.ObjectId(notificationid)}).lean();
+                        if(existingpromotionexistingusers && existingpromotionexistingusers != null && existingpromotionexistingusers != undefined){
+                            await primary.model(constants.MODELS.promotionexistingusers, promotionexistingusersModel).findByIdAndUpdate(existingpromotionexistingusers._id, {organizers : [], users : []});
+                        }
                         return responseManager.onSuccess('Promotion all users unselected successfully', 1, res);
                     }else{
                         return responseManager.badrequest({ message: 'Invalid option to select unselect all user, please try again' }, res);
