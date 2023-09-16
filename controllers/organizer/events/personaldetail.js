@@ -23,7 +23,6 @@ exports.personaldetail = async (req, res) => {
                                         full_name: (req.body.full_name) ? req.body.full_name : '',
                                         country_code: (req.body.country_code) ? req.body.country_code : '',
                                         mobile: (req.body.mobile) ? req.body.mobile : '',
-                                        isocode: (req.body.isocode) ? req.body.isocode.trim() : '',
                                         is_mobile_hidden: (req.body.is_mobile_hidden) ? req.body.is_mobile_hidden : false,
                                         alt_mobile_no: (req.body.alt_mobile_no) ? req.body.alt_mobile_no : '',
                                         alt_mobile_hidden: (req.body.alt_mobile_hidden) ? req.body.alt_mobile_hidden : '',
@@ -39,7 +38,9 @@ exports.personaldetail = async (req, res) => {
                                         area: (req.body.area) ? req.body.area : '',
                                         city: (req.body.city) ? req.body.city : '',
                                         state: (req.body.state) ? req.body.state : '',
-                                        pincode: (req.body.pincode) ? req.body.pincode : ''
+                                        pincode: (req.body.pincode) ? req.body.pincode : '',
+                                        country_wise_contact : (req.body.country_wise_contact) ? req.body.country_wise_contact : {},
+                                        alt_country_wise_contact : (req.body.alt_country_wise_contact) ? req.body.alt_country_wise_contact : {}
                                     };
                                     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
                                     await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), personaldetail: obj });
@@ -74,7 +75,9 @@ exports.personaldetail = async (req, res) => {
                                     area: (req.body.area) ? req.body.area : '',
                                     city: (req.body.city) ? req.body.city : '',
                                     state: (req.body.state) ? req.body.state : '',
-                                    pincode: (req.body.pincode) ? req.body.pincode : ''
+                                    pincode: (req.body.pincode) ? req.body.pincode : '',
+                                    country_wise_contact : (req.body.country_wise_contact) ? req.body.country_wise_contact : {},
+                                    alt_country_wise_contact : (req.body.alt_country_wise_contact) ? req.body.alt_country_wise_contact : {}
                                 };
                                 let primary = mongoConnection.useDb(constants.DEFAULT_DB);
                                 await primary.model(constants.MODELS.events, eventModel).findByIdAndUpdate(eventid, { updatedBy: mongoose.Types.ObjectId(req.token.organizerid), personaldetail: obj });

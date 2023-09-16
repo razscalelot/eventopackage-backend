@@ -19,7 +19,7 @@ exports.companydetail = async (req, res) => {
                         gst: (req.body.gst) ? req.body.gst : '',
                         country_code: (req.body.country_code) ? req.body.country_code : '',
                         mobile: (req.body.mobile) ? req.body.mobile : '',
-                        isocode: (req.body.isocode) ? req.body.isocode.trim() : '',
+                        country_wise_contact : (req.body.country_wise_contact) ? req.body.country_wise_contact : {},
                         email: (req.body.email) ? req.body.email : '',
                         about: (req.body.about) ? req.body.about : '',
                         flat_no: (req.body.flat_no) ? req.body.flat_no : '',

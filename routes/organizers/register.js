@@ -15,7 +15,7 @@ const config = {
 router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const { name, email, mobile, isocode, country_code, password, refer_code, fcm_token, agentid } = req.body;
+    const { name, email, mobile, isocode, country_code, password, refer_code, fcm_token, agentid, country_wise_contact } = req.body;
     if (name && name.trim() != '' && email && email.trim() != '' && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) && mobile && mobile.length == 10 && country_code && country_code.trim() != '' && password) {
         if ((/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,100}$/.test(password))) {
             let ecnPassword = await helper.passwordEncryptor(password);
@@ -39,6 +39,7 @@ router.post('/', async (req, res, next) => {
                     status: true,
                     mobileverified: false,
                     businessProfile: {},
+                    country_wise_contact : (country_wise_contact) ? country_wise_contact : {},
                     agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                 };
                 const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
@@ -68,6 +69,7 @@ router.post('/', async (req, res, next) => {
                         status: true,
                         mobileverified: false,
                         businessProfile: {},
+                        country_wise_contact : (country_wise_contact) ? country_wise_contact : {},
                         agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                     };
                     const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
