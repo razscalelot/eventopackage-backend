@@ -45,7 +45,6 @@ router.post('/', helper.authenticateToken, async (req, res, next) => {
                 city: city,
                 state: state,
                 pincode: pincode,
-                country_wise_contact : (country_wise_contact) ? country_wise_contact : {},
                 updatedBy: mongoose.Types.ObjectId(req.token.organizerid)
             };
             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(req.token.organizerid, obj);
