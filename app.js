@@ -134,7 +134,7 @@ app.use(function(req, res, next) {
 });
 // let decPassword = helper.passwordDecryptor('U2FsdGVkX1+80LK1PQsHI8TkENVsEsgXPTR962xEKNxWdJ5fbfpOYRtklQ2/pf4EZljUNsBQ4KWN0H7mvqWh4C3ve7Y+vioezrhGRWwyyxkhJe80cysm3URoRwBkLOdclPxMa8lq8otAorPwCNPAeg==');
 // console.log("decPassword", decPassword);
-// let ecnPassword = helper.passwordEncryptor('Raj@1994');
+// let ecnPassword = helper.passwordEncryptor('Global@1811');
 // console.log("ecnPassword", ecnPassword);
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
