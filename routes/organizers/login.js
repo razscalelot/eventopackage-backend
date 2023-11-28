@@ -121,8 +121,10 @@ router.post('/', async (req, res) => {
                 return responseManager.badrequest({message : 'Invalid password, please try again'}, res);
             }
         }else if(organizerData && organizerData != null && organizerData.mobileverified == false){
-            const url = process.env.FACTOR_URL + organizerData.mobile + "/AUTOGEN";
-            let otpSend = await axios.get(url, config);
+            // const url = process.env.FACTOR_URL + organizerData.mobile + "/AUTOGEN";
+            // let otpSend = await axios.get(url, config);
+            const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+            let otpSend = await axios.get(url,config);
             if (otpSend.data.Details) {
                 let newkey = otpSend.data.Details;
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, {otpVerifyKey : newkey});

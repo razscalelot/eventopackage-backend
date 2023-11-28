@@ -18,8 +18,10 @@ router.post('/', async (req, res) => {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let checkExisting = await primary.model(constants.MODELS.users, userModel).findOne({ mobile: mobile }).lean();
         if (checkExisting) {
-            const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
-            let otpSend = await axios.get(url, config);
+            // const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+            // let otpSend = await axios.get(url, config);
+            const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+            let otpSend = await axios.get(url,config);
             if (otpSend.data.Details) {
                 await primary.model(constants.MODELS.users, userModel).findByIdAndUpdate(checkExisting._id, { otpVerifyKey: otpSend.data.Details });
                 return responseManager.onSuccess('User mobile identified and otp sent successfully!', { key: otpSend.data.Details }, res);
