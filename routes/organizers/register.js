@@ -17,6 +17,7 @@ router.post('/', async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     const { name, email, mobile, country_code, password, refer_code, fcm_token, agentid, country_wise_contact } = req.body;
     let primary = mongoConnection.useDb(constants.DEFAULT_DB);
+    console.log('mobile', mobile);
     if(refer_code && refer_code.trim().length > 0){
         let checkReferenceCodeOrg = await primary.model(constants.MODELS.organizers, organizerModel).findOne({"my_refer_code" : refer_code.trim()}).lean();
         if(checkReferenceCodeOrg == null){
@@ -49,6 +50,7 @@ router.post('/', async (req, res, next) => {
                             };
                             const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                             let otpSend = await axios.get(url,config);
+                            console.log('otpSend 01', otpSend);
                             if(otpSend.data.Details){
                                 obj.otpVerifyKey = otpSend.data.Details;
                                 let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
@@ -78,6 +80,7 @@ router.post('/', async (req, res, next) => {
                                 };
                                 const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                                 let otpSend = await axios.get(url,config);
+                                console.log('otpSend 02', otpSend);
                                 if(otpSend.data.Details){
                                     obj.otpVerifyKey = otpSend.data.Details;
                                     await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
@@ -124,6 +127,7 @@ router.post('/', async (req, res, next) => {
                         };
                         const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                         let otpSend = await axios.get(url,config);
+                        console.log('otpSend 03', otpSend);
                         if(otpSend.data.Details){
                             obj.otpVerifyKey = otpSend.data.Details;
                             let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
@@ -153,6 +157,7 @@ router.post('/', async (req, res, next) => {
                             };
                             const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                             let otpSend = await axios.get(url,config);
+                            console.log('otpSend 04', otpSend);
                             if(otpSend.data.Details){
                                 obj.otpVerifyKey = otpSend.data.Details;
                                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
@@ -199,6 +204,7 @@ router.post('/', async (req, res, next) => {
                     };
                     const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                     let otpSend = await axios.get(url,config);
+                    console.log('otpSend 05', otpSend);
                     if(otpSend.data.Details){
                         obj.otpVerifyKey = otpSend.data.Details;
                         let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
@@ -228,6 +234,7 @@ router.post('/', async (req, res, next) => {
                         };
                         const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
                         let otpSend = await axios.get(url,config);
+                        console.log('otpSend 06', otpSend);
                         if(otpSend.data.Details){
                             obj.otpVerifyKey = otpSend.data.Details;
                             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
