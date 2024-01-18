@@ -65,8 +65,8 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         if (req.file) {
             if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                if (filesizeinMb <= 5) {
+                let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                if (filesizeinMb <= parseInt(process.env.ALLOWED_IMAGE_UPLOAD_SIZE)) {
                     AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'organizerprofile').then((result) => {
                         let obj = { profile_pic: result.data.Key };
                         primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(req.token.organizerid, obj).then((updateResult) => {
@@ -84,7 +84,7 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
                         return responseManager.onError(error, res);
                     });
                 } else {
-                    return responseManager.badrequest({ message: 'Image file must be <= 5 MB for profile pic, please try again' }, res);
+                    return responseManager.badrequest({ message: 'Image file must be <= '+process.env.ALLOWED_IMAGE_UPLOAD_SIZE+' MB for profile pic, please try again' }, res);
                 }
             } else {
                 return responseManager.badrequest({ message: 'Invalid file type only image files allowed for profile pic, please try again' }, res);
@@ -135,8 +135,8 @@ router.post('/businessprofilepic', helper.authenticateToken, fileHelper.memoryUp
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         if (req.file) {
             if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                if (filesizeinMb <= 5) {
+                let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                if (filesizeinMb <= parseInt(process.env.ALLOWED_IMAGE_UPLOAD_SIZE)) {
                     AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'organizerbusinessprofile').then((result) => {
                         primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(req.token.organizerid, { "businessProfile.profile_pic": result.data.Key }).then((updateResult) => {
                             (async () => {
@@ -153,7 +153,7 @@ router.post('/businessprofilepic', helper.authenticateToken, fileHelper.memoryUp
                         return responseManager.onError(error, res);
                     });
                 } else {
-                    return responseManager.badrequest({ message: 'Image file must be <= 5 MB for business profile pic, please try again' }, res);
+                    return responseManager.badrequest({ message: 'Image file must be <= '+process.env.ALLOWED_IMAGE_UPLOAD_SIZE+' MB for business profile pic, please try again' }, res);
                 }
             } else {
                 return responseManager.badrequest({ message: 'Invalid file type only image files allowed for business profile pic, please try again' }, res);

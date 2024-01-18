@@ -99,7 +99,7 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
                     let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
-                    if (filesizeinMb <= 3) {
+                    if (filesizeinMb <= parseInt(process.env.ALLOWED_IMAGE_UPLOAD_SIZE)) {
                         AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                             let obj = {
                                 s3_url: process.env.AWS_BUCKET_URI,
@@ -110,7 +110,7 @@ router.post('/image', helper.authenticateToken, fileHelper.memoryUpload.single('
                             return responseManager.onError(error, res);
                         });
                     } else {
-                        return responseManager.badrequest({ message: 'Image file must be <= 3 MB, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Image file must be <= '+process.env.ALLOWED_IMAGE_UPLOAD_SIZE+' MB, please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only image files allowed, please try again' }, res);
@@ -132,8 +132,8 @@ router.post('/video', helper.authenticateToken, fileHelper.memoryUpload.single('
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.videoarray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 512) {
+                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                    if (filesizeinMb <= parseInt(process.env.ALLOWED_VIDEO_UPLOAD_SIZE)) {
                         if (filesizeinMb > 25) {
                             AwsCloud.saveToS3Multipart(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                                 let obj = {
@@ -156,7 +156,7 @@ router.post('/video', helper.authenticateToken, fileHelper.memoryUpload.single('
                             });
                         }
                     } else {
-                        return responseManager.badrequest({ message: 'Video file must be <= 512 MB, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Video file must be <= '+process.env.ALLOWED_VIDEO_UPLOAD_SIZE+' MB, please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only video files allowed, please try again' }, res);
@@ -178,8 +178,8 @@ router.post('/banner', helper.authenticateToken, fileHelper.memoryUpload.single(
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 10) {
+                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                    if (filesizeinMb <= parseInt(process.env.ALLOWED_BANNER_UPLOAD_SIZE)) {
                         AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                             let obj = {
                                 s3_url: process.env.AWS_BUCKET_URI,
@@ -190,7 +190,7 @@ router.post('/banner', helper.authenticateToken, fileHelper.memoryUpload.single(
                             return responseManager.onError(error, res);
                         });
                     } else {
-                        return responseManager.badrequest({ message: 'Banner file must be <= 10 MB, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Banner file must be <= '+process.env.ALLOWED_BANNER_UPLOAD_SIZE+' MB, please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only image files allowed, please try again' }, res);
@@ -212,8 +212,8 @@ router.post('/document', helper.authenticateToken, fileHelper.memoryUpload.singl
         if (organizerData && organizerData.status == true && organizerData.mobileverified == true && organizerData.is_approved == true) {
             if (req.file) {
                 if (allowedContentTypes.docarray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 25) {
+                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                    if (filesizeinMb <= parseInt(process.env.ALLOWED_DOCUMENT_UPLOAD_SIZE)) {
                         AwsCloud.saveToS3(req.file.buffer, req.token.organizerid.toString(), req.file.mimetype, 'event').then((result) => {
                             let obj = {
                                 s3_url: process.env.AWS_BUCKET_URI,
@@ -224,7 +224,7 @@ router.post('/document', helper.authenticateToken, fileHelper.memoryUpload.singl
                             return responseManager.onError(error, res);
                         });
                     } else {
-                        return responseManager.badrequest({ message: 'Document file must be <= 25 MB, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Document file must be <= '+process.env.ALLOWED_DOCUMENT_UPLOAD_SIZE+' MB, please try again' }, res);
                     }
                 } else {
                     return responseManager.badrequest({ message: 'Invalid file type only document (PDF) files allowed, please try again' }, res);

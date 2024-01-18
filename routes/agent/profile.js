@@ -66,8 +66,8 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
         if(agentData && agentData.status == true && agentData.mobileverified == true && agentData.is_approved == true){
             if (req.file) {
                 if (allowedContentTypes.imagearray.includes(req.file.mimetype)) {
-                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1000000);
-                    if (filesizeinMb <= 5) {
+                    let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
+                    if (filesizeinMb <= parseInt(process.env.ALLOWED_IMAGE_UPLOAD_SIZE)) {
                         AwsCloud.saveToS3(req.file.buffer, req.token.agentid.toString(), req.file.mimetype, 'agentprofile').then((result) => {
                             let obj = {profile_pic : result.data.Key};
                             primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(req.token.agentid, obj).then((updateResult) => {
@@ -85,7 +85,7 @@ router.post('/profilepic', helper.authenticateToken, fileHelper.memoryUpload.sin
                             return responseManager.onError(error, res);
                         });
                     }else{
-                        return responseManager.badrequest({ message: 'Image file must be <= 5 MB for profile pic, please try again' }, res);
+                        return responseManager.badrequest({ message: 'Image file must be <= '+process.env.ALLOWED_IMAGE_UPLOAD_SIZE+' MB for profile pic, please try again' }, res);
                     }
                 }else{
                     return responseManager.badrequest({ message: 'Invalid file type only image files allowed for profile pic, please try again' }, res);

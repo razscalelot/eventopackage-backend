@@ -156,7 +156,7 @@ router.post('/generatecoins', helper.authenticateToken, fileHelper.memoryUpload.
                 if (req.file) {
                     if (allowedContentTypes.imagedocarray.includes(req.file.mimetype)) {
                         let filesizeinMb = parseFloat(parseFloat(req.file.size) / 1048576);
-                        if (filesizeinMb <= 10) {
+                        if (filesizeinMb <= 300) {
                             AwsCloud.saveToS3(req.file.buffer, req.token.superadminid.toString(), req.file.mimetype, 'generatecoin').then((result) => {
                                 ( async () => {
                                     if(result && result.data && result.data.Key){
@@ -183,7 +183,7 @@ router.post('/generatecoins', helper.authenticateToken, fileHelper.memoryUpload.
                                             return responseManager.badrequest({ message: 'Something went wrong no coin found to update Sorry, Try again' }, res);
                                         }                                        
                                     }else{
-                                        return responseManager.badrequest({ message: 'Document file must be <= 10 MB, please try again' }, res);
+                                        return responseManager.badrequest({ message: 'Document file must be <= 300 MB, please try again' }, res);
                                     }
                                 })().catch((error) => {
                                     return responseManager.onError(error, res);
