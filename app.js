@@ -40,12 +40,6 @@ const landingpaths = [
   { pathUrl: '/getintouch', routeFile: 'getintouch'},
   { pathUrl: '/events', routeFile: 'event'},
 ];
-const adminpaths = [
-  { pathUrl: '/', routeFile: 'index'}
-];
-const executivepaths = [
-  { pathUrl: '/', routeFile: 'index'}
-];
 const organizerpaths = [
   { pathUrl: '/', routeFile: 'index' },
   { pathUrl: '/login', routeFile: 'login' },
@@ -59,12 +53,9 @@ const organizerpaths = [
   { pathUrl: '/promotionplan', routeFile: 'promotionplan'},
   { pathUrl: '/notification', routeFile: 'notification'},
   { pathUrl: '/promotion', routeFile: 'promotion'},
-  { pathUrl: '/notificationcoupons', routeFile: 'notificationcoupons'},
+  { pathUrl: '/notificationcoupons', routeFile: 'promotioncoupons'},
   { pathUrl: '/redeem', routeFile: 'redeem' },
   { pathUrl: '/search', routeFile: 'search'},
-];
-const subadminpaths = [
-  { pathUrl: '/', routeFile: 'index'}
 ];
 const superadminpaths = [
   { pathUrl: '/login', routeFile: 'login' },
@@ -103,22 +94,13 @@ const agentpaths = [
   { pathUrl: '/login', routeFile: 'login'},
   { pathUrl: '/register', routeFile: 'register'},
   { pathUrl: '/profile', routeFile: 'profile'},
-  { pathUrl: '/organisers', routeFile: 'organisers'},
+  { pathUrl: '/organisers', routeFile: 'organizers'},
 ];
 landingpaths.forEach((path) => {
 	app.use('/landing'+path.pathUrl, require('./routes/landing/' + path.routeFile));
 });
-adminpaths.forEach((path) => {
-	app.use('/admin'+path.pathUrl, require('./routes/admins/' + path.routeFile));
-});
-executivepaths.forEach((path) => {
-	app.use('/executive'+path.pathUrl, require('./routes/executives/' + path.routeFile));
-});
 organizerpaths.forEach((path) => {
 	app.use('/organizer'+path.pathUrl, require('./routes/organizers/' + path.routeFile));
-});
-subadminpaths.forEach((path) => {
-	app.use('/subadmin'+path.pathUrl, require('./routes/subadmins/' + path.routeFile));
 });
 superadminpaths.forEach((path) => {
 	app.use('/superadmin'+path.pathUrl, require('./routes/superadmins/' + path.routeFile));
@@ -132,10 +114,6 @@ agentpaths.forEach((path) => {
 app.use(function(req, res, next) {
   next(createError(404));
 });
-// let decPassword = helper.passwordDecryptor('U2FsdGVkX1+80LK1PQsHI8TkENVsEsgXPTR962xEKNxWdJ5fbfpOYRtklQ2/pf4EZljUNsBQ4KWN0H7mvqWh4C3ve7Y+vioezrhGRWwyyxkhJe80cysm3URoRwBkLOdclPxMa8lq8otAorPwCNPAeg==');
-// console.log("decPassword", decPassword);
-// let ecnPassword = helper.passwordEncryptor('Global@1811');
-// console.log("ecnPassword", ecnPassword);
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

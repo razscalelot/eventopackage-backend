@@ -5,6 +5,7 @@ const mongoConnection = require('../../../utilities/connections');
 const constants = require('../../../utilities/constants');
 const mongoose = require('mongoose');
 exports.aboutplace = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -66,6 +67,7 @@ exports.aboutplace = async (req, res) => {
     }
 };
 exports.getaboutplace = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -89,4 +91,4 @@ exports.getaboutplace = async (req, res) => {
     } else {
         return responseManager.badrequest({ message: 'Invalid token to get event data, please try again' }, res);
     }
-}
+};

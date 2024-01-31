@@ -13,6 +13,7 @@ const eventbookingModel = require('../../../models/eventbookings.model');
 const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

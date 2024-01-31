@@ -15,6 +15,8 @@ var fs = require('fs');
 var excelFileName = 'downloadFiles/attendeesReport.xlsx';
 const async = require('async');
 exports.attendees = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         const { eventid, page, limit } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
@@ -50,6 +52,8 @@ exports.attendees = async (req, res) => {
     }
 };
 exports.export = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.organizerid && mongoose.Types.ObjectId.isValid(req.token.organizerid)) {
         const { eventid } = req.body;
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
