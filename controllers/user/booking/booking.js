@@ -30,23 +30,17 @@ function timeDiffCalc(dateFuture, dateNow) {
     let diffInMilliSeconds = Math.abs(dateFuture - dateNow) / 1000;
     const days = Math.floor(diffInMilliSeconds / 86400);
     const onlyhours = Math.floor(diffInMilliSeconds / 3600);
-
     diffInMilliSeconds -= days * 86400;
     const hours = Math.floor(diffInMilliSeconds / 3600) % 24;
-
     diffInMilliSeconds -= hours * 3600;
     const minutes = Math.floor(diffInMilliSeconds / 60) % 60;
-
     diffInMilliSeconds -= minutes * 60;
-
     let difference = '';
     if (days > 0) {
         difference += (days === 1) ? `${days} day, ` : `${days} days, `;
     }
-
     difference += (hours === 0 || hours === 1) ? `${hours} hour, ` : `${hours} hours, `;
     difference += (minutes === 0 || hours === 1) ? `${minutes} minutes` : `${minutes} minutes`;
-
     return {
         day: days,
         hour: hours,
@@ -87,6 +81,8 @@ function formatAMPM(date) {
     return strTime;
 }
 exports.booking = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
@@ -414,6 +410,8 @@ exports.booking = async (req, res) => {
     }
 };
 exports.calendar = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
@@ -490,6 +488,8 @@ exports.calendar = async (req, res) => {
     }
 };
 exports.checkavailability = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
@@ -677,6 +677,7 @@ exports.checkavailability = async (req, res) => {
     }
 };
 exports.bookinglist = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

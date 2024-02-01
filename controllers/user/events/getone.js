@@ -12,6 +12,7 @@ const itemModel = require('../../../models/items.model');
 const async = require('async');
 const mongoose = require('mongoose');
 exports.getone = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);

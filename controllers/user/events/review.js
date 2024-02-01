@@ -5,6 +5,8 @@ const userModel = require('../../../models/users.model');
 const eventreviewModel = require('../../../models/eventreviews.model');
 const mongoose = require('mongoose');
 exports.review = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.token.userid && mongoose.Types.ObjectId.isValid(req.token.userid)) {
         let primary = mongoConnection.useDb(constants.DEFAULT_DB);
         let userdata = await primary.model(constants.MODELS.users, userModel).findById(req.token.userid).lean();
