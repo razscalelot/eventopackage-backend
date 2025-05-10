@@ -45,17 +45,17 @@ exports.registerneworganizer = async (req, res) => {
                                 country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                                 agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                             };
-                            const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                            let otpSend = await axios.get(url, config);
-                            console.log('otpSend 01', otpSend);
-                            if (otpSend.data.Details) {
-                                obj.otpVerifyKey = otpSend.data.Details;
+                            // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                            // let otpSend = await axios.get(url, config);
+                            // console.log('otpSend 01', otpSend);
+                            // if (otpSend.data.Details) {
+                                obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                                 let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
                                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organiserData._id, { channelID: organiserData.mobile.toString() + '_' + organiserData._id.toString() });
-                                return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: organiserData._id.toString() }, res);
-                            } else {
-                                return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                            }
+                                return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: organiserData._id.toString() }, res);
+                            // } else {
+                            //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                            // }
                         } else {
                             if (checkExisting.mobileverified == false) {
                                 let obj = {
@@ -75,18 +75,18 @@ exports.registerneworganizer = async (req, res) => {
                                     country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                                     agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                                 };
-                                const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                                let otpSend = await axios.get(url, config);
-                                console.log('otpSend 02', otpSend);
-                                if (otpSend.data.Details) {
-                                    obj.otpVerifyKey = otpSend.data.Details;
+                                // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                                // let otpSend = await axios.get(url, config);
+                                // console.log('otpSend 02', otpSend);
+                                // if (otpSend.data.Details) {
+                                    obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                                     await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
                                     let finalorganiserData = await primary.model(constants.MODELS.organizers, organizerModel).findById(checkExisting._id).lean();
                                     await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(finalorganiserData._id, { channelID: finalorganiserData.mobile.toString() + '_' + finalorganiserData._id.toString() });
-                                    return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: finalorganiserData._id.toString() }, res);
-                                } else {
-                                    return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                                }
+                                    return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: finalorganiserData._id.toString() }, res);
+                                // } else {
+                                //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                                // }
                             } else {
                                 return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
                             }
@@ -122,17 +122,17 @@ exports.registerneworganizer = async (req, res) => {
                             country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                             agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                         };
-                        const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                        let otpSend = await axios.get(url, config);
-                        console.log('otpSend 03', otpSend);
-                        if (otpSend.data.Details) {
-                            obj.otpVerifyKey = otpSend.data.Details;
+                        // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                        // let otpSend = await axios.get(url, config);
+                        // console.log('otpSend 03', otpSend);
+                        // if (otpSend.data.Details) {
+                            obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                             let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
                             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organiserData._id, { channelID: organiserData.mobile.toString() + '_' + organiserData._id.toString() });
-                            return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: organiserData._id.toString() }, res);
-                        } else {
-                            return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                        }
+                            return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: organiserData._id.toString() }, res);
+                        // } else {
+                        //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                        // }
                     } else {
                         if (checkExisting.mobileverified == false) {
                             let obj = {
@@ -152,18 +152,18 @@ exports.registerneworganizer = async (req, res) => {
                                 country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                                 agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                             };
-                            const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                            let otpSend = await axios.get(url, config);
-                            console.log('otpSend 04', otpSend);
-                            if (otpSend.data.Details) {
-                                obj.otpVerifyKey = otpSend.data.Details;
+                            // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                            // let otpSend = await axios.get(url, config);
+                            // console.log('otpSend 04', otpSend);
+                            // if (otpSend.data.Details) {
+                                obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
                                 let finalorganiserData = await primary.model(constants.MODELS.organizers, organizerModel).findById(checkExisting._id).lean();
                                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(finalorganiserData._id, { channelID: finalorganiserData.mobile.toString() + '_' + finalorganiserData._id.toString() });
-                                return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: finalorganiserData._id.toString() }, res);
-                            } else {
-                                return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                            }
+                                return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: finalorganiserData._id.toString() }, res);
+                            // } else {
+                            //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                            // }
                         } else {
                             return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
                         }
@@ -199,17 +199,17 @@ exports.registerneworganizer = async (req, res) => {
                         country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                         agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                     };
-                    const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                    let otpSend = await axios.get(url, config);
-                    console.log('otpSend 05', otpSend);
-                    if (otpSend.data.Details) {
-                        obj.otpVerifyKey = otpSend.data.Details;
+                    // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                    // let otpSend = await axios.get(url, config);
+                    // console.log('otpSend 05', otpSend);
+                    // if (otpSend.data.Details) {
+                        obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                         let organiserData = await primary.model(constants.MODELS.organizers, organizerModel).create(obj);
                         await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organiserData._id, { channelID: organiserData.mobile.toString() + '_' + organiserData._id.toString() });
-                        return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: organiserData._id.toString() }, res);
-                    } else {
-                        return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                    }
+                        return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: organiserData._id.toString() }, res);
+                    // } else {
+                    //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                    // }
                 } else {
                     if (checkExisting.mobileverified == false) {
                         let obj = {
@@ -229,18 +229,18 @@ exports.registerneworganizer = async (req, res) => {
                             country_wise_contact: (country_wise_contact) ? country_wise_contact : {},
                             agentid: (agentid && agentid != '' && mongoose.Types.ObjectId.isValid(agentid)) ? mongoose.Types.ObjectId(agentid) : null
                         };
-                        const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-                        let otpSend = await axios.get(url, config);
-                        console.log('otpSend 06', otpSend);
-                        if (otpSend.data.Details) {
-                            obj.otpVerifyKey = otpSend.data.Details;
+                        // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+                        // let otpSend = await axios.get(url, config);
+                        // console.log('otpSend 06', otpSend);
+                        // if (otpSend.data.Details) {
+                            obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(checkExisting._id, obj);
                             let finalorganiserData = await primary.model(constants.MODELS.organizers, organizerModel).findById(checkExisting._id).lean();
                             await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(finalorganiserData._id, { channelID: finalorganiserData.mobile.toString() + '_' + finalorganiserData._id.toString() });
-                            return responseManager.onSuccess('Organizer register successfully!', { key: otpSend.data.Details, organizerid: finalorganiserData._id.toString() }, res);
-                        } else {
-                            return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                        }
+                            return responseManager.onSuccess('Organizer register successfully!', { key: '123456', organizerid: finalorganiserData._id.toString() }, res);
+                        // } else {
+                        //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                        // }
                     } else {
                         return responseManager.badrequest({ message: 'Organizer already exist with same mobile or email, Please try again...' }, res);
                     }

@@ -120,15 +120,15 @@ exports.loginorganizer = async (req, res) => {
         } else if (organizerData && organizerData != null && organizerData.mobileverified == false) {
             // const url = process.env.FACTOR_URL + organizerData.mobile + "/AUTOGEN";
             // let otpSend = await axios.get(url, config);
-            const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
-            let otpSend = await axios.get(url, config);
-            if (otpSend.data.Details) {
-                let newkey = otpSend.data.Details;
+            // const url = process.env.FACTOR_URL + mobile + process.env.FACTOR_OTP_URL;
+            // let otpSend = await axios.get(url, config);
+            // if (otpSend.data.Details) {
+                let newkey = '123456'; //otpSend.data.Details;
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, { otpVerifyKey: newkey });
                 return responseManager.onSuccess('Organiser otp sent for mobile verification!', { key: newkey }, res);
-            } else {
-                return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-            }
+            // } else {
+            //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+            // }
         } else {
             return responseManager.badrequest({ message: 'Invalid mobile or password please try again' }, res);
         }

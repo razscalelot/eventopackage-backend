@@ -1,17 +1,15 @@
-var fs = require('fs');
-var AWS = require('aws-sdk');
-var s3 = new AWS.S3();
+const { Upload } = require("@aws-sdk/lib-storage");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const credentials = {
+    region: process.env.AWS_REGION,
+    credentials: { 
+        accessKeyId: process.env.AWS_IAM_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_IAM_ACCESS_SECRET
+    }
+};
+const client = new S3Client(credentials);
 const allowedContentTypes = require("./content-types");
 const bucket = process.env.AWS_BUCKET_NAME;
-let async = require('async');
-const { error } = require('console');
-var multipartMap = {
-    Parts: []
-};
-
-var partSize = 1024 * 1024 * 5;
-
-const acl = 'public-read';
 const getBlobName = (originalName) => {
     const identifier = Math.random().toString().replace(/0\./, '');
     return `${identifier}-${originalName}`;
@@ -21,89 +19,40 @@ const setBlobName = (fName, extn) => {
     return `${fName}/${fName}-${identifier}.${extn}`;
 };
 async function saveToS3Multipart(buffer, parentfolder, contentType, sendorreceive) {
-    var partNum = 0;
-    var numPartsLeft = 0;
-    let promise = new Promise(function(resolve, reject) {
+    let promise = new Promise(function (resolve, reject) {
         let newContentType = contentType.split(";");
         let blobName = "";
-        numPartsLeft = Math.ceil(buffer.length / partSize);
         allowedContentTypes.allowedContentTypes.some((element, index) => {
             if (element.mimeType == newContentType[0]) {
                 blobName = parentfolder + '/' + sendorreceive + '/' + setBlobName(element.fName, element.extn);
             }
         });
-        if (blobName != "") {
-            var multiPartParams = {
-                Bucket: bucket,
-                Key: blobName,
-                ContentType: contentType
-            };
-            s3.createMultipartUpload(multiPartParams, function (mpErr, multipart) {
-                if (mpErr) { console.log('Error!', mpErr); return; }
-                var j = [];
-                for (var rangeStart = 0; rangeStart < buffer.length; rangeStart += partSize) {
-                    let obj = {
-                        rangeStart: rangeStart
-                    };
-                    j.push(obj);
-                }
-                async.forEachSeries(j, (ele, next_ele) => {
-                    ( async () => {
-                        partNum++;
-                        console.log("partNum", partNum);
-                        var end = Math.min(ele.rangeStart + partSize, buffer.length),
-                        partParams = {
-                            Body: buffer.slice(ele.rangeStart, end),
-                            Bucket: bucket,
-                            Key: blobName,
-                            PartNumber: String(partNum),
-                            UploadId: multipart.UploadId
-                        };
-                        console.log("partParams", partParams);
-                        s3.uploadPart(partParams, function (multiErr, mData) {
-                            if (multiErr) {
-                                console.log("multiErr", multiErr);
-                                reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
-                            }
-                            console.log("mData", mData);
-                            multipartMap.Parts[this.request.params.PartNumber - 1] = {
-                                ETag: mData.ETag,
-                                PartNumber: Number(this.request.params.PartNumber)
-                            };
-                            --numPartsLeft;
-                            console.log("numPartsLeft", numPartsLeft);
-                            next_ele();
-                        }); 
-                    })().catch((error) => {
-                        console.log("catch error", error);
-                    });
-                }, async () => {
-                    if (numPartsLeft == 0){    
-                        var doneParams = {
-                            Bucket: bucket,
-                            Key: blobName,
-                            MultipartUpload: multipartMap,
-                            UploadId: multipart.UploadId
-                        };
-                        console.log("doneParams", doneParams)
-                        s3.completeMultipartUpload(doneParams, function (err, data) {
-                            if (err) {
-                                console.log("err",err)
-                                reject(new Error({msg: 'An error occurred while completing the multipart upload'}));
-                            } else {
-                                
-                                resolve({msg: 'file uploaded successfully', data: data});
-                            }
-                        });
-                    }
-                });
+        const Bucket = bucket;
+        const Key = blobName;
+        const Body = buffer;
+        const target = { Bucket, Key, Body };
+        try {
+            const parallelUploads3 = new Upload({
+                client: client,
+                queueSize: 4,
+                partSize: 1024 * 1024 * 5,
+                leavePartsOnError: false,
+                params: target,
             });
+            parallelUploads3.on("httpUploadProgress", (progress) => {});
+            parallelUploads3.done().then((response) => {
+                resolve({ msg: 'file uploaded successfully', data: response });
+            }).catch((error) => {
+                reject(new Error({ msg: 'An error occurred while completing the multipart upload' }));
+            });
+        } catch (error) {
+            reject(new Error({ msg: 'An error occurred while completing the multipart upload' }));
         }
     });
     return promise;
 };
-async function saveToS3(buffer, parentfolder, contentType, sendorreceive){
-    let promise = new Promise(function(resolve, reject) {
+async function saveToS3(buffer, parentfolder, contentType, sendorreceive) {
+    let promise = new Promise(function (resolve, reject) {
         let newContentType = contentType.split(";");
         let blobName = "";
         allowedContentTypes.allowedContentTypes.some((element, index) => {
@@ -116,23 +65,25 @@ async function saveToS3(buffer, parentfolder, contentType, sendorreceive){
                 Bucket: bucket,
                 Key: blobName,
                 Body: buffer,
-                ContentType: contentType,
-                ACL: acl
+                ContentType: contentType
             };
-            s3.upload(putParams, (err, data) => {
-                if (err) {
-                    console.log('err', err);
-                    reject(new Error({msg: 'An error occurred while completing the upload'}));
-                }else{
-                    resolve({msg: 'file uploaded successfully', data: data});
+            const command = new PutObjectCommand(putParams);
+            client.send(command).then((data) => {
+                if (data && data.$metadata && data.$metadata.httpStatusCode && data.$metadata.httpStatusCode == 200) {
+                    let data = { Key: blobName };
+                    resolve({ msg: 'file uploaded successfully', data });
+                } else {
+                    reject(new Error({ msg: 'An error occurred while completing the upload' }));
                 }
+            }).catch((error) => {
+                reject(new Error({ msg: 'An error occurred while completing the upload' }));
             });
-        }
+        } else { reject(new Error({ msg: 'Invalid file name to upload file on cloud' })); }
     });
     return promise;
 };
-async function saveToS3withFileName(buffer, parentfolder, contentType, filename){
-    let promise = new Promise(function(resolve, reject) {
+async function saveToS3withFileName(buffer, parentfolder, contentType, filename) {
+    let promise = new Promise(function (resolve, reject) {
         let newContentType = contentType.split(";");
         let blobName = "";
         allowedContentTypes.allowedContentTypes.some((element, index) => {
@@ -145,29 +96,34 @@ async function saveToS3withFileName(buffer, parentfolder, contentType, filename)
                 Bucket: bucket,
                 Key: blobName,
                 Body: buffer,
-                ContentType: contentType,
-                ACL : acl
+                ContentType: contentType
             };
-            s3.upload(putParams, (err, data) => {
-                if (err) {
-                    reject(new Error({msg: 'An error occurred while completing the upload'}));
-                }else{
-                    resolve({msg: 'file uploaded successfully', data: data});
+            const command = new PutObjectCommand(putParams);
+            client.send(command).then((data) => {
+                if (data && data.$metadata && data.$metadata.httpStatusCode && data.$metadata.httpStatusCode == 200) {
+                    let data = { Key: blobName };
+                    resolve({ msg: 'file uploaded successfully', data });
+                } else {
+                    reject(new Error({ msg: 'An error occurred while completing the upload' }));
                 }
+            }).catch((error) => {
+                reject(new Error({ msg: 'An error occurred while completing the upload' }));
             });
-        }
+        } else { reject(new Error({ msg: 'Invalid file name to upload file on cloud' })); }
     });
     return promise;
 };
-async function deleteFromS3(fileKey){
-    let promise = new Promise(function(resolve, reject) {
+async function deleteFromS3(fileKey) {
+    let promise = new Promise(function (resolve, reject) {
         var params = {
             Bucket: bucket,
             Key: fileKey
         };
-        s3.deleteObject(params, function(err, data) {
-            if (err) reject(new Error({msg: 'An error occurred while deleting the file'}));
-            else resolve({msg: 'file deleted successfully', data: data});
+        const command = new DeleteObjectCommand(params);
+        client.send(command).then((response) => {
+            resolve({ msg: 'file deleted successfully', data: response });
+        }).catch((error) => {
+            reject(new Error({ msg: 'An error occurred while deleting the file' }));
         });
     });
     return promise;

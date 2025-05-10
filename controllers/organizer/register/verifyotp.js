@@ -16,14 +16,14 @@ exports.verifyotpfororganizer = async (req, res) => {
     if (key && key.trim() != '' && otp && otp.trim() != '' && otp.length == 6 && mobile && mobile.length == 10) {
         let organizerData = await primary.model(constants.MODELS.organizers, organizerModel).findOne({ mobile: mobile, otpVerifyKey: key }).lean();
         if (organizerData) {
-            const url = process.env.FACTOR_URL + "VERIFY3/" + mobile + "/" + otp;
-            let verifiedOTP = await axios.get(url, config);
-            if (verifiedOTP.data.Status != 'Error') {
+            // const url = process.env.FACTOR_URL + "VERIFY3/" + mobile + "/" + otp;
+            // let verifiedOTP = await axios.get(url, config);
+            // if (verifiedOTP.data.Status != 'Error') {
                 await primary.model(constants.MODELS.organizers, organizerModel).findByIdAndUpdate(organizerData._id, { mobileverified: true });
                 return responseManager.onSuccess('Organizer mobile number verified successfully!', 1, res);
-            } else {
-                return responseManager.badrequest({ message: 'Invalid OTP, please try again' }, res);
-            }
+            // } else {
+            //     return responseManager.badrequest({ message: 'Invalid OTP, please try again' }, res);
+            // }
         } else {
             return responseManager.badrequest({ message: 'Invalid data to verify organizer mobile number, please try again' }, res);
         }

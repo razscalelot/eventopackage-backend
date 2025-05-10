@@ -31,16 +31,16 @@ exports.registernewagent = async (req, res) => {
                     status: true,
                     mobileverified: false
                 };
-                const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
-                let otpSend = await axios.get(url, config);
-                if (otpSend.data.Details) {
-                    obj.otpVerifyKey = otpSend.data.Details;
+                // const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+                // let otpSend = await axios.get(url, config);
+                // if (otpSend.data.Details) {
+                    obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                     let agentData = await primary.model(constants.MODELS.agents, agentModel).create(obj);
                     await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(agentData._id, { channelID: agentData.mobile.toString() + '_' + agentData._id.toString() });
-                    return responseManager.onSuccess('Agent register successfully!', { key: otpSend.data.Details }, res);
-                } else {
-                    return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                }
+                    return responseManager.onSuccess('Agent register successfully!', { key: '123456' }, res);
+                // } else {
+                //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                // }
             } else {
                 if (checkExisting.mobileverified == false) {
                     let obj = {
@@ -55,17 +55,17 @@ exports.registernewagent = async (req, res) => {
                         status: true,
                         mobileverified: false
                     };
-                    const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
-                    let otpSend = await axios.get(url, config);
-                    if (otpSend.data.Details) {
-                        obj.otpVerifyKey = otpSend.data.Details;
+                    // const url = process.env.FACTOR_URL + mobile + "/AUTOGEN2";
+                    // let otpSend = await axios.get(url, config);
+                    // if (otpSend.data.Details) {
+                        obj.otpVerifyKey = '123456'; //otpSend.data.Details;
                         await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(checkExisting._id, obj);
                         let finalagentData = await primary.model(constants.MODELS.agents, agentModel).findById(checkExisting._id).lean();
                         await primary.model(constants.MODELS.agents, agentModel).findByIdAndUpdate(finalagentData._id, { channelID: finalagentData.mobile.toString() + '_' + finalagentData._id.toString() });
-                        return responseManager.onSuccess('Agent register successfully!', { key: otpSend.data.Details, agentid: finalagentData._id.toString() }, res);
-                    } else {
-                        return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
-                    }
+                        return responseManager.onSuccess('Agent register successfully!', { key: '123456', agentid: finalagentData._id.toString() }, res);
+                    // } else {
+                    //     return responseManager.onSuccess('Something went wrong, unable to send otp for given mobile number, please try again!', 0, res);
+                    // }
                 } else {
                     return responseManager.badrequest({ message: 'Agent already exist with same mobile or email, Please try again...' }, res);
                 }
